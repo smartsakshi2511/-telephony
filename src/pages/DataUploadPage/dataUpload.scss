@@ -1,0 +1,164 @@
+/* src/pages/DataUploadPage/dataUpload.scss */
+
+.datatable {
+  flex: 6;
+  padding: 10px;
+
+  .datatableTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+
+    .link {
+      text-decoration: none;
+      background-color: #3f51b5;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #303f9f;
+      }
+    }
+
+    /* Style for the Download button */
+    .MuiIconButton-root {
+      margin-left: 10px;
+    }
+  }
+
+  .datagrid {
+    height: 600px;
+    width: 100%;
+
+    .MuiDataGrid-columnHeaders {
+      background-color: #f5f5f5;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .MuiDataGrid-cell {
+      font-size: 14px;
+    }
+
+    .cellAction {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .activeStatus {
+      padding: 5px 10px;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .activeStatus.active {
+      background-color: #4caf50; // Green for active
+    }
+
+    .activeStatus.inactive {
+      background-color: #f44336; // Red for inactive
+    }
+  }
+
+  /* Dialog Styling */
+  .MuiDialogTitle-root {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .MuiDialogContent-root {
+    padding: 20px;
+  }
+
+  .MuiDialogActions-root {
+    padding: 10px 20px;
+  }
+
+  /* Form Styling within Dialog */
+  .formInput {
+    margin-bottom: 15px;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    select,
+    .MuiSwitch-root {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    input[disabled],
+    .MuiTextField-root .MuiInputBase-input.Mui-disabled {
+      background-color: #f5f5f5;
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 1024px) {
+    .datatable {
+      padding: 10px;
+
+      .datagrid {
+        height: 500px;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .datatableTitle {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .link {
+        margin-top: 10px;
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    .datagrid {
+      height: 400px;
+    }
+  }
+
+  /* Additional Styles for List Upload */
+  .datatableTitle {
+    h1 {
+      color: #333;
+    }
+  }
+
+  /* Style the cellAction buttons */
+  .cellAction .MuiIconButton-root {
+    padding: 6px;
+    color: #555;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+}

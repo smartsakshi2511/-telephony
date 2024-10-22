@@ -1,0 +1,130 @@
+.userprofile {
+    display: flex;
+    width: 100%;
+    .profileContainer {
+      flex: 6;
+  
+      .top {
+        padding: 20px;
+        display: flex;
+        gap: 4  0px;
+        align-items: center;
+  
+        .left {
+          flex: 1;
+          -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+          box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+          padding: 20px;
+          position: relative;
+          gap: 20px;
+        justify-content: center;
+        text-align: justify;
+       
+  
+          .editButton {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 5px;
+            font-size: 12px;
+            color: #7451f8;
+            background-color: #7551f818;
+            cursor: pointer;
+            border-radius: 0px 0px 0px 5px;
+          }
+  
+          .item {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            
+
+            .contact{
+              gap: 50px;
+              
+            }
+  
+            .itemImg {
+              width: 200px;
+              height: 200px;
+              border-radius: 50%;
+              object-fit: cover;
+            }
+          
+  
+            .details {
+              display: grid;
+              grid-template-columns: 1fr 1fr; /* Using fractions to evenly distribute columns */
+              gap: 15px; /* Added gap between the grid items for better alignment */
+              padding: 10px;
+            
+              .itemTitle {
+                margin-bottom: 10px;
+                color: #555;
+                grid-column: span 2; /* Ensure title spans across both columns */
+              }
+            
+              .detailItem {
+                padding: 10px;
+                font-size: 20px;
+                text-align: left; /* Align the text to the left for consistency */
+                display: flex;
+                justify-content: space-between; /* Align key and value horizontally */
+                align-items: center; /* Vertically center the content */
+            
+                .itemKey {
+                  font-weight: bold;
+                  color: gray;
+                  margin-right: 10px;
+                }
+            
+                .itemValue {
+                  font-weight: 300;
+                }
+              }}}}
+  
+        // .right {
+        //   flex: 2;
+        // }
+      }
+  
+      .bottom {
+        -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+        box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+        padding: 20px;
+        margin: 10px 20px;
+      }
+  
+      .title {
+        font-size: 16px;
+        color: lightgray;
+        margin-bottom: 20px;
+      }
+    }
+  }
+
+  // src/pages/profile/EditProfile/EditPro.scss
+
+.editProForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.uploadProfile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+
+  .profilePreview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+  }
+}
+
+  

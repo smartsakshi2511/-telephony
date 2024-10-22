@@ -1,0 +1,51 @@
+/* src/pages/login/Login.scss */
+
+.login-paper {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-title {
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #333333;
+  }
+  
+  .login-button {
+    background-color: #7451f8;
+    color: #ffffff;
+    padding: 10px 0;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  
+    &:hover {
+      background-color: #5e3dc4;
+    }
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 600px) {
+    .login-paper {
+      padding: 20px 10px;
+      margin-top: 20px;
+    }
+  
+    .login-title {
+      font-size: 20px;
+    }
+  
+    .login-button {
+      font-size: 14px;
+      padding: 8px 0;
+    }
+  }
+  
