@@ -3,3 +3,34 @@
   }
     /* src/pages/callReport/new.scss */
 
+
+
+    .status {
+      font-weight: bold;
+    }
+    
+    .approved {
+      color: green;
+    }
+    
+    .pending {
+      color: orange;
+    }
+    
+    .canceled {
+      color: red;
+    }
+    
+    .answered {
+      color: blue;
+    }
+    
+    .widget-card {
+      transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    }
+    
+    .selected {
+      background-color: #1976d2 !important; /* Material-UI primary color */
+      color: #fff;
+    }
+    

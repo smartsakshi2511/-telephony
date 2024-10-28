@@ -1,4 +1,3 @@
- 
 import "./list.scss"
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
@@ -11,10 +10,11 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  MenuItem,
   Typography,
   TextField,
 } from "@mui/material";
- 
+
 import AddIcon from '@mui/icons-material/Add';
 
 import {
@@ -25,7 +25,7 @@ import {
   Cancel as CancelIcon,
 } from "@mui/icons-material";
 import axios from "axios";
- 
+
 const initialIVRRows = [
   {
     id: 1,
@@ -63,6 +63,17 @@ const IVRList = () => {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+
+
+  const filteredRows = data.filter(
+    (row) =>
+      row.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      row.campaign.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      row.file.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      row.date.includes(searchQuery)
+  );
 
   // Handle Delete
   const handleDelete = (id) => {
@@ -156,7 +167,7 @@ const IVRList = () => {
     handleCloseAddDialog();
   };
 
- 
+
   const actionColumn = [
     {
       field: "action",
@@ -230,7 +241,7 @@ const IVRList = () => {
       },
     },
   ];
- 
+
   const columns = ivrColumns.map((col) => {
     if (col.field === "status") {
       return {
@@ -258,20 +269,40 @@ const IVRList = () => {
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
       <div className="datatableTitle" style={styles.datatableTitle}>
-        <Typography variant="h6">IVR Converter List</Typography>
+        <Typography variant="h6">IVR CONVERTER LIST</Typography>
+
+        <TextField 
+  variant="outlined"
+  placeholder="Search..."
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  style={{ marginBottom: "30px", marginLeft: "500px", marginTop:"30px" }}
+  InputProps={{
+    style: {
+      height: "40px",    // Adjust height here
+      padding: "0px",    // Remove default padding if needed
+      fontSize: "14px"   // Adjust font size for compactness
+    }
+  }}
+/>
+
         <Button
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
           onClick={handleOpenAddDialog}
         >
-          Add New
+          Create Speech
         </Button>
+       
       </div>
+
+     
+
       <DataGrid
         className="datagrid"
-        rows={data}
-        columns={columns.concat(actionColumn)}
+        rows={filteredRows}
+        columns={columns}
         pageSize={9}
         rowsPerPageOptions={[9]}
         checkboxSelection
@@ -294,7 +325,6 @@ const IVRList = () => {
   );
 };
 
- 
 const styles = {
   datatableTitle: {
     display: "flex",
@@ -304,7 +334,7 @@ const styles = {
   },
 };
 
- 
+
 const ViewDialog = ({ open, onClose, data }) => {
   if (!data) return null;
 
@@ -346,13 +376,13 @@ const ViewDialog = ({ open, onClose, data }) => {
 
 // AddDialog Component
 const AddDialog = ({ open, onClose, onAdd }) => {
-const [input, setInput]= useState("")
+  const [input, setInput] = useState("")
   const [type, setType] = useState("");
   const [campaign, setCampaign] = useState("");
   const [file, setFile] = useState("");
   const [date, setDate] = useState("");
   const [error, setError] = useState({
-    input:"",
+    input: "",
     type: "",
     campaign: "",
     file: "",
@@ -361,7 +391,7 @@ const [input, setInput]= useState("")
 
   const handleSubmit = () => {
     let valid = true;
-    let newError = { input:"",type: "", campaign: "", file: "", date: "" };
+    let newError = { input: "", type: "", campaign: "", file: "", date: "" };
 
     if (!type.trim()) {
       newError.type = "Type is required.";
@@ -396,7 +426,7 @@ const [input, setInput]= useState("")
 
     // Prepare new IVR Converter data
     const newIVR = {
-        input:type.trim(),
+      input: type.trim(),
       type: type.trim(),
       campaign: campaign.trim(),
       file: file.trim(),
@@ -406,7 +436,7 @@ const [input, setInput]= useState("")
     onAdd(newIVR);
 
     // Reset form fields
-     setInput("")
+    setInput("")
     setType("");
     setCampaign("");
     setFile("");
@@ -429,7 +459,8 @@ const [input, setInput]= useState("")
       <DialogTitle>Create New Speech</DialogTitle>
       <DialogContent dividers>
         <Typography variant="body1" >
-        <TextField fullWidth  id="fullWidth" />
+          <TextField fullWidth id="fullWidth" placeholder="Enter your text here" />
+
         </Typography>
         <form noValidate autoComplete="off">
           <TextField
@@ -438,7 +469,7 @@ const [input, setInput]= useState("")
               native: true,
             }}
             margin="dense"
-            
+
             fullWidth
             value={type}
             onChange={(e) => setType(e.target.value)}
@@ -457,7 +488,7 @@ const [input, setInput]= useState("")
               native: true,
             }}
             margin="dense"
-             
+
             fullWidth
             value={campaign}
             onChange={(e) => setCampaign(e.target.value)}
@@ -471,16 +502,28 @@ const [input, setInput]= useState("")
 
           {/* File Input */}
           <TextField
+            select
             margin="dense"
-            label="File"
-            type="text"
+            label="Select Campaign"
             fullWidth
             value={file}
             onChange={(e) => setFile(e.target.value)}
             error={Boolean(error.file)}
             helperText={error.file}
-            placeholder="e.g., speech3.pdf"
-          />
+            placeholder="Select a department"
+          >
+            {/* Placeholder option */}
+            <MenuItem value="" disabled>
+              Select a department
+            </MenuItem>
+
+            {/* Dropdown options */}
+            <MenuItem value="HR">HR</MenuItem>
+            <MenuItem value="IT Support">IT SUPPORT</MenuItem>
+            <MenuItem value="IT Department">IT DEPARTMENT</MenuItem>
+            <MenuItem value="Sales">SALES</MenuItem>
+            <MenuItem value="Account">Account</MenuItem>
+          </TextField>
 
           {/* Date Input */}
           <TextField

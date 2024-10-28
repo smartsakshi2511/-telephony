@@ -29,16 +29,16 @@ import {
 const CallReportList = () => {
   const columns = [
     { field: "sr", headerName: "SR", width: 70 },
-    { field: "agentName", headerName: "Agent Name", width: 150 },
-    { field: "agentId", headerName: "Agent ID", width: 100 },
-    { field: "callFrom", headerName: "Call From", width: 150 },
-    { field: "callTo", headerName: "Call To", width: 150 },
-    { field: "campaignName", headerName: "Campaign Name", width: 150 },
-    { field: "startTime", headerName: "Start Time", width: 180 },
-    { field: "duration", headerName: "Duration", width: 100 },
-    { field: "direction", headerName: "Direction", width: 100 },
-    { field: "status", headerName: "Status", width: 100 },
-    { field: "hangup", headerName: "Hangup", width: 100 },
+    { field: "agentName", headerName: "AGENT NAME", width: 150 },
+    { field: "agentId", headerName: "AGENT ID", width: 100 },
+    { field: "callFrom", headerName: "CALL FROM", width: 150 },
+    { field: "callTo", headerName: "CALL TO", width: 150 },
+    { field: "campaignName", headerName: "CAMPAIGN NAME", width: 150 },
+    { field: "startTime", headerName: "START TIME", width: 180 },
+    { field: "duration", headerName: "DURATION", width: 100 },
+    { field: "direction", headerName: "DIRECTION", width: 100 },
+    { field: "status", headerName: "STATUS", width: 100 },
+    { field: "hangup", headerName: "HANGUP", width: 100 },
     {
       field: "recording",
       headerName: "Recording",
@@ -184,13 +184,19 @@ const CallReportList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        SHOW CALL RECORDS
-        <div className="callFilter">
-        <Button variant="outlined" onClick={handleFilterDialogOpen}  endIcon={<GridFilterListIcon/>}>
+      TOTAL CALL REPORTS
+              <div className="callFilter">
+        <Button variant="outlined" onClick={handleFilterDialogOpen}  endIcon={<GridFilterListIcon/>} style={{
+                marginRight: '20px'
+              }}>
           Filter
         </Button>
         <Tooltip title="Download Data">
-          <Button variant="outlined" onClick={handleDownload}>
+          <Button variant="outlined" onClick={handleDownload}  style={{
+                backgroundColor: 'green',
+                color: 'white',
+                borderColor: 'green',
+              }}>
             Export<DownloadIcon />
           </Button>
         </Tooltip>

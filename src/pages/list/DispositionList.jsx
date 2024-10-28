@@ -1,11 +1,10 @@
-// src/pages/list/DispositionList.jsx
-import "./list.scss"
+import "./list.scss";
 import React, { useState } from "react";
+import Swal from "sweetalert2"; // Import SweetAlert2
 import { DataGrid } from "@mui/x-data-grid";
-import axios from "react-axios"
+import axios from "react-axios";
 import {
   IconButton,
-  Switch,
   Tooltip,
   Dialog,
   DialogTitle,
@@ -15,6 +14,7 @@ import {
   Typography,
   TextField,
   FormControlLabel,
+  Switch,
 } from "@mui/material";
 import {
   Visibility as VisibilityIcon,
@@ -40,15 +40,15 @@ const initialDispositionRows = [
     sr: 2,
     dispositionName: "interested",
     campaignId: "Sales_Team",
-    status: "active",
+    status: "inactive",
     date: "2024-Oct-01",
   },
 ];
 
 // Columns definition for the dispositions
 const dispositionColumns = [
-  { field: "sr", headerName: "Sr.", width: 70 },
-  { field: "dispositionName", headerName: "Disposition Name", width: 200 },
+  { field: "sr", headerName: "SR.", width: 70 },
+  { field: "dispositionName", headerName: "DISPOSITION NAME", width: 200 },
   { field: "campaignId", headerName: "CAMPAIGN ID", width: 150 },
   { field: "status", headerName: "STATUS", width: 120 },
   { field: "date", headerName: "DATE", width: 150 },
@@ -61,13 +61,22 @@ const DispositionList = () => {
   const [viewData, setViewData] = useState(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false); // State for Add Dialog
 
-  // Handle Delete
+  // Handle Delete with SweetAlert confirmation
   const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
-    // Optionally, make an API call to delete the disposition
-    // axios.delete(`https://api.example.com/dispositions/${id}`)
-    //   .then(() => { /* Handle success */ })
-    //   .catch(error => { console.error("Error deleting disposition:", error); });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete the block.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setData(data.filter((item) => item.id !== id));
+        Swal.fire("Deleted!", "The block has been deleted.", "success");
+      }
+    });
   };
 
   // Handle Edit
@@ -86,9 +95,9 @@ const DispositionList = () => {
   const handleToggleStatus = async (id) => {
     try {
       const updatedDisposition = data.find((item) => item.id === id);
-      const newStatus = updatedDisposition.status === "active" ? "deactive" : "active";
-      // Make an API call to update the status
-      await axios.put(`https://api.example.com/dispositions/${id}`, { status: newStatus });
+      const newStatus = updatedDisposition.status === "active" ? "Inactive" : "active";
+      // Make an API call to update the status (if needed)
+      // await axios.put(`https://api.example.com/dispositions/${id}`, { status: newStatus });
       // Update the state
       setData((prevData) =>
         prevData.map((item) =>
@@ -97,7 +106,6 @@ const DispositionList = () => {
       );
     } catch (error) {
       console.error("Error updating status:", error);
-      // Optionally, show a notification to the user
     }
   };
 
@@ -122,12 +130,10 @@ const DispositionList = () => {
   };
 
   const handleAddDisposition = (newDisposition) => {
-    // Assign a new unique ID and incremented Sr.
     const newId = data.length > 0 ? Math.max(...data.map((item) => item.id)) + 1 : 1;
     const newSr = data.length > 0 ? Math.max(...data.map((item) => item.sr)) + 1 : 1;
     const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-    // Format date to 'YYYY-MMM-DD' if necessary
     const formattedDate = new Date().toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -144,11 +150,6 @@ const DispositionList = () => {
     };
 
     setData([...data, dispositionToAdd]);
-
-    // Optionally, make an API call to add the new disposition
-    // axios.post(`https://api.example.com/dispositions`, dispositionToAdd)
-    //   .then(() => { /* Handle success */ })
-    //   .catch(error => { console.error("Error adding disposition:", error); });
 
     handleCloseAddDialog();
   };
@@ -219,7 +220,7 @@ const DispositionList = () => {
     },
   ];
 
-  // Modify columns to allow editable cells
+  // Modify columns to allow colored spans for status
   const columns = dispositionColumns.map((col) => {
     if (col.field === "status") {
       return {
@@ -230,13 +231,15 @@ const DispositionList = () => {
         filterable: false,
         renderCell: (params) => {
           return (
-            <Switch
-              checked={params.row.status === "active"}
-              onChange={() => handleToggleStatus(params.row.id)}
-              color="primary"
-              name="status"
-              inputProps={{ "aria-label": "primary checkbox" }}
-            />
+            <span
+              onClick={() => handleToggleStatus(params.row.id)}
+              style={{
+                color: params.row.status === "active" ? "green" : "red",
+                cursor: "pointer",
+              }}
+            >
+              {params.row.status.charAt(0).toUpperCase() + params.row.status.slice(1)}
+            </span>
           );
         },
       };
@@ -247,14 +250,14 @@ const DispositionList = () => {
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
       <div className="datatableTitle" style={styles.datatableTitle}>
-        <Typography variant="h6">Disposition List</Typography>
+        <Typography variant="h6">DISPOSITION LIST</Typography>
         <Button
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
           onClick={handleOpenAddDialog}
         >
-          Add New
+          Add Disposition
         </Button>
       </div>
       <DataGrid
@@ -311,15 +314,14 @@ const ViewDialog = ({ open, onClose, data }) => {
           <strong>CAMPAIGN ID:</strong> {data.campaignId}
         </Typography>
         <Typography variant="body1">
-          <strong>Status:</strong>{" "}
-          {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+          <strong>Status:</strong> {data.status}
         </Typography>
         <Typography variant="body1">
           <strong>Date:</strong> {data.date}
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary" variant="contained">
+        <Button onClick={onClose} color="primary">
           Close
         </Button>
       </DialogActions>
@@ -329,131 +331,83 @@ const ViewDialog = ({ open, onClose, data }) => {
 
 // AddDialog Component
 const AddDialog = ({ open, onClose, onAdd }) => {
-  const [dispositionName, setDispositionName] = useState("");
-  const [campaignId, setCampaignId] = useState("");
-  const [status, setStatus] = useState("active"); // Default status
-  const [date, setDate] = useState("");
-  const [error, setError] = useState({
+  const [newDisposition, setNewDisposition] = useState({
     dispositionName: "",
     campaignId: "",
+    status: "active", // Default status
     date: "",
   });
 
-  const handleSubmit = () => {
-    let valid = true;
-    let newError = { dispositionName: "", campaignId: "", date: "" };
-
-    if (!dispositionName.trim()) {
-      newError.dispositionName = "Disposition Name is required.";
-      valid = false;
-    }
-
-    if (!campaignId.trim()) {
-      newError.campaignId = "CAMPAIGN ID is required.";
-      valid = false;
-    }
-
-    if (!date.trim()) {
-      newError.date = "Date is required.";
-      valid = false;
-    } else {
-      // Optional: Validate date format (e.g., YYYY-MMM-DD)
-      const dateRegex = /^\d{4}-[A-Za-z]{3}-\d{2}$/;
-      if (!dateRegex.test(date.trim())) {
-        newError.date = "Date must be in YYYY-MMM-DD format (e.g., 2024-Oct-04).";
-        valid = false;
-      }
-    }
-
-    setError(newError);
-
-    if (!valid) return;
-
-    // Prepare new disposition data
-    const newDisposition = {
-      dispositionName: dispositionName.trim(),
-      campaignId: campaignId.trim(),
-      status,
-      date: date.trim(),
-    };
-
-    onAdd(newDisposition);
-
-    // Reset form fields
-    setDispositionName("");
-    setCampaignId("");
-    setStatus("active");
-    setDate("");
-    setError({ dispositionName: "", campaignId: "", date: "" });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewDisposition((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleClose = () => {
-    onClose();
-    setDispositionName("");
-    setCampaignId("");
-    setStatus("active");
-    setDate("");
-    setError({ dispositionName: "", campaignId: "", date: "" });
+  const handleSubmit = () => {
+    if (newDisposition.dispositionName && newDisposition.campaignId) {
+      onAdd(newDisposition);
+      setNewDisposition({
+        dispositionName: "",
+        campaignId: "",
+        status: "active",
+        date: "",
+      });
+    }
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add New Disposition</DialogTitle>
-      <DialogContent dividers>
-        <form noValidate autoComplete="off">
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Disposition Name"
-            type="text"
-            fullWidth
-            value={dispositionName}
-            onChange={(e) => setDispositionName(e.target.value)}
-            error={Boolean(error.dispositionName)}
-            helperText={error.dispositionName}
-          />
-          <TextField
-            margin="dense"
-            label="CAMPAIGN ID"
-            type="text"
-            fullWidth
-            value={campaignId}
-            onChange={(e) => setCampaignId(e.target.value)}
-            error={Boolean(error.campaignId)}
-            helperText={error.campaignId}
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={status === "active"}
-                onChange={(e) =>
-                  setStatus(e.target.checked ? "active" : "deactive")
-                }
-                color="primary"
-              />
-            }
-            label="Active Status"
-            style={{ marginTop: "10px" }}
-          />
-          <TextField
-            margin="dense"
-            label="Date (YYYY-MMM-DD)"
-            type="text"
-            fullWidth
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            error={Boolean(error.date)}
-            helperText={error.date}
-            placeholder="e.g., 2024-Oct-04"
-          />
-        </form>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Add Disposition</DialogTitle>
+      <DialogContent>
+        <TextField
+          autoFocus
+          margin="dense"
+          name="dispositionName"
+          label="Disposition Name"
+          fullWidth
+          variant="outlined"
+          value={newDisposition.dispositionName}
+          onChange={handleChange}
+        />
+        <TextField
+          margin="dense"
+          name="campaignId"
+          label="Campaign ID"
+          fullWidth
+          variant="outlined"
+          value={newDisposition.campaignId}
+          onChange={handleChange}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={newDisposition.status === "active"}
+              onChange={() =>
+                setNewDisposition((prev) => ({
+                  ...prev,
+                  status: prev.status === "active" ? "Inactive" : "active",
+                }))
+              }
+            />
+          }
+          label="Active Status"
+        />
+        <TextField
+          margin="dense"
+          name="date"
+          label="Date"
+          fullWidth
+          variant="outlined"
+          value={newDisposition.date}
+          onChange={handleChange}
+        />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSubmit} color="primary" variant="contained">
-          Add
-        </Button>
-        <Button onClick={handleClose} color="secondary" variant="outlined">
+        <Button onClick={onClose} color="primary">
           Cancel
+        </Button>
+        <Button onClick={handleSubmit} color="primary">
+          Add
         </Button>
       </DialogActions>
     </Dialog>

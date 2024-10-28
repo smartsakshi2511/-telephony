@@ -6,9 +6,7 @@
   .datatable::-webkit-scrollbar {
   display: none;
   
-}
- 
-  
+}   
   .datatableTitle{
     width: 100%;
     font-size: 24px;
@@ -28,6 +26,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    
   }
 
   .cellWithImg {
@@ -113,7 +112,230 @@
   color: white;
 }
 
+//--------------------------Agent Break--------------------
+
+.date-filter-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f8f9fa; // Light background for the container
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  // Title Styling
+  .title {
+    text-align: left; // Ensures the text is centered
+    width: 100%; // Takes up the full width of the container
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #5e6266; // Darker color for the title
+  }
+
+  // Date Filter Fields Styling
+  .date-filter-fields {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center; // Center the date fields horizontally
+    padding: 20px;
+    background-color:  #f1f1f1; // White background for contrast
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Add shadow for elevation
+    width: 94%;
+
+    // Individual Date Input Styling
+    .date-input {
+      width: 250px;
+      padding: 10px;
+      border: 1px solid #ffffff; // Border for better visibility
+      border-radius: 7px;
+      background-color: #ffffff; // Slight background color for fields
+      margin: 0 10px; // Space between the date fields and buttons
+    }
+
+    .action-button {
+      padding: 10px 20px;
+      text-transform: none;
+      margin-left: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); // Shadow for buttons
+    }
+  }
+
+  // Table Container Styling
+  .table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    th {
+      background-color: #ced4da; // Blue header
+      color: rgb(145, 142, 142);
+      font-weight: bold;
+    }
+  }
+
+  // Table Row Hover Effect
+  .table-row {
+    &:hover {
+      background-color: #e9ecef;
+    }
+  }
+
+  // Pagination Styles
+  .pagination {
+    margin-top: 10px;
+  }
+
+  // Modal Styling
+  .dialog-title {
+    font-weight: bold;
+    color: #343a40;
+  }
+
+  .dialog-content {
+    p {
+      color: #495057;
+    }
+  }
+}
+
+ //---------------------Agent Report--------------------------------
+ 
+ .agent-report {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+
+  .stats-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+
+      .chart-container {
+          width: 45%;
+          background-color: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+      }
+  }
+
+  .date-filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      margin-top: 20px;
+
+      .MuiTextField-root {
+          width: 200px;
+      }
+
+      button {
+          height: 56px; /* Same as the input fields */
+      }
+  }
+
+  .login-logout-details {
+      margin-top: 20px;
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+
+          th, td {
+              padding: 12px;
+              text-align: center;
+          }
+
+          th {
+              background-color: #f2f2f2;
+          }
+      }
+  }
+}
+
+// --------------------------------Login Report-------------------
+
+.login-report {
+  padding: 20px;
+  background-color: #f9f9f9; // Light background for contrast
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  h4 {
+    color: #7a7474; // Darker text for better readability
+    margin-bottom: 20px;
+    font-size: 25px;
+  }
+
+  .filter-section {
+    margin-bottom: 20px;
+
+    .MuiTextField-root {
+      margin-bottom: 10px;
+    }
+
+    .MuiButton-root {
+      height: 56px;
+      &.MuiButton-contained {
+        background-color: #1976d2; // Primary color for the button
+        &:hover {
+          background-color: #115293; // Darker shade on hover
+        }
+      }
+      &.MuiButton-outlined {
+        border-color: #1976d2; // Outline color
+        color: #1976d2; // Text color
+        &:hover {
+          background-color: rgba(25, 118, 210, 0.1); // Light hover effect
+        }
+      }
+    }
+  }
+
+  .table-container {
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden; // To prevent border-radius from showing on child elements
+
+    table {
+      width: 100%;
+      thead {
+        background-color: #ced4da; // Header background color
+        color: rgb(145, 142, 142); // Header text color
+
+        th {
+          font-weight: 600; // Make header bold
+          padding: 15px; // Padding for header cells
+        }
+      }
+
+      tbody {
+        tr {
+          &:nth-child(even) {
+            background-color: #f2f2f2; // Zebra stripe effect
+          }
+
+          &:hover {
+            background-color: #e0e0e0; // Highlight row on hover
+          }
+
+          td {
+            padding: 10px; // Padding for data cells
+          }
+        }
+      }
+    }
+  }
+
   
+}
+
  
 
 

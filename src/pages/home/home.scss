@@ -1,25 +1,56 @@
 .home {
- 
+  display: flex;
+  justify-content: center;
+  padding: 20px;
 
   .homeContainer {
-   
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 
-    .widgets,
-    .charts {
-      display: flex;
-      padding: 20px;
+    .widgets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
+      padding: 20px;
+
+      // Styling for each Widget item
+      .widget {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+      }
     }
 
     .charts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
       padding: 5px 20px;
+
+      @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr; // Two columns for larger screens
+      }
     }
 
     .listContainer {
       -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
       box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+      background-color: #fff;
       padding: 20px;
       margin: 20px;
+      border-radius: 8px;
 
       .listTitle {
         font-weight: 500;
@@ -27,5 +58,32 @@
         margin-bottom: 15px;
       }
     }
+  }
+}
+
+// Media Queries for Responsiveness
+@media (max-width: 1200px) {
+  .homeContainer {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .homeContainer {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .home {
+    padding: 10px;
+  }
+
+  .listContainer {
+    padding: 15px;
+  }
+
+  .listTitle {
+    font-size: 1.2rem;
   }
 }

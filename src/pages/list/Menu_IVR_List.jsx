@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import Swal from "sweetalert2"; // Import SweetAlert2
+import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
 import axios from "axios";
 import {
@@ -45,7 +47,7 @@ const MenuList = () => {
       headerName: "CAMPAIGN",
       width: 200,
     },
- 
+
     {
       field: "action",
       headerName: "ACTION",
@@ -164,18 +166,39 @@ const MenuList = () => {
   }, []);
 
   // Handle Delete
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user group?")) {
-      try {
-        // Replace with your actual API endpoint
-        await axios.delete(`https://api.example.com/usergroups/${id}`);
+  // const handleDelete = async (id) => {
+  //   if (window.confirm("Are you sure you want to delete this user group?")) {
+  //     try {
+  //       // Replace with your actual API endpoint
+  //       await axios.delete(`https://api.example.com/usergroups/${id}`);
+  //       setData(data.filter((item) => item.id !== id));
+  //     } catch (error) {
+  //       console.error("Error deleting user group:", error);
+  //       alert("Failed to delete the user group.");
+  //     }
+  //   }
+  // };
+
+
+  
+   // Handle Delete with SweetAlert confirmation
+   const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete the block.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
         setData(data.filter((item) => item.id !== id));
-      } catch (error) {
-        console.error("Error deleting user group:", error);
-        alert("Failed to delete the user group.");
+        Swal.fire("Deleted!", "The block has been deleted.", "success");
       }
-    }
+    });
   };
+
 
   // Handle View
   const handleView = (row) => {
@@ -221,20 +244,56 @@ const MenuList = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle Save in Edit Dialog
-  const handleSaveEdit = async () => {
-    try {
-      // Replace with your actual API endpoint
-      await axios.put(`https://api.example.com/usergroups/${formData.id}`, formData);
-      setData(
-        data.map((item) => (item.id === formData.id ? { ...formData } : item))
-      );
-      handleCloseEditDialog();
-    } catch (error) {
-      console.error("Error updating user group:", error);
-      alert("Failed to update the user group.");
+
+// Handle Save in Edit Dialog with Confirmation
+const handleSaveEdit = async () => {
+  // Close the edit dialog before showing SweetAlert
+  handleCloseEditDialog();
+
+  // Ask for confirmation with SweetAlert
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This will save the changes you made.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#4CAF50",
+    cancelButtonColor: "#f44336",
+    confirmButtonText: "Yes, save it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        // Replace with your actual API endpoint
+        await axios.put(`https://api.example.com/usergroups/${formData.id}`, formData);
+        
+        // Update local data state
+        setData(
+          data.map((item) => (item.id === formData.id ? { ...formData } : item))
+        );
+
+        // Show SweetAlert success notification
+        Swal.fire({
+          icon: 'success',
+          title: 'Saved!',
+          text: 'User group details have been updated successfully.',
+          confirmButtonColor: '#3085d6',
+        });
+
+      } catch (error) {
+        console.error("Error updating user group:", error);
+        
+        // Show SweetAlert error notification
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to update the user group.',
+          confirmButtonColor: '#d33',
+          
+        });
+      }
     }
-  };
+  });
+};
+
 
   // Handle Status Toggle
   const handleToggleStatus = async (id) => {
@@ -257,10 +316,16 @@ const MenuList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-      USER MENU GROUPS
-        <Link to="/group/newGroup" className="link">
-          Add New
-        </Link>
+        USER MENU GROUPS
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/group/newGroup"
+        >
+          Add Group
+        </Button>
       </div>
       <DataGrid
         className="datagrid"
@@ -271,7 +336,7 @@ const MenuList = () => {
         checkboxSelection
         autoHeight
       />
- 
+
       {/* View Dialog */}
       <Dialog
         open={viewDialogOpen}

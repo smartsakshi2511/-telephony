@@ -83,8 +83,8 @@ const Navbar = () => {
                 <div className="dropdown-menu">
                   <ul>
                     <li><a href="/userProfile">My Profile</a></li>
-                    <li>Menu 2</li>
-                    <li>Menu 3</li>
+                    <li>Setting</li>
+                    <li>Log out</li>
                   </ul>
                 </div>
               )}

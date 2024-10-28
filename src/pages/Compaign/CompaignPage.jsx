@@ -3,7 +3,10 @@
 import "./Compaignpage.scss";
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import Swal from "sweetalert2"; // Import SweetAlert2
 import { CompaignColumn, compaignRows } from "../../datatablesource";
+import AddIcon from '@mui/icons-material/Add';
+import { Button } from '@mui/material';
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { IconButton, Switch, Tooltip } from "@mui/material";
@@ -27,12 +30,32 @@ const CompaignPage = () => {
   const [viewData, setViewData] = useState(null);
 
   // Handle Delete
-  const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
+  // const handleDelete = (id) => {
+  //   setData(data.filter((item) => item.id !== id));
     // Optionally, make an API call to delete the campaign
     // axios.delete(`https://api.example.com/campaigns/${id}`)
     //   .then(() => { /* Handle success */ })
     //   .catch(error => { console.error("Error deleting campaign:", error); });
+  // };
+
+
+
+  // Handle Delete with SweetAlert confirmation
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete the block.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setData(data.filter((item) => item.id !== id));
+        Swal.fire("Deleted!", "The block has been deleted.", "success");
+      }
+    });
   };
 
   // Handle Edit
@@ -40,12 +63,28 @@ const CompaignPage = () => {
     setEditRowId(id);
   };
 
-  const handleSaveEdit = (updatedRow) => {
-    setData((prevData) =>
-      prevData.map((item) => (item.id === updatedRow.id ? updatedRow : item))
-    );
-    setEditRowId(null); // Exit edit mode after saving
-  };
+ // Updated handleUpdateEdit with SweetAlert confirmation
+const handleUpdateEdit = (updatedRow) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to save the changes?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, update it!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      setData((prevData) =>
+        prevData.map((item) => (item.id === updatedRow.id ? updatedRow : item))
+      );
+      setEditRowId(null); // Exit edit mode after saving
+
+      Swal.fire("Updated!", "The campaign has been updated.", "success");
+    }
+  });
+};
+
 
   // Handle Status Toggle
   const handleToggleStatus = async (id) => {
@@ -84,7 +123,7 @@ const CompaignPage = () => {
   const actionColumn = [
     {
       field: "action",
-      headerName: "Action",
+      headerName: "ACTION",
       width: 180,
       sortable: false,
       filterable: false,
@@ -95,10 +134,10 @@ const CompaignPage = () => {
           <div className="cellAction">
             {isEditing ? (
               <>
-                <Tooltip title="Save">
+                <Tooltip title="Update">
                   <IconButton
                     color="primary"
-                    onClick={() => handleSaveEdit(params.row)} >
+                    onClick={() => handleUpdateEdit(params.row)} >
                     <SaveIcon />
                   </IconButton>
                 </Tooltip>
@@ -173,10 +212,16 @@ const CompaignPage = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Add New Campaign
-        <Link to="/campaign/newCampaign" className="link">
-          Add New
-        </Link>
+      CAMPAIGN LIST
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/campaign/newCampaign"
+        >
+          Add CAMPAIGN
+        </Button>
       </div>
       <DataGrid
         className="datagrid"
@@ -193,7 +238,7 @@ const CompaignPage = () => {
           open={Boolean(editRowId)}
           onClose={() => setEditRowId(null)}
           data={data.find((item) => item.id === editRowId)}
-          onSave={handleSaveEdit}
+          onSave={handleUpdateEdit}
         />
       )}
 

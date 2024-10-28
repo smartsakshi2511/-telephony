@@ -1,0 +1,204 @@
+// .newContainer {
+//     width: 100%;
+//     max-width: 800px; // Limiting max width for better readability
+//     margin: 0 auto; // Center the form
+//     padding: 2rem;
+//     background-color: #f9f9f9; // Light background color
+//     border-radius: 8px; // Rounded corners
+//     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Soft shadow
+//   }
+  
+//   .top {
+//     margin-bottom: 2rem;
+//     text-align: center; // Center the title
+//   }
+  
+//   h1 {
+//     font-size: 2rem;
+//     color: #333; // Darker text for contrast
+//   }
+  
+//   .bottom {
+//     display: flex;
+//     flex-direction: column;
+//   }
+  
+//   .left {
+//     display: flex;
+//     flex-direction: column;
+//     align-items: center; // Center the image
+//     margin-bottom: 1rem; // Space between image and form
+//   }
+  
+//   .left img {
+//     height: 100px;
+//     width: 100px;
+//     border-radius: 50%; // Make the image circular
+//     border: 2px solid #ddd; // Light border around the image
+//     margin-bottom: 1rem; // Space below the image
+//   }
+  
+//   .formInput {
+//     margin-bottom: 1.5rem; // Increased space for better readability
+//   }
+  
+//   label {
+//     font-weight: bold; // Make labels bold
+//     color: #555; // Softer color for labels
+//   }
+  
+//   input,
+//   select {
+//     width: 100%;
+//     padding: 0.5rem; // Add padding for inputs
+//     border: 1px solid #ccc; // Light border
+//     border-radius: 4px; // Rounded borders
+//     transition: border 0.3s; // Smooth transition for border color
+//   }
+  
+//   input:focus,
+//   select:focus {
+//     border: 1px solid #007bff; // Highlight border on focus
+//     outline: none; // Remove default outline
+//   }
+  
+//   .error {
+//     color: #d32f2f; // Red for errors
+//     font-size: 0.75rem;
+//     margin-top: 0.25rem;
+//   }
+  
+//   button {
+//     background-color: #007bff; // Primary button color
+//     color: white; // White text
+//     border: none; // No border
+//     padding: 0.75rem 1.5rem; // Padding for button
+//     border-radius: 4px; // Rounded button
+//     cursor: pointer; // Pointer on hover
+//     transition: background-color 0.3s; // Smooth background change
+  
+//     &:hover {
+//       background-color: #0056b3; // Darker shade on hover
+//     }
+  
+//     &:disabled {
+//       background-color: #ccc; // Disabled state
+//       cursor: not-allowed; // Not allowed cursor
+//     }
+//   }
+  
+//   .labelContainer {
+//     display: flex;
+//     align-items: center;
+//     justify-content: space-between;
+//     margin-bottom: 0.5rem; // Space between label and input
+//   }
+
+
+//   // button {
+//   //   margin-top: 1rem; // Space above the button
+//   //   padding: 0.75rem 1.5rem; // Button padding
+//   //   background-color: #007bff; // Button color
+//   //   color: white; // Text color
+//   //   border: none; // No border
+//   //   border-radius: 4px; // Rounded button
+//   //   cursor: pointer; // Pointer on hover
+//   //   transition: background-color 0.3s; // Smooth background change
+  
+//   //   &:hover {
+//   //     background-color: #0056b3; // Darker shade on hover
+//   //   }
+//   // }
+  
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.form-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 50px auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.add-user-form {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+
+  .form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input,
+    select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    input[type='file'] {
+      padding: 3px;
+    }
+  }
+
+  .submit-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    width: 100%;
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .add-user-form {
+    flex-direction: column;
+
+    .form-column {
+      width: 100%;
+    }
+  }
+}
+
+

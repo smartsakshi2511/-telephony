@@ -27,12 +27,12 @@ const LeadReportList = () => {
   const columns = [
     { field: "sr", headerName: "SR", width: 70 },
 
-    { field: "agentId", headerName: "Agent ID", width: 100 },
-    { field: "agentName", headerName: "Caller Name", width: 150 },
-    { field: "callFrom", headerName: "Caller Number", width: 150 },
-    { field: "callTo", headerName: "Email", width: 150 },
-    { field: "campaignName", headerName: "Dial Status", width: 150 },
-    { field: "startTime", headerName: "Date", width: 180 },
+    { field: "agentId", headerName: "AGENT ID", width: 100 },
+    { field: "agentName", headerName: "CALLER NAME", width: 150 },
+    { field: "callFrom", headerName: "CALLER NUMBER", width: 150 },
+    { field: "callTo", headerName: "EMAIL", width: 150 },
+    { field: "campaignName", headerName: "DIAL STATUS", width: 150 },
+    { field: "startTime", headerName: "DATE", width: 180 },
     
   ];
 
@@ -159,15 +159,21 @@ const LeadReportList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-      Total Lead Reports
+      TOTAL LEAD REPORTS
         <div className="callFilter">
    <Tooltip title="Filter the data by date and Agent">
-   <Button variant="outlined" onClick={handleFilterDialogOpen}  endIcon={<GridFilterListIcon/>}>
+   <Button variant="outlined" onClick={handleFilterDialogOpen}  endIcon={<GridFilterListIcon/>} style={{
+                marginRight: '20px'
+              }}>
           Filter
         </Button>
    </Tooltip>
         <Tooltip title="Download Data">
-          <Button variant="outlined" onClick={handleDownload}>
+          <Button variant="outlined" onClick={handleDownload}  style={{
+                backgroundColor: 'green',
+                color: 'white',
+                borderColor: 'green',
+              }}>
             Export<DownloadIcon />
           </Button>
         </Tooltip>

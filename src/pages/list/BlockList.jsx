@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import Swal from "sweetalert2"; // Import SweetAlert2
 import { Link } from "react-router-dom";
 import axios from "axios";
 import {
   IconButton,
-  Switch,
   Tooltip,
   Dialog,
   DialogTitle,
@@ -15,6 +15,7 @@ import {
   Button,
   Typography,
   TextField,
+  Switch,
   FormControlLabel,
 } from "@mui/material";
 import {
@@ -29,16 +30,16 @@ import {
 // Mock Data for blocks
 const initialBlockRows = [
   { id: 1, sr: 1, blockNo: "A-101", status: "active", date: "2023-09-21" },
-  { id: 2, sr: 2, blockNo: "B-202", status: "deactive", date: "2023-09-22" },
+  { id: 2, sr: 2, blockNo: "B-202", status: "inactive", date: "2023-09-22" },
   { id: 3, sr: 3, blockNo: "C-303", status: "active", date: "2023-09-23" },
 ];
 
 // Columns definition for the blocks
 const blockColumns = [
-  { field: "sr", headerName: "Sr.", width: 70 },
-  { field: "blockNo", headerName: "Block No.", width: 150 },
-  { field: "date", headerName: "Date", width: 130 },
-  { field: "status", headerName: "Status", width: 120 },
+  { field: "sr", headerName: "SR.", width: 70 },
+  { field: "blockNo", headerName: "BLOCK NO.", width: 150 },
+  { field: "date", headerName: "DATE", width: 130 },
+  { field: "status", headerName: "STATUS", width: 120 },
 ];
 
 const BlockList = () => {
@@ -48,13 +49,22 @@ const BlockList = () => {
   const [viewData, setViewData] = useState(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false); // State for Add Dialog
 
-  // Handle Delete
-  const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
-    // Optionally, make an API call to delete the block
-    // axios.delete(`https://api.example.com/blocks/${id}`)
-    //   .then(() => { /* Handle success */ })
-    //   .catch(error => { console.error("Error deleting block:", error); });
+   // Handle Delete with SweetAlert confirmation
+   const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete the block.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setData(data.filter((item) => item.id !== id));
+        Swal.fire("Deleted!", "The block has been deleted.", "success");
+      }
+    });
   };
 
   // Handle Edit
@@ -71,21 +81,18 @@ const BlockList = () => {
 
   // Handle Status Toggle
   const handleToggleStatus = async (id) => {
-    try {
-      const updatedBlock = data.find((item) => item.id === id);
-      const newStatus = updatedBlock.status === "active" ? "deactive" : "active";
-      // Make an API call to update the status
-      await axios.put(`https://api.example.com/blocks/${id}`, { status: newStatus });
-      // Update the state
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
-      // Optionally, show a notification to the user
-    }
+    const updatedBlock = data.find((item) => item.id === id);
+    const newStatus = updatedBlock.status === "active" ? "Inactive" : "active";
+    
+    // Optionally, make an API call to update the status
+    // await axios.put(`https://api.example.com/blocks/${id}`, { status: newStatus });
+    
+    // Update the state
+    setData((prevData) =>
+      prevData.map((item) =>
+        item.id === id ? { ...item, status: newStatus } : item
+      )
+    );
   };
 
   // Handle View
@@ -109,7 +116,6 @@ const BlockList = () => {
   };
 
   const handleAddBlock = (newBlock) => {
-    // Assign a new unique ID and incremented Sr.
     const newId = data.length > 0 ? Math.max(...data.map((item) => item.id)) + 1 : 1;
     const newSr = data.length > 0 ? Math.max(...data.map((item) => item.sr)) + 1 : 1;
     const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
@@ -123,12 +129,6 @@ const BlockList = () => {
     };
 
     setData([...data, blockToAdd]);
-
-    // Optionally, make an API call to add the new block
-    // axios.post(`https://api.example.com/blocks`, blockToAdd)
-    //   .then(() => { /* Handle success */ })
-    //   .catch(error => { console.error("Error adding block:", error); });
-
     handleCloseAddDialog();
   };
 
@@ -136,7 +136,7 @@ const BlockList = () => {
   const actionColumn = [
     {
       field: "action",
-      headerName: "Action",
+      headerName: "ACTION",
       width: 180,
       sortable: false,
       filterable: false,
@@ -174,6 +174,7 @@ const BlockList = () => {
                     <VisibilityIcon />
                   </IconButton>
                 </Tooltip>
+
                 <Tooltip title="Edit">
                   <IconButton
                     color="info"
@@ -182,6 +183,7 @@ const BlockList = () => {
                     <EditIcon />
                   </IconButton>
                 </Tooltip>
+                
                 <Tooltip title="Delete">
                   <IconButton
                     color="error"
@@ -198,24 +200,28 @@ const BlockList = () => {
     },
   ];
 
-  // Modify columns to allow editable cells
+  // Modify columns to use colored spans for the status
   const columns = blockColumns.map((col) => {
     if (col.field === "status") {
       return {
         ...col,
-        headerName: "Status",
+        headerName: "STATUS",
         width: 120,
         sortable: false,
         filterable: false,
         renderCell: (params) => {
+          const statusColor = params.row.status === "active" ? "green" : "red";
           return (
-            <Switch
-              checked={params.row.status === "active"}
-              onChange={() => handleToggleStatus(params.row.id)}
-              color="primary"
-              name="status"
-              inputProps={{ "aria-label": "primary checkbox" }}
-            />
+            <span
+              onClick={() => handleToggleStatus(params.row.id)}
+              style={{
+                color: statusColor,
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              {params.row.status.charAt(0).toUpperCase() + params.row.status.slice(1)}
+            </span>
           );
         },
       };
@@ -226,14 +232,14 @@ const BlockList = () => {
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
       <div className="datatableTitle" style={styles.datatableTitle}>
-        <Typography variant="h6">Block List</Typography>
+        <Typography variant="h6">BLOCK LIST</Typography>
         <Button
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
           onClick={handleOpenAddDialog}
         >
-          Add New
+          Add Block
         </Button>
       </div>
       <DataGrid
@@ -251,7 +257,6 @@ const BlockList = () => {
         data={viewData}
       />
 
-   
       <AddDialog
         open={addDialogOpen}
         onClose={handleCloseAddDialog}
@@ -313,8 +318,6 @@ const AddDialog = ({ open, onClose, onAdd }) => {
       setError("Block No. is required.");
       return;
     }
-
-    // Optionally, add more validation here
 
     // Prepare new block data
     const newBlock = {

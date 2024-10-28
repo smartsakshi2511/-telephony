@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from "react";
- 
+import React, { useState, useEffect } from "react"; 
 import { DataGrid } from "@mui/x-data-grid";
+import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
 import axios from "axios";
 import {
@@ -142,7 +142,7 @@ const GroupList = () => {
 
     fetchUserGroups();
   }, []);
-
+ 
   // Fetch campaign names from an API
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -258,10 +258,20 @@ const GroupList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Add New User Group
-        <Link to="/group/newGroup" className="link">
-          Add New
-        </Link>
+        ADD NEW USER GROUP
+       
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/group/newGroup"
+        >
+          Add Group
+        </Button>
+
+
+
       </div>
       <DataGrid
         className="datagrid"

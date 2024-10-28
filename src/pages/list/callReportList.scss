@@ -1,91 +1,90 @@
 .callReportList {
-    padding: 20px;
-    background-color: #f5f5f5; // Light gray background
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); // Subtle shadow for depth
-  
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-  
-      h1 {
-        font-size: 24px;
-        font-weight: bold;
-        color: #333; // Darker text color
-      }
-  
-      .filters {
-        display: flex;
-        align-items: center;
-  
-        .MuiFormControl-root {
-          margin-right: 16px; // Spacing between filters
-        }
-  
-        button {
-          &.MuiButton-containedPrimary {
-            background-color: #1976d2; // Primary button color
-            color: #fff;
-  
-            &:hover {
-              background-color: #1565c0; // Darker on hover
-            }
-          }
-  
-          &.MuiButton-containedSecondary {
-            background-color: #f50057; // Secondary button color
-            color: #fff;
-  
-            &:hover {
-              background-color: #c51162; // Darker on hover
-            }
-          }
-        }
-      }
+  padding: 20px;
+  background-color: #f5f5f5; // Light gray background
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); // Subtle shadow for depth
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333; // Darker text color
     }
-  
-    .table {
-      .MuiDataGrid-root {
-        border: none; // Remove the default border
-  
-        .MuiDataGrid-cell {
-          border-bottom: 1px solid #e0e0e0; // Subtle line between rows
-        }
-  
-        .MuiDataGrid-columnHeader {
-          background-color: #1976d2; // Header background
+
+    .filters {
+      display: flex;
+      align-items: center;
+
+      .MuiFormControl-root {
+        margin-right: 16px; // Spacing between filters
+      }
+
+      button {
+        &.MuiButton-containedPrimary {
+          background-color: #1976d2; // Primary button color
           color: #fff;
-          font-weight: bold;
-  
+
           &:hover {
             background-color: #1565c0; // Darker on hover
           }
         }
-  
-        .MuiDataGrid-footerContainer {
-          background-color: #f5f5f5; // Footer background
+
+        &.MuiButton-containedSecondary {
+          background-color: #f50057; // Secondary button color
+          color: #fff;
+
+          &:hover {
+            background-color: #c51162; // Darker on hover
+          }
         }
       }
     }
-  
-    // Dialog Styles
-    .MuiDialog-title {
-      font-weight: bold;
-    }
-  
-    .MuiDialogContent-root {
-      padding: 20px;
-    }
-  
-    .MuiDialogActions-root {
-      padding: 10px 20px;
-    }
-  
-    // TextField Styles
-    .MuiTextField-root {
-      margin-bottom: 16px; // Spacing between fields
+  }
+
+  .table {
+    .MuiDataGrid-root {
+      border: none; // Remove the default border
+
+      .MuiDataGrid-cell {
+        border-bottom: 1px solid #e0e0e0; // Subtle line between rows
+      }
+
+      .MuiDataGrid-columnHeader {
+        background-color: #1976d2; // Header background
+        color: #fff;
+        font-weight: bold;
+
+        &:hover {
+          background-color: #1565c0; // Darker on hover
+        }
+      }
+
+      .MuiDataGrid-footerContainer {
+        background-color: #f5f5f5; // Footer background
+      }
     }
   }
-  
+
+  // Dialog Styles
+  .MuiDialog-title {
+    font-weight: bold;
+  }
+
+  .MuiDialogContent-root {
+    padding: 20px;
+  }
+
+  .MuiDialogActions-root {
+    padding: 10px 20px;
+  }
+
+  // TextField Styles
+  .MuiTextField-root {
+    margin-bottom: 16px; // Spacing between fields
+  }
+}

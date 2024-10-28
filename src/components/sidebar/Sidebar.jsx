@@ -50,9 +50,15 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="top">
-        <Link to="/" style={{ textDecoration: "none" }}>
-          <span className="logo">Winet Dashboard</span>
-        </Link>
+      <Link to="/" style={{ textDecoration: "none" }}>
+      <span className="logo">
+        <img
+          src={`${process.env.PUBLIC_URL}/logo.png`}
+          
+          style={{ height: "50px", width:"100%", marginTop:"24px" }}  // Adjust height or width as needed
+        />
+      </span>
+    </Link>
       </div>
       <hr />
       <div className="center">
@@ -67,10 +73,11 @@ const Sidebar = () => {
             </Link>
           </Tooltip>
 
+
           <p className="title">LISTS</p>
           <Tooltip title={tooltipTitles.agentsList} placement="right" arrow>
-            <Link to="/users" style={{ textDecoration: "none" }}>
-              <li className={isActiveRoute("/users") ? "active" : ""}>
+            <Link to="/agent" style={{ textDecoration: "none" }}>
+              <li className={isActiveRoute("/agent") ? "active" : ""}>
                 <PersonOutlineIcon className="icon" />
                 <span>Agents List</span>
               </li>
@@ -154,19 +161,19 @@ const Sidebar = () => {
             <Link to="/ivrList" style={{ textDecoration: "none" }}>
               <li className={isActiveRoute("/avrConverter") ? "active" : ""}>
                 <CompareArrowsIcon className="icon" />
-                <span>AVR Converter</span>
+                <span>IVR Converter</span>
               </li>
             </Link>
           </Tooltip>
 
-          <Tooltip title={tooltipTitles.settings} placement="right" arrow>
+          {/* <Tooltip title={tooltipTitles.settings} placement="right" arrow>
             <Link to="/settings" style={{ textDecoration: "none" }}>
               <li className={isActiveRoute("/settings") ? "active" : ""}>
                 <SettingsApplicationsIcon className="icon" />
                 <span>Settings</span>
               </li>
             </Link>
-          </Tooltip>
+          </Tooltip> */}
 
         
           <Tooltip title={tooltipTitles.profile} placement="right" arrow>
@@ -178,14 +185,14 @@ const Sidebar = () => {
             </Link>
           </Tooltip>
 
-          <Tooltip title={tooltipTitles.logout} placement="right" arrow>
+          {/* <Tooltip title={tooltipTitles.logout} placement="right" arrow>
             <Link to="/logout" style={{ textDecoration: "none" }}>
               <li className={isActiveRoute("/logout") ? "active" : ""}>
                 <ExitToAppIcon className="icon" />
                 <span>Logout</span>
               </li>
             </Link>
-          </Tooltip>
+          </Tooltip> */}
         </ul>
       </div>
       {/* <div className="bottom">

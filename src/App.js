@@ -6,10 +6,15 @@ import { DarkModeContext } from "./context/darkModeContext";
 import Layout from "./components/Layout/Layout"; // Import the Layout component
 import "./style/dark.scss";
 import {userInputs} from "./formSource"
-import { Block } from "@mui/icons-material";
+ 
 import BlockList from "./pages/list/BlockList";
 import DispositionList from "./pages/list/DispositionList";
 import IVRList from "./pages/list/IVRcoverterList";
+import DataList from "./pages/home/DataList";
+import Datatable from "./components/datatable/Datatable";
+import DateFilterComponent from "./components/datatable/Agent_Break";
+import LoginReport from "./components/datatable/LoginReport";
+import AgentReport from "./components/datatable/AgentReport";
 const LeadReportList =lazy(()=>import("./pages/list/LeadReportList")) ;
 const Home = lazy(() => import("./pages/home/Home"));
 const Login = lazy(() => import("./pages/login/Login"));
@@ -29,7 +34,6 @@ const DataUpload= lazy(()=>import("./pages/DataUploadPage/dataUpload"))
 
 function App() {
   const { darkMode } = useContext(DarkModeContext);
-  
 
   return (
     <div className={darkMode ? "app dark" : "app"}>
@@ -41,17 +45,20 @@ function App() {
           <Routes>
           <Route path="/login" element={<Login />} />
             <Route path="/" element={<Layout />}>
+          
               <Route index element={<Home />} />
+              <Route path="/data/:type" element={<DataList/>}/>
              
               <Route path="edit_Profile" element={<EditProfile />} />
               <Route path="userProfile" element={<Profile />} />
-              <Route path="users">
-                <Route index element={<List />} />
+              <Route path="agent">
+                {/* <Route index element={<List />} /> */}
+                <Route index element={<Datatable/>} />
                 <Route path=":userId" element={<Single />} />
-                <Route
-                  path="new"
-                  element={<New inputs={userInputs} title="Add New User" />}
-                />
+                <Route path="new" element={<New inputs={userInputs} title="Add New User" />} />
+                <Route path="agentBreak" element={<DateFilterComponent/>} />
+                <Route path="loginReport" element={<LoginReport/>} />
+                <Route path="agentReport" element={<AgentReport/>} />
               </Route>
               <Route path="campaign">
                   <Route index element={<CompaignPage/>} />

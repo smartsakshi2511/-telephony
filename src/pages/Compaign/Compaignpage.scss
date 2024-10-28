@@ -1,189 +1,188 @@
 /* src/pages/campaign/CompaignPage.scss */
 
 .datatable {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  overflow: hidden;
+
+  .datatableTitle {
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-height: 100vh;
-    padding: 20px;
-    overflow: hidden;
-  
-    .datatableTitle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      
-  
-      .link {
-        text-decoration: none;
-        background-color: #7451f8;
-        color: #fff;
-        padding: 10px 20px;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-  
-        &:hover {
-          background-color: #5e3dc4;
-        }
-      }
-    }
-  
-    .datagrid {
-      flex: 1;
-      height: 70vh;
-      width: 100%;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      overflow-x: hidden;
-  
-      .MuiDataGrid-root {
-        border: none;
-        font-family: 'Roboto', sans-serif;
-        font-size: 14px;
-      }
-  
-      .MuiDataGrid-cell {
-        outline: none;
-      }
-  
-      .MuiDataGrid-columnHeaders {
-        background-color: #f5f5f5;
-        border-bottom: none;
-        font-weight: bold;
-      }
-  
-      .MuiDataGrid-footerContainer {
-        border-top: none;
-        background-color: #f5f5f5;
-      }
-  
-      .MuiCheckbox-root {
-        color: #555;
-      }
-  
-      .MuiDataGrid-toolbarContainer {
-        display: flex;
-        justify-content: flex-end;
-        padding: 8px;
-      }
-    }
-  
-    .cellAction {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-  
-      .MuiIconButton-root {
-        color: #555;
-        &:hover {
-          background-color: transparent;
-        }
-      }
-  
-      .saveButton {
-        background-color: #4caf50;
-        color: #fff;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-size: 14px;
-  
-        &:hover {
-          background-color: #45a049;
-        }
-      }
-  
-      .cancelButton {
-        background-color: #f44336;
-        color: #fff;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-size: 14px;
-  
-        &:hover {
-          background-color: #da190b;
-        }
-      }
-    }
-  
-    /* Dialog Styles */
-    .MuiDialog-paper {
-      padding: 20px;
-      border-radius: 8px;
-    }
-  
-    .MuiDialogTitle-root {
-      font-size: 20px;
-      font-weight: 600;
-    }
-  
-    .MuiDialogContent-root {
-      padding-top: 10px;
-    }
-  
-    .MuiDialogActions-root {
-      padding: 10px 20px;
-    }
-  
-    /* Form Elements in Edit Dialog */
-    .MuiFormControlLabel-root {
-      display: flex;
-      align-items: center;
-    }
-  
-    /* Styling for File Upload Buttons */
-    .uploadButton {
-      background-color: #2196f3;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    
+
+    .link {
+      text-decoration: none;
+      background-color: #7451f8;
       color: #fff;
+      padding: 10px 20px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+      font-size: 16px;
+
+      &:hover {
+        background-color: #5e3dc4;
+      }
+    }
+  }
+
+  .datagrid {
+    flex: 1;
+    height: 70vh;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow-x: hidden;
+
+    .MuiDataGrid-root {
+      border: none;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+    }
+
+    .MuiDataGrid-cell {
+      outline: none;
+    }
+
+    .MuiDataGrid-columnHeaders {
+      background-color: #f5f5f5;
+      border-bottom: none;
+      font-weight: bold;
+    }
+
+    .MuiDataGrid-footerContainer {
+      border-top: none;
+      background-color: #f5f5f5;
+    }
+
+    .MuiCheckbox-root {
+      color: #555;
+    }
+
+    .MuiDataGrid-toolbarContainer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 8px;
+    }
+  }
+
+  .cellAction {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .MuiIconButton-root {
+      color: #555;
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    .saveButton {
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
       padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      margin-top: 8px;
       font-size: 14px;
-  
+
       &:hover {
-        background-color: #1976d2;
+        background-color: #45a049;
       }
     }
-  
-    /* Responsive Styles */
-    @media (max-width: 1024px) {
-      .datatableTitle {
-        flex-direction: column;
-        align-items: flex-start;
-  
-        .link {
-          margin-top: 10px;
-        }
-      }
-    }
-  
-    @media (max-width: 768px) {
-      padding: 10px;
-  
-      .datatableTitle {
-        font-size: 20px;
-      }
-  
-      .datagrid {
-        height: 60vh;
-      }
-  
-      .cellAction {
-        flex-direction: column;
-        gap: 5px;
+
+    .cancelButton {
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-size: 14px;
+
+      &:hover {
+        background-color: #da190b;
       }
     }
   }
-  
+
+  /* Dialog Styles */
+  .MuiDialog-paper {
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .MuiDialogTitle-root {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .MuiDialogContent-root {
+    padding-top: 10px;
+  }
+
+  .MuiDialogActions-root {
+    padding: 10px 20px;
+  }
+
+  /* Form Elements in Edit Dialog */
+  .MuiFormControlLabel-root {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Styling for File Upload Buttons */
+  .uploadButton {
+    background-color: #2196f3;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 8px;
+    font-size: 14px;
+
+    &:hover {
+      background-color: #1976d2;
+    }
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 1024px) {
+    .datatableTitle {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .link {
+        margin-top: 10px;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px;
+
+    .datatableTitle {
+      font-size: 20px;
+    }
+
+    .datagrid {
+      height: 60vh;
+    }
+
+    .cellAction {
+      flex-direction: column;
+      gap: 5px;
+    }
+  }
+}
