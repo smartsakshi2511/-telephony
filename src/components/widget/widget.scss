@@ -7,7 +7,15 @@
   box-shadow: 2px 4px 8px 1px rgba(201, 201, 201, 0.2);
   border-radius: 8px;
   height: 80px;
+  transition: all 0.3s ease;
   background: linear-gradient(90deg, #b3bcc9, #e0e5ec);
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    background-color: #f5f5f5;
+  }
 
 
 

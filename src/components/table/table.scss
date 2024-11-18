@@ -26,3 +26,46 @@
     }
   }
 }
+
+.table {
+  .MuiTableCell-root {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .status {
+    &.Online {
+      color: green;
+    }
+    &.Offline {
+      color: red;
+    }
+    &.Paused {
+      color: orange;
+    }
+  }
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  .dropdown {
+    min-width: 200px;
+    margin-right: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .table-controls {
+    flex-direction: column;
+    align-items: stretch;
+
+    .dropdown {
+      min-width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+}
+

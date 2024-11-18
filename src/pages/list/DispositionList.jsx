@@ -208,7 +208,7 @@ const DispositionList = () => {
                     color="info"
                     onClick={() => handleEdit(params.row.id)}
                   >
-                    <EditIcon />
+                    <EditIcon style={{ cursor: "pointer", color: "green" }} />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete">
@@ -216,7 +216,7 @@ const DispositionList = () => {
                     color="error"
                     onClick={() => handleDelete(params.row.id)}
                   >
-                    <DeleteIcon />
+                    <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
                   </IconButton>
                 </Tooltip>
               </>
@@ -263,6 +263,14 @@ const DispositionList = () => {
           color="primary"
           startIcon={<AddIcon />}
           onClick={handleOpenAddDialog}
+
+          sx={{
+            background: 'linear-gradient(90deg, #283593, #3F51B5)',
+            color: '#fff',
+            '&:hover': {
+              background: 'linear-gradient(90deg, #1e276b, #32408f)', // Darker shade on hover
+            },
+          }}
         >
           Add Disposition
         </Button>

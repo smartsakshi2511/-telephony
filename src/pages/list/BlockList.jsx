@@ -37,10 +37,30 @@ const initialBlockRows = [
 
 // Columns definition for the blocks
 const blockColumns = [
-  { field: "sr", headerName: "SR.", width: 70, headerClassName: "customHeader" },
-  { field: "blockNo", headerName: "BLOCK NO.", width: 150, headerClassName: "customHeader" },
-  { field: "date", headerName: "DATE", width: 130, headerClassName: "customHeader" },
-  { field: "status", headerName: "STATUS", width: 120, headerClassName: "customHeader" },
+  {
+    field: "sr",
+    headerName: "SR.",
+    width: 70,
+    headerClassName: "customHeader",
+  },
+  {
+    field: "blockNo",
+    headerName: "BLOCK NO.",
+    width: 150,
+    headerClassName: "customHeader",
+  },
+  {
+    field: "date",
+    headerName: "DATE",
+    width: 130,
+    headerClassName: "customHeader",
+  },
+  {
+    field: "status",
+    headerName: "STATUS",
+    width: 120,
+    headerClassName: "customHeader",
+  },
 ];
 
 const BlockList = () => {
@@ -50,8 +70,8 @@ const BlockList = () => {
   const [viewData, setViewData] = useState(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false); // State for Add Dialog
 
-   // Handle Delete with SweetAlert confirmation
-   const handleDelete = (id) => {
+  // Handle Delete with SweetAlert confirmation
+  const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "This will permanently delete the block.",
@@ -84,10 +104,10 @@ const BlockList = () => {
   const handleToggleStatus = async (id) => {
     const updatedBlock = data.find((item) => item.id === id);
     const newStatus = updatedBlock.status === "active" ? "Inactive" : "active";
-    
+
     // Optionally, make an API call to update the status
     // await axios.put(`https://api.example.com/blocks/${id}`, { status: newStatus });
-    
+
     // Update the state
     setData((prevData) =>
       prevData.map((item) =>
@@ -117,8 +137,10 @@ const BlockList = () => {
   };
 
   const handleAddBlock = (newBlock) => {
-    const newId = data.length > 0 ? Math.max(...data.map((item) => item.id)) + 1 : 1;
-    const newSr = data.length > 0 ? Math.max(...data.map((item) => item.sr)) + 1 : 1;
+    const newId =
+      data.length > 0 ? Math.max(...data.map((item) => item.id)) + 1 : 1;
+    const newSr =
+      data.length > 0 ? Math.max(...data.map((item) => item.sr)) + 1 : 1;
     const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     const blockToAdd = {
@@ -185,13 +207,13 @@ const BlockList = () => {
                     <EditIcon />
                   </IconButton>
                 </Tooltip> */}
-                
+
                 <Tooltip title="Delete">
                   <IconButton
                     color="error"
                     onClick={() => handleDelete(params.row.id)}
                   >
-                    <DeleteIcon />
+                    <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
                   </IconButton>
                 </Tooltip>
               </>
@@ -233,9 +255,15 @@ const BlockList = () => {
         <Typography variant="h6">BLOCK LIST</Typography>
         <Button
           variant="contained"
-          color="primary"
           startIcon={<AddIcon />}
           onClick={handleOpenAddDialog}
+          sx={{
+            background: "linear-gradient(90deg, #283593, #3F51B5)",
+            color: "#fff",
+            "&:hover": {
+              background: "linear-gradient(90deg, #1e276b, #32408f)", // Darker shade on hover
+            },
+          }}
         >
           Add Block
         </Button>
@@ -246,10 +274,9 @@ const BlockList = () => {
         columns={columns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-       
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       />
- 
+
       <ViewDialog
         open={viewDialogOpen}
         onClose={handleCloseViewDialog}
@@ -340,17 +367,16 @@ const AddDialog = ({ open, onClose, onAdd }) => {
     setError("");
   };
 
-
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add New Block No.
-
-         {/* Close Icon Button to close the dialog */}
-         <IconButton
+      <DialogTitle>
+        Add New Block No.
+        {/* Close Icon Button to close the dialog */}
+        <IconButton
           edge="end"
           color="inherit"
           onClick={handleClose}
-          style={{ position: 'absolute', right: 8, top: 8 }}
+          style={{ position: "absolute", right: 8, top: 8 }}
         >
           <CloseIcon />
         </IconButton>
@@ -368,37 +394,35 @@ const AddDialog = ({ open, onClose, onAdd }) => {
             error={Boolean(error)}
             helperText={error}
           />
-          
         </form>
       </DialogContent>
       <DialogActions>
-      <Button
-    onClick={onClose}
-    style={{
-      backgroundColor: "lightgray",
-      color: "#fff",
-      marginRight: "8px",
-      transition: "background-color 0.3s", // smooth transition
-    }}
-    onMouseEnter={(e) => {
-      e.target.style.backgroundColor = "darkgray"; // Change color on hover
-    }}
-    onMouseLeave={(e) => {
-      e.target.style.backgroundColor = "lightgray"; // Revert color when mouse leaves
-    }}
-  >
-    Cancel
-  </Button>
-  <Button
-    onClick={handleSubmit}
-    style={{
-      backgroundColor: "#1976d2", // Use primary color
-      color: "#fff",
-    }}
-  >
-    Add
-  </Button>
-        
+        <Button
+          onClick={onClose}
+          style={{
+            backgroundColor: "lightgray",
+            color: "#fff",
+            marginRight: "8px",
+            transition: "background-color 0.3s", // smooth transition
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = "darkgray"; // Change color on hover
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = "lightgray"; // Revert color when mouse leaves
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          style={{
+            backgroundColor: "#1976d2", // Use primary color
+            color: "#fff",
+          }}
+        >
+          Add
+        </Button>
       </DialogActions>
     </Dialog>
   );

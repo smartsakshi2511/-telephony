@@ -28,12 +28,13 @@ const Chart = ({ aspect, title }) => {
           data={data}
           margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
         >
-          <defs>
-            <linearGradient id="total" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-            </linearGradient>
-          </defs>
+<defs>
+  <linearGradient id="total" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="5%" stopColor="#3F51B5" stopOpacity={0.8} /> {/* Deep Indigo */}
+    <stop offset="95%" stopColor="#283593" stopOpacity={0} /> {/* Rich Blue */}
+  </linearGradient>
+</defs>
+
           <XAxis dataKey="name" stroke="gray" />
           <CartesianGrid strokeDasharray="3 3" className="chartGrid" />
           <Tooltip />

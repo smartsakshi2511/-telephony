@@ -62,7 +62,7 @@ const MenuList = () => {
               color="primary"
               onClick={() => handleView(params.row)}
             >
-              <VisibilityIcon />
+              <VisibilityIcon style={{ cursor: "pointer", color: "blue", marginRight: "10px" }}/>
             </IconButton>
           </Tooltip>
           <Tooltip title="Edit">
@@ -70,7 +70,7 @@ const MenuList = () => {
               color="info"
               onClick={() => handleEdit(params.row)}
             >
-              <EditIcon />
+              <EditIcon style={{ cursor: "pointer", color: "green", marginRight: "10px" }}/>
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
@@ -78,7 +78,7 @@ const MenuList = () => {
               color="error"
               onClick={() => handleDelete(params.row.id)}
             >
-              <DeleteIcon />
+              <DeleteIcon style={{ cursor: "pointer", color: "red" }}/>
             </IconButton>
           </Tooltip>
         </div>
@@ -322,6 +322,13 @@ const MenuList = () => {
           startIcon={<AddIcon />}
           component={Link}
           to="/group/newGroup"
+          sx={{
+            background: 'linear-gradient(90deg, #283593, #3F51B5)',
+            color: '#fff',
+            '&:hover': {
+              background: 'linear-gradient(90deg, #1e276b, #32408f)', // Darker shade on hover
+            },
+          }}
         >
           Add Group
         </Button>

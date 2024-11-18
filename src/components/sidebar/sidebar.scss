@@ -7,14 +7,15 @@
   
   transition: all 0.5s;
   -webkit-transition: all 0.5s;
+  
   .top { 
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(180deg, #F4F5F7, #E6E8EB);
-color: #37474F;
-  
+    color: #37474F;
+    
     .logo {
       font-size: 20px;
       font-weight: bold;
@@ -38,9 +39,9 @@ color: #37474F;
       .title {
         font-size: 10px;
         font-weight: bold;
-       
         margin-top: 15px;
         margin-bottom: 5px;
+         color: #00BCD4;
       }
 
       li {
@@ -48,56 +49,66 @@ color: #37474F;
         align-items: center;
         padding: 5px;
         cursor: pointer;
-     
+        transition: background-color 0.3s, color 0.3s;
 
         &:hover {
-          background-color: #ece8ff;
+          background-color: white;
+          color: #4DB6AC;
         }
 
         .icon {
           font-size: 18px;
           color: #fff;
+          transition: color 0.3s;
         }
 
-        span{
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-            margin-left: 10px;
+        span {
+          font-size: 13px;
+          font-weight: 600;
+          color: #fff;
+          margin-left: 10px;
+          transition: color 0.3s;
+        }
+
+        &:hover .icon,
+        &:hover span {
+          color: #4DB6AC;
         }
       }
     }
   }
 
-  .bottom{
-      display: flex;
-      align-items: center;
-      margin: 10px;
+  .bottom {
+    display: flex;
+    align-items: center;
+    margin: 10px;
 
-      .colorOption{
-          width: 20px;
-          height: 20px;
-          border-radius: 5px;
-          border: 1px solid #7451f8;
-          cursor: pointer;
-          margin: 5px;
+    .colorOption {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      border: 1px solid #7451f8;
+      cursor: pointer;
+      margin: 5px;
 
-          &:nth-child(1){
-              background-color: whitesmoke;
-          }
-          &:nth-child(2){
-              background-color: #333;
-          }
-          &:nth-child(3){
-              background-color: darkblue;
-          }
+      &:nth-child(1) {
+        background-color: whitesmoke;
       }
+      &:nth-child(2) {
+        background-color: #333;
+      }
+      &:nth-child(3) {
+        background-color: darkblue;
+      }
+    }
   }
-}  
+}
+
 .sidebar {
   width: 250px;
   transition: transform 0.3s ease-in-out;
 } 
+
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
@@ -127,6 +138,3 @@ color: #37474F;
 .hamburger {
   display: none;
 }
-
-
-

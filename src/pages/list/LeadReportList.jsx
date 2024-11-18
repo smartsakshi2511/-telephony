@@ -170,9 +170,9 @@ const LeadReportList = () => {
    </Tooltip>
         <Tooltip title="Download Data">
           <Button variant="outlined" onClick={handleDownload}  style={{
-                backgroundColor: 'green',
-                color: 'white',
-                borderColor: 'green',
+                background: "linear-gradient(90deg, #4caf50, #2e7d32)", // Green gradient
+                color: "white",
+                borderColor: "#4caf50",
               }}>
             Export<DownloadIcon />
           </Button>

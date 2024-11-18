@@ -3,10 +3,9 @@ import  "./App.css"
 import React, { Suspense, lazy, useContext } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { DarkModeContext } from "./context/darkModeContext";
-import Layout from "./components/Layout/Layout"; // Import the Layout component
+import Layout from "./components/Layout/Layout";  
 import "./style/dark.scss";
-import {userInputs} from "./formSource"
- 
+import {userInputs} from "./formSource"  
 import DispositionList from "./pages/list/DispositionList";
 import IVRList from "./pages/list/IVRcoverterList";
 import DataList from "./pages/home/DataList";
@@ -14,7 +13,7 @@ import Datatable from "./components/datatable/Datatable";
 import DateFilterComponent from "./components/datatable/Agent_Break";
 import LoginReport from "./components/datatable/LoginReport";
 import AgentReport from "./components/datatable/AgentReport";
- 
+const BlockList = lazy(()=>import("./pages/list/BlockList"))
 const LeadReportList =lazy(()=>import("./pages/list/LeadReportList")) ;
 const Home = lazy(() => import("./pages/home/Home"));
 const Login = lazy(() => import("./pages/login/Login"));
@@ -37,10 +36,7 @@ function App() {
   return (
     <div className={darkMode ? "app dark" : "app"}>
       <Router>
-        <Suspense fallback={<div>Loading...</div>}>
-
-            
-   
+        <Suspense fallback={<div>Loading...</div>}> 
           <Routes>
           <Route path="/login" element={<Login />} />
             <Route path="/" element={<Layout />}>
@@ -88,7 +84,7 @@ function App() {
                 <Route to="" />
               </Route>
               <Route path="blockList">
-                {/* <Route index element={<BlockList/>} /> */}
+                <Route index element={<BlockList/>} />
                 <Route to="" />
               </Route>
               <Route path="dispositionList">

@@ -1,6 +1,4 @@
-// src/components/Layout.jsx
-
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../navbar/Navbar";
 import Sidebar from "../sidebar/Sidebar";
@@ -10,7 +8,9 @@ const Layout = () => {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false)
   const OpenSidebar = () => {
     setOpenSidebarToggle(!openSidebarToggle)
+
   }
+  console.log("Layout rendered");
   return (
     <div className="layout">
        <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar}/>

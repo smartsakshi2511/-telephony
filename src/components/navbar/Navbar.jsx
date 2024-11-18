@@ -2,15 +2,11 @@ import React, { useContext, useState, useEffect } from 'react';
 import "./navbar.scss";
 import {
   Menu as MenuIcon,
-  Search as SearchIcon,
-  Notifications as NotificationsIcon,
-  Mail as MailIcon,
-  AccountCircle as AccountCircleIcon,
 } from '@mui/icons-material';
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import Button from "@mui/material/Button"; 
 import { DarkModeContext } from "../../context/darkModeContext";
-import PopupIframe from "./LiveCall";
+import PopupIframe from './LiveCall';
 
 const Navbar = ({OpenSidebar}) => {
   const { dispatch } = useContext(DarkModeContext);
@@ -18,7 +14,6 @@ const Navbar = ({OpenSidebar}) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [iframe1Visible, setIframe1Visible] = useState(false);
   const [iframe2Visible, setIframe2Visible] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Toggle visibility of the popups
   const toggleIframe1 = () => setIframe1Visible(!iframe1Visible);
@@ -34,54 +29,48 @@ const Navbar = ({OpenSidebar}) => {
 
   const formatTime = (date) => date.toLocaleTimeString();
 
-    // Function to toggle sidebar visibility
-    const toggleSidebar = () => {
-      setSidebarOpen(!sidebarOpen);
-    };
-
   return (
     <div className="navbar">
-       <div className="menu-icon">
+      <div className="menu-icon">
         <MenuIcon className="icon" onClick={OpenSidebar} />
       </div>
       <div className="wrapper">
         <div className="search">
-          {/* <input type="text" placeholder="Search..." /> */}
-          {/* <SearchOutlinedIcon /> */}
+      
         </div>
-
-       
-
         <div className="items">
           <div className="item">
             <span className="live-time">{formatTime(currentTime)}</span>
           </div>
-          {/* <div className="item">
-            <LanguageOutlinedIcon className="icon" />
-            English
-          </div> */}
+    
           <div className="item">
             <DarkModeOutlinedIcon className="icon" onClick={() => dispatch({ type: "TOGGLE" })} />
           </div>
 
-    
+          {/* Button to toggle Live Calls popup */}
           <div className="item">
-            <Button
+            <Button className='pulse-effect'
               variant="contained"
-              style={{ backgroundColor: "purple", color: "white", marginRight: '10px' }}
+              style={{   background: "linear-gradient(90deg, #283593, #3F51B5,  #283593)",
+                color: "#fff", marginRight: '10px' }}
               onClick={toggleIframe1}
             >
-              {iframe1Visible ? '  Calls' : 'Live'}
+              {iframe1Visible ? ' Calls' : 'Live Calls'}
             </Button>
           </div>
- 
-          <div className="item">
+
+          {/* Button to toggle Phone popup */}
+          <div className="item pulse-effect">
             <Button
               variant="contained"
-              style={{ backgroundColor: "green", color: "white" }}
+              style={{
+                background: "linear-gradient(90deg, #2e7d32, #4caf50, #2e7d32)", // Green gradient
+                color: "white",
+                borderColor: "#4caf50",
+              }}
               onClick={toggleIframe2}
             >
-              {iframe2Visible ? 'Close Phone' : 'Phone'}
+              {iframe2Visible ? 'Phone' : 'Phone'}
             </Button>
           </div>
 
@@ -100,8 +89,8 @@ const Navbar = ({OpenSidebar}) => {
                 <div className="dropdown-menu">
                   <ul>
                     <li><a href="/userProfile">My Profile</a></li>
-                    <li>Setting</li>
-                    <li>Log out</li>
+                    <li>Menu 2</li>
+                    <li>Menu 3</li>
                   </ul>
                 </div>
               )}
@@ -110,7 +99,7 @@ const Navbar = ({OpenSidebar}) => {
         </div>
       </div>
 
-     
+      {/* PopupIframe for Live Calls */}
       <PopupIframe
         visible={iframe1Visible}
         toggleVisibility={toggleIframe1}

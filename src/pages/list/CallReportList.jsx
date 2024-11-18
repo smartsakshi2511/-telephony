@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./list.scss";
 import { DataGrid, GridFilterListIcon } from "@mui/x-data-grid";
- 
+
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import {
-  
   Dialog,
   DialogTitle,
   DialogContent,
@@ -28,17 +27,72 @@ import {
 
 const CallReportList = () => {
   const columns = [
-    { field: "sr", headerName: "SR", width: 70, headerClassName: "customHeader" },
-    { field: "agentName", headerName: "AGENT NAME", width: 150, headerClassName: "customHeader" },
-    { field: "agentId", headerName: "AGENT ID", width: 100, headerClassName: "customHeader" },
-    { field: "callFrom", headerName: "CALL FROM", width: 150, headerClassName: "customHeader" },
-    { field: "callTo", headerName: "CALL TO", width: 150, headerClassName: "customHeader" },
-    { field: "campaignName", headerName: "CAMPAIGN NAME", width: 150, headerClassName: "customHeader" },
-    { field: "startTime", headerName: "START TIME", width: 180, headerClassName: "customHeader" },
-    { field: "duration", headerName: "DURATION", width: 100, headerClassName: "customHeader" },
-    { field: "direction", headerName: "DIRECTION", width: 100, headerClassName: "customHeader" },
-    { field: "status", headerName: "STATUS", width: 100, headerClassName: "customHeader" },
-    { field: "hangup", headerName: "HANGUP", width: 100, headerClassName: "customHeader" },
+    {
+      field: "sr",
+      headerName: "SR",
+      width: 70,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "agentName",
+      headerName: "AGENT NAME",
+      width: 150,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "agentId",
+      headerName: "AGENT ID",
+      width: 100,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "callFrom",
+      headerName: "CALL FROM",
+      width: 150,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "callTo",
+      headerName: "CALL TO",
+      width: 150,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "campaignName",
+      headerName: "CAMPAIGN NAME",
+      width: 150,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "startTime",
+      headerName: "START TIME",
+      width: 180,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "duration",
+      headerName: "DURATION",
+      width: 100,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "direction",
+      headerName: "DIRECTION",
+      width: 100,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "status",
+      headerName: "STATUS",
+      width: 100,
+      headerClassName: "customHeader",
+    },
+    {
+      field: "hangup",
+      headerName: "HANGUP",
+      width: 100,
+      headerClassName: "customHeader",
+    },
     {
       field: "recording",
       headerName: "Recording",
@@ -71,7 +125,7 @@ const CallReportList = () => {
     hangup: "",
     recording: "",
   });
-  
+
   // New states for filter dialog
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [fromDate, setFromDate] = useState("");
@@ -132,25 +186,28 @@ const CallReportList = () => {
       return;
     }
     const excelData = data.map((item) => ({
-      "SR": item.sr,
+      SR: item.sr,
       "Agent Name": item.agentName,
       "Agent ID": item.agentId,
       "Call From": item.callFrom,
       "Call To": item.callTo,
       "Campaign Name": item.campaignName,
       "Start Time": item.startTime,
-      "Duration": item.duration,
-      "Direction": item.direction,
-      "Status": item.status,
-      "Hangup": item.hangup,
-      "Recording": item.recording,
+      Duration: item.duration,
+      Direction: item.direction,
+      Status: item.status,
+      Hangup: item.hangup,
+      Recording: item.recording,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Calls");
 
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
@@ -184,22 +241,31 @@ const CallReportList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-      TOTAL CALL REPORTS
-              <div className="callFilter">
-        <Button variant="outlined" onClick={handleFilterDialogOpen}  endIcon={<GridFilterListIcon/>} style={{
-                marginRight: '20px'
-              }}>
-          Filter
-        </Button>
-        <Tooltip title="Download Data">
-          <Button variant="outlined" onClick={handleDownload}  style={{
-                backgroundColor: 'green',
-                color: 'white',
-                borderColor: 'green',
-              }}>
-            Export<DownloadIcon />
+        TOTAL CALL REPORTS
+        <div className="callFilter">
+          <Button
+            variant="outlined"
+            onClick={handleFilterDialogOpen}
+            endIcon={<GridFilterListIcon />}
+            style={{
+              marginRight: "20px",
+            }}
+          >
+            Filter
           </Button>
-        </Tooltip>
+          <Tooltip title="Download Data">
+            <Button
+              variant="outlined"
+              onClick={handleDownload}
+              style={{
+                background: "linear-gradient(90deg, #4caf50, #2e7d32)", // Green gradient
+                color: "white",
+                borderColor: "#4caf50",
+              }}
+            >
+              Export <DownloadIcon />
+            </Button>
+          </Tooltip>
         </div>
       </div>
       <DataGrid
@@ -210,7 +276,7 @@ const CallReportList = () => {
         autoHeight
         getRowId={(row) => row.sr}
         disableSelectionOnClick
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       />
       <Dialog open={filterDialogOpen} onClose={handleFilterDialogClose}>
         <DialogTitle>Filter Call Records</DialogTitle>
@@ -251,8 +317,12 @@ const CallReportList = () => {
           </Select>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleFilterDialogClose} color="primary">Cancel</Button>
-          <Button onClick={handleFilterSubmit} color="primary">Filter</Button>
+          <Button onClick={handleFilterDialogClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleFilterSubmit} color="primary">
+            Filter
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

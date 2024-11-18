@@ -1,5 +1,6 @@
- import React, { useRef, useEffect } from 'react';
- import "./navbar.scss"
+// components/PopupIframe.jsx
+import React, { useRef, useEffect } from 'react';
+import './navbar.scss';
 
 const PopupIframe = ({ visible, toggleVisibility, iframeSrc, title }) => {
   const popupRef = useRef(null);
@@ -10,6 +11,8 @@ const PopupIframe = ({ visible, toggleVisibility, iframeSrc, title }) => {
       dragElement(popupRef.current, headerRef.current);
     }
   }, []);
+
+  // Function to make the popup draggable
   const dragElement = (element, header) => {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 

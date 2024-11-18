@@ -61,7 +61,7 @@
 
 @media (max-width: 768px) {
   .home {
-    padding: 10px;
+    padding: 0px;
   }
 
   .listContainer {
@@ -70,5 +70,52 @@
 
   .listTitle {
     font-size: 1.2rem;
+  }
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .listTitle {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .dropdowns {
+    display: flex;
+    gap: 15px;
+
+    .dropdown {
+      min-width: 150px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .listHeader {
+    flex-direction: column;
+    align-items: stretch; /* Stretch items to fill width */
+    gap: 10px; /* Add spacing between title and dropdowns */
+
+    .listTitle {
+      font-size: 20px; /* Slightly reduce title size */
+      text-align: center; /* Center-align title on small screens */
+    }
+
+    .dropdowns {
+      display: flex;
+      flex-wrap: wrap; /* Wrap dropdowns to the next line if needed */
+      justify-content: center; /* Center dropdowns horizontally */
+      gap: 10px; /* Smaller gap between dropdowns */
+    }
+
+    .dropdown {
+      flex: 1 1 calc(50% - 10px); /* Make dropdowns take 50% width minus the gap */
+      min-width: auto; /* Remove min-width for better scaling */
+      max-width: 100%; /* Prevent overflow */
+    }
   }
 }

@@ -60,17 +60,17 @@ const DataUpload = () => {
         <div className="cellAction">
           <Tooltip title="View Details">
             <IconButton color="primary" onClick={() => handleView(params.row)}>
-              <VisibilityIcon />
+              <VisibilityIcon style={{ cursor: "pointer", color: "blue" }} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Edit">
             <IconButton color="info" onClick={() => handleEdit(params.row)}>
-              <EditIcon />
+              <EditIcon style={{ cursor: "pointer", color: "green" }}/>
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
             <IconButton color="error" onClick={() => handleDelete(params.row.listId)}>
-              <DeleteIcon />
+              <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
             </IconButton>
           </Tooltip>
         </div>
@@ -352,7 +352,15 @@ const DataUpload = () => {
         SHOW LIST
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAddNewList} style={{
           marginLeft: '640px'
-        }}>
+        }}
+        sx={{
+          background: 'linear-gradient(90deg, #283593, #3F51B5)',
+          color: '#fff',
+          '&:hover': {
+            background: 'linear-gradient(90deg, #1e276b, #32408f)', // Darker shade on hover
+          },
+        }}
+        >
           Add New List
         </Button>
         <Button variant="outlined" onClick={handleDownload} style={{

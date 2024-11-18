@@ -118,3 +118,8 @@ body {
     display: block;  
   }
 }
+button:hover {
+  filter: brightness(1.1); /* Slightly brightens the button */
+  transform: scale(1.02); /* Adds a subtle pop effect */
+  transition: all 0.2s ease-in-out;
+}
