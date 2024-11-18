@@ -1,10 +1,11 @@
 export const userColumns = [
-  { field: "id", headerName: "ID", width: 50 },
-  { field: "priority", headerName: "PRIOPRITY", width: 100 },
+  
+  { field: "priority", headerName: "PRIOPRITY", width: 100, headerClassName: "customHeader" },
   {
     field: "user",
     headerName: "USER ID",
     width: 100,
+    headerClassName: "customHeader",
     renderCell: (params) => {
       return (
         <div className="cellWithImg">
@@ -14,11 +15,11 @@ export const userColumns = [
       );
     },
   },
-  { field: "password", headerName: "PASSWORD", width: 100 },
+  { field: "password", headerName: "PASSWORD", width: 100, headerClassName: "customHeader" },
   {
     field: "Phonenumber",
     headerName: "PHONE NUMBERr",
-    width: 150,
+    width: 150, headerClassName: "customHeader",
     renderCell: (params) => {
       return (
         <div className="cellWithImg">
@@ -32,19 +33,21 @@ export const userColumns = [
   {
     field: "Extn",
     headerName: "EXTN NUMBER",
-    width: 150, 
+    width: 150, headerClassName: "customHeader" 
   },
 
   {
     field: "clidid",
     headerName: "CLI/DID",
     width: 120,
+    headerClassName: "customHeader",
     required : true
   },
   {
     field: "status",
     headerName: "STATUS",
     width: 100,
+    headerClassName: "customHeader",
     renderCell: (params) => {
       return (
         <div className={`cellWithStatus ${params.row.status}`}>
@@ -209,11 +212,11 @@ export const userRows = [
 ];
 
 export const CompaignColumn =[
-  { field: "com_id", headerName: " COMP ID", width: 50 },
+  { field: "com_id", headerName: " COMP ID", width: 50, headerClassName: "customHeader" },
   {
     field: "userName",
     headerName: "NAME",
-    width: 100,
+    width: 80,
     renderCell: (params) => {
       return (
         <div className="cellWithImg">
@@ -222,13 +225,17 @@ export const CompaignColumn =[
       );
     },
   },
-  { field: "inbound_cid", headerName: "INBOUND CID.", width: 100 },
-  { field: "outbound_cid", headerName: "OUTBOUND CID.", width: 100 },
-  { field: "calltime", headerName: "CALL TIME", width: 100 },
-  { field: "weekoff", headerName: "WEEK OFF", width: 100 },
-  { field: "after_ivr", headerName: "AFTER IVR PARK MUSIC", width: 200 },
-  { field: "no_agent", headerName: "NO AGENT IVR MUSIC", width: 100 },
+  { field: "status", headerName: "STATUS", width: 10, headerClassName: "customHeader" },
+  { field: "inbound_cid", headerName: "INBOUND CID.", width: 100, headerClassName: "customHeader" },
+  { field: "outbound_cid", headerName: "OUTBOUND CID.", width: 100, headerClassName: "customHeader" },
+  { field: "calltime", headerName: "CALL TIME", width: 100, headerClassName: "customHeader" },
+  { field: "weekoff", headerName: "WEEK OFF", width: 80, headerClassName: "customHeader" },
+  { field: "after_ivr", headerName: "AFTER IVR", width: 80, headerClassName: "customHeader" },
+  { field: "ivr", headerName: "PARK MUSIC", width: 100, headerClassName: "customHeader" },
 
+
+  { field: "no_agent", headerName: "IVR MUSIC", width: 80, headerClassName: "customHeader" },
+  { field: "agent", headerName: "RingTone", width: 80, headerClassName: "customHeader" },
 
 ];
 
@@ -241,7 +248,9 @@ export const compaignRows = [
     calltime: "12am-11pm",
     weekoff: "Sunday",
     after_ivr:  "record",
+    ivr: "abc",
     no_agent: "Empty",
+    agent:"play",
     username: "Snow",     
     status: "active",
   
@@ -249,26 +258,30 @@ export const compaignRows = [
   {
     id: 2,
     username: "Jamie Lannister",
-    status: "deactive",
+    status: "inactive",
     com_id: 2,
     inbound_cid: 9889030958,
     outbound_cid: 9874563210,
     calltime: "2am-4pm",
     weekoff: "Monday",
     after_ivr:  "record",
+    ivr: "abc",
     no_agent: "Empty",
+    agent:"play",
   },
   {
     id: 3,
     username: "Lannister",  
-    status: "deactive",
+    status: "inactive",
     com_id: 3,
     inbound_cid: 8469730958,
     outbound_cid: 6359863210,
     calltime: "6pm-8pm",
     weekoff: "Friday",
     after_ivr:  "record",
+    ivr: "def",
     no_agent: "Empty",
+    agent:"play",
 
   },
 ];

@@ -13,10 +13,7 @@ import {
     Pagination,
 } from '@mui/material';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
+ 
 
 class AgentReport extends React.Component {
     constructor(props) {
@@ -29,12 +26,12 @@ class AgentReport extends React.Component {
             editRowId: null, // Track which row is being edited
             tempData: {}, // Temporary data during editing
             agentsData: [
-                { id: 1, userId: 8081, userName: '8081', loginTime: '2024-10-15 03:39:25', calls: 0, breaks: 0, breakName: '-', status: 'Logout' },
-                { id: 2, userId: 8081, userName: '8081', loginTime: '2024-10-14 07:19:07', calls: 8, breaks: 0, breakName: '-', status: 'Logout' },
-                { id: 3, userId: 8082, userName: '8082', loginTime: '2024-10-13 08:00:00', calls: 5, breaks: 1, breakName: 'Lunch', status: 'Login' },
-                { id: 4, userId: 8083, userName: '8083', loginTime: '2024-10-12 09:00:00', calls: 10, breaks: 2, breakName: 'Meeting', status: 'Login' },
-                { id: 5, userId: 8084, userName: '8084', loginTime: '2024-10-11 10:00:00', calls: 15, breaks: 1, breakName: 'Break', status: 'Logout' },
-                { id: 6, userId: 8085, userName: '8085', loginTime: '2024-10-10 11:00:00', calls: 20, breaks: 0, breakName: '-', status: 'Logout' },
+                { SR: 1, userId: 8081, userName: '8081', loginTime: '2024-10-15 03:39:25', calls: 0, breaks: 0, breakName: '-', status: 'Logout' },
+                { SR: 2, userId: 8081, userName: '8081', loginTime: '2024-10-14 07:19:07', calls: 8, breaks: 0, breakName: '-', status: 'Logout' },
+                { SR: 3, userId: 8082, userName: '8082', loginTime: '2024-10-13 08:00:00', calls: 5, breaks: 1, breakName: 'Lunch', status: 'Login' },
+                { SR: 4, userId: 8083, userName: '8083', loginTime: '2024-10-12 09:00:00', calls: 10, breaks: 2, breakName: 'Meeting', status: 'Login' },
+                { SR: 5, userId: 8084, userName: '8084', loginTime: '2024-10-11 10:00:00', calls: 15, breaks: 1, breakName: 'Break', status: 'Logout' },
+                { SR: 6, userId: 8085, userName: '8085', loginTime: '2024-10-10 11:00:00', calls: 20, breaks: 0, breakName: '-', status: 'Logout' },
             ],
         };
     }
@@ -57,7 +54,7 @@ class AgentReport extends React.Component {
         const rowToEdit = this.state.agentsData.find((agent) => agent.id === id);
         this.setState({
             editRowId: id,
-            tempData: { ...rowToEdit }, // Copy current data for editing
+            tempData: { ...rowToEdit },  
         });
     };
 
@@ -130,8 +127,7 @@ class AgentReport extends React.Component {
                         <Typography variant="body1">Cancel Calls: 123</Typography>
                     </div>
                 </div>
-
-                {/* Date Filters */}
+ 
                 <div className="date-filters" style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <TextField
                         type="date"

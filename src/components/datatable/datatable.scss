@@ -13,7 +13,7 @@
     color: gray;
     margin-bottom: 10px;
     display: flex;
-    align-items: center;
+    align-items: normal;
     justify-content: space-between;
 
     .link{
@@ -59,7 +59,7 @@
   .cellAction {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 0px;
 
     .viewButton {
       padding: 2px 5px;
@@ -110,6 +110,84 @@
 .cancelButton {
   color: #f44336;
   color: white;
+}
+
+
+.datatable {
+  text-align: center;
+}
+
+.title {
+  color: #5e6266;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.responsive-button {
+  display: inline-block;
+  width: auto;
+  padding: 15px 20px;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
+  text-align: center;
+}
+
+
+
+.add-agent {
+  background-color: #83cbcf;
+}
+
+.view-break {
+  background-color: #c2aacf;
+}
+
+.login-report {
+  background-color: #f3b282;
+}
+
+.agent-report {
+  background-color: #c2aacf;
+}
+
+
+.responsive-button:hover {
+  transform: translateY(-3px);
+}
+
+.responsive-button:active {
+  transform: translateY(0);
+}
+
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .responsive-button {
+    width: 90%; /* Full-width on mobile screens */
+    margin-bottom: 15px;
+    font-size: 14px;
+    padding: 12px;
+  }
 }
 
 //--------------------------Agent Break--------------------

@@ -1,18 +1,24 @@
 import React, { useContext, useState, useEffect } from 'react';
 import "./navbar.scss";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
+import {
+  Menu as MenuIcon,
+  Search as SearchIcon,
+  Notifications as NotificationsIcon,
+  Mail as MailIcon,
+  AccountCircle as AccountCircleIcon,
+} from '@mui/icons-material';
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import Button from "@mui/material/Button"; 
 import { DarkModeContext } from "../../context/darkModeContext";
 import PopupIframe from "./LiveCall";
 
-const Navbar = () => {
+const Navbar = ({OpenSidebar}) => {
   const { dispatch } = useContext(DarkModeContext);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [iframe1Visible, setIframe1Visible] = useState(false);
   const [iframe2Visible, setIframe2Visible] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Toggle visibility of the popups
   const toggleIframe1 = () => setIframe1Visible(!iframe1Visible);
@@ -28,21 +34,32 @@ const Navbar = () => {
 
   const formatTime = (date) => date.toLocaleTimeString();
 
+    // Function to toggle sidebar visibility
+    const toggleSidebar = () => {
+      setSidebarOpen(!sidebarOpen);
+    };
+
   return (
     <div className="navbar">
+       <div className="menu-icon">
+        <MenuIcon className="icon" onClick={OpenSidebar} />
+      </div>
       <div className="wrapper">
         <div className="search">
-          <input type="text" placeholder="Search..." />
-          <SearchOutlinedIcon />
+          {/* <input type="text" placeholder="Search..." /> */}
+          {/* <SearchOutlinedIcon /> */}
         </div>
+
+       
+
         <div className="items">
           <div className="item">
             <span className="live-time">{formatTime(currentTime)}</span>
           </div>
-          <div className="item">
+          {/* <div className="item">
             <LanguageOutlinedIcon className="icon" />
             English
-          </div>
+          </div> */}
           <div className="item">
             <DarkModeOutlinedIcon className="icon" onClick={() => dispatch({ type: "TOGGLE" })} />
           </div>
@@ -54,7 +71,7 @@ const Navbar = () => {
               style={{ backgroundColor: "purple", color: "white", marginRight: '10px' }}
               onClick={toggleIframe1}
             >
-              {iframe1Visible ? ' All Calls' : 'Live Calls'}
+              {iframe1Visible ? '  Calls' : 'Live'}
             </Button>
           </div>
  

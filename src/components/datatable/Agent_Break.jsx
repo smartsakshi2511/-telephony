@@ -2,13 +2,11 @@ import "./datatable.scss";
 import React, { useState } from "react";
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+ 
 
 // Sample data for the table
 const usersData = [
-  { id: 1, UserID: 8081, BreakName: 'Ready', status: 'active', date: '2024-10-15 03:39:25' },
+  { id: 1, UserID: 8081, BreakName: 'Ready', status: 'active', date: '2024-10-15 03:39:25', },
   { id: 2, UserID: 8081, BreakName: 'Ready', status: 'deacti', date: '2024-10-14 07:19:07' },
   { id: 3, UserID: 8081, BreakName: 'Ready', status: 'deacti', date: '2024-10-13 08:00:00' },
   { id: 4, UserID: 8081, BreakName: 'Ready', status: 'active', date: '2024-10-12 09:00:00' },
@@ -35,21 +33,9 @@ const DateFilterComponent = () => {
     { field: "date", headerName: "TAKE BREAK TIME", width: 160 },
     { field: "date", headerName: "BREAK DURATION", width: 170 },
 
-    // {
-    //   field: "action",
-    //   headerName: "Action",
-    //   width: 200,
-    //   renderCell: (params) => (
-    //     <div className="cellAction">
-    //       <VisibilityIcon style={{ cursor: "pointer", color: "blue", marginRight: "10px" }} />
-    //       <EditIcon style={{ cursor: "pointer", color: "green", marginRight: "10px" }} />
-    //       <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-    //     </div>
-    //   ),
-    // },
+  
   ];
-
-  // Handle From Date Change
+ 
   const handleFromDateChange = (e) => {
     setFromDate(e.target.value);
   };
@@ -68,11 +54,10 @@ const DateFilterComponent = () => {
       );
       setFilteredData(filtered);
     } else {
-      setFilteredData(usersData); // Reset to original data if date is not specified
+      setFilteredData(usersData);  
     }
   };
 
-  // Handle Export Button Click
   const handleExport = () => {
     console.log('Export Data clicked');
     setIsModalOpen(true);
@@ -85,7 +70,7 @@ const DateFilterComponent = () => {
 
   return (
     <div className="date-filter-container">
-      <h2 className="title">VIEW AGENT BREAK</h2>
+      <h2 className="title">USER AGENT BREAK</h2>
 
       {/* Date Filter Inputs */}
       <div className="date-filter-fields">
@@ -130,7 +115,7 @@ const DateFilterComponent = () => {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5, 10, 25]}
-          checkboxSelection
+           
         />
       </div>
 

@@ -1,24 +1,23 @@
-// src/pages/profile/Profile.jsx
-
-import "./Profile.scss"; 
+import "./Profile.scss";
 import { useState } from "react";
-import EditProfile from "./EditPro"; // Import the EditProfile component
-import { Dialog } from "@mui/material"; // Import Dialog from MUI
+import EditProfile from "./EditPro";
+import { Dialog, IconButton } from "@mui/material"; // Import Dialog and IconButton
+import RefreshIcon from "@mui/icons-material/Refresh"; // Import the Refresh icon
 
 const Profile = () => {
-  const [open, setOpen] = useState(false); // State to control modal visibility
+  const [open, setOpen] = useState(false);
+  const [apiKey, setApiKey] = useState("abcd1234efgh5678"); // State for API Key
 
-  // Sample profile data; in a real app, this would come from props or API
+  // Sample profile data
   const profileData = {
     name: "9990_Admin",
     userId: "USER123",
-    password: "******", // Typically, passwords shouldn't be displayed
+    password: "******",
     useCLI: "Enabled",
     totalAgent: 5,
     email: "admin@example.com",
     contact: "+1 2345 67 89",
     timezone: "Asia/Kolkata",
-    apiKey: "abcd1234efgh5678",
   };
 
   const handleOpen = () => {
@@ -29,28 +28,34 @@ const Profile = () => {
     setOpen(false);
   };
 
+  // Function to generate a new random API key
+  const generateApiKey = () => {
+    const newApiKey = Math.random().toString(36).substring(2, 18);
+    setApiKey(newApiKey);
+  };
+
   return (
     <div className="userprofile">
-     
       <div className="profileContainer">
-       
         <div className="top">
           <div className="left">
             <div className="editButton" onClick={handleOpen}>
               Edit Profile
             </div>
-            <h1 className="title">Information</h1>
-            
+            <h2 className="title">Contact Information</h2>
+           
             <div className="item">
               <div className="contact">
+             
                 <img
                   src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260"
                   alt="Profile"
                   className="itemImg"
                 />
-                <h2>Welcome to Admin Panel</h2>
+             <h5 className="heading">Welcome to </h5>
+             <h2 className="heading">Admin Panel</h2>
               </div>
-              
+
               <div className="details">
                 {/* Display profile information */}
                 <div className="detailItem">
@@ -85,17 +90,27 @@ const Profile = () => {
                   <span className="itemKey">Timezone:</span>
                   <span className="itemValue">{profileData.timezone}</span>
                 </div>
+
+                {/* API Key with Refresh Icon Button */}
                 <div className="detailItem">
                   <span className="itemKey">API Key:</span>
-                  <span className="itemValue">{profileData.apiKey}</span>
+                  <span className="itemValue">{apiKey}</span>
+                  <IconButton
+                    onClick={generateApiKey}
+                    color="primary"
+                    aria-label="refresh API key"
+                    className="refreshIconButton"
+                  >
+                    <RefreshIcon fontSize="small" />
+                  </IconButton>
                 </div>
+
               </div>
             </div>
           </div>
-          {/* Right section can be used for additional content */}
         </div>
       </div>
-      
+
       {/* Modal for Editing Profile */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <EditProfile profileData={profileData} handleClose={handleClose} />

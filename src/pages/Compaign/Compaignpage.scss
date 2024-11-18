@@ -32,6 +32,9 @@
     }
   }
 
+
+  
+
   .datagrid {
     flex: 1;
     height: 70vh;
@@ -76,7 +79,7 @@
   .cellAction {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0px;
 
     .MuiIconButton-root {
       color: #555;
@@ -161,7 +164,7 @@
   @media (max-width: 1024px) {
     .datatableTitle {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: normal;
 
       .link {
         margin-top: 10px;
@@ -186,3 +189,27 @@
     }
   }
 }
+
+.statusButton {
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: capitalize;
+  border: none;
+  outline: none;
+  margin-left: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.statusButton.active {
+  background-color: #e0f7fa; /* Light blue background */
+  color: #00796b; /* Dark green text */
+}
+
+.statusButton.inactive {
+  background-color: #fbe9e7; /* Light red background */
+  color: #d32f2f; /* Dark red text */
+}
+

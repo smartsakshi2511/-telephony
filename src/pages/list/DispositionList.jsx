@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Swal from "sweetalert2"; // Import SweetAlert2
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "react-axios";
+import { Close as CloseIcon } from "@mui/icons-material";
+
 import {
   IconButton,
   Tooltip,
@@ -13,8 +15,7 @@ import {
   Button,
   Typography,
   TextField,
-  FormControlLabel,
-  Switch,
+  MenuItem ,
 } from "@mui/material";
 import {
   Visibility as VisibilityIcon,
@@ -24,8 +25,7 @@ import {
   Cancel as CancelIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
-
-// Sample Data for Dispositions
+ 
 const initialDispositionRows = [
   {
     id: 1,
@@ -48,10 +48,17 @@ const initialDispositionRows = [
 // Columns definition for the dispositions
 const dispositionColumns = [
   { field: "sr", headerName: "SR.", width: 70 },
-  { field: "dispositionName", headerName: "DISPOSITION NAME", width: 200 },
-  { field: "campaignId", headerName: "CAMPAIGN ID", width: 150 },
-  { field: "status", headerName: "STATUS", width: 120 },
-  { field: "date", headerName: "DATE", width: 150 },
+  { field: "dispositionName", headerName: "DISPOSITION NAME", width: 200, headerClassName: "customHeader"},
+  { field: "campaignId", headerName: "CAMPAIGN ID", width: 150, headerClassName: "customHeader" },
+  { field: "status", headerName: "STATUS", width: 120, headerClassName: "customHeader" },
+  { field: "date", headerName: "DATE", width: 150, headerClassName: "customHeader" },
+];
+
+const campaignOptions = [
+  { id: '', label: '--- Select Campaign ID ---' },
+  { id: 'campaign1', label: 'Campaign 1' },
+  { id: 'campaign2', label: 'Campaign 2' },
+  { id: 'campaign3', label: 'Campaign 3' },
 ];
 
 const DispositionList = () => {
@@ -91,13 +98,11 @@ const DispositionList = () => {
     setEditRowId(null); // Exit edit mode after saving
   };
 
-  // Handle Status Toggle
   const handleToggleStatus = async (id) => {
     try {
       const updatedDisposition = data.find((item) => item.id === id);
-      const newStatus = updatedDisposition.status === "active" ? "Inactive" : "active";
-      // Make an API call to update the status (if needed)
-      // await axios.put(`https://api.example.com/dispositions/${id}`, { status: newStatus });
+      const newStatus = updatedDisposition.status === "active" ? "inactive" : "active";
+  
       // Update the state
       setData((prevData) =>
         prevData.map((item) =>
@@ -108,6 +113,7 @@ const DispositionList = () => {
       console.error("Error updating status:", error);
     }
   };
+  
 
   // Handle View
   const handleView = (row) => {
@@ -160,6 +166,7 @@ const DispositionList = () => {
       field: "action",
       headerName: "ACTION",
       width: 180,
+      headerClassName: "customHeader",
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -188,14 +195,14 @@ const DispositionList = () => {
               </>
             ) : (
               <>
-                <Tooltip title="View">
+                {/* <Tooltip title="View">
                   <IconButton
                     color="primary"
                     onClick={() => handleView(params.row)}
                   >
                     <VisibilityIcon />
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
                 <Tooltip title="Edit">
                   <IconButton
                     color="info"
@@ -226,26 +233,26 @@ const DispositionList = () => {
       return {
         ...col,
         headerName: "STATUS",
-        width: 120,
+        width: 150,
         sortable: false,
         filterable: false,
         renderCell: (params) => {
+          const isActive = params.row.status === "active";
           return (
-            <span
+            <button
+              className={`statusButton ${isActive ? "active" : "inactive"}`}
               onClick={() => handleToggleStatus(params.row.id)}
-              style={{
-                color: params.row.status === "active" ? "green" : "red",
-                cursor: "pointer",
-              }}
             >
-              {params.row.status.charAt(0).toUpperCase() + params.row.status.slice(1)}
-            </span>
+              {isActive ? "Active" : "Inactive"}
+            </button>
           );
         },
       };
     }
     return col;
   });
+  
+
 
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
@@ -266,7 +273,7 @@ const DispositionList = () => {
         columns={columns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
+        style={{ fontSize: '12px' }}
       />
 
       {/* View Dialog */}
@@ -334,7 +341,7 @@ const AddDialog = ({ open, onClose, onAdd }) => {
   const [newDisposition, setNewDisposition] = useState({
     dispositionName: "",
     campaignId: "",
-    status: "active", // Default status
+    status: "active",
     date: "",
   });
 
@@ -357,13 +364,25 @@ const AddDialog = ({ open, onClose, onAdd }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add Disposition</DialogTitle>
+      <DialogTitle>
+        Add Disposition
+        {/* Close Button */}
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          style={{ position: "absolute", right: 8, top: 8 }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <hr className="customHr" />
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
           name="dispositionName"
-          label="Disposition Name"
+          label="Type disposition here"
           fullWidth
           variant="outlined"
           value={newDisposition.dispositionName}
@@ -372,46 +391,54 @@ const AddDialog = ({ open, onClose, onAdd }) => {
         <TextField
           margin="dense"
           name="campaignId"
-          label="Campaign ID"
+          label="Select Campaign ID"
           fullWidth
           variant="outlined"
+          select
           value={newDisposition.campaignId}
           onChange={handleChange}
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={newDisposition.status === "active"}
-              onChange={() =>
-                setNewDisposition((prev) => ({
-                  ...prev,
-                  status: prev.status === "active" ? "Inactive" : "active",
-                }))
-              }
-            />
-          }
-          label="Active Status"
-        />
-        <TextField
-          margin="dense"
-          name="date"
-          label="Date"
-          fullWidth
-          variant="outlined"
-          value={newDisposition.date}
-          onChange={handleChange}
-        />
+        >
+          {campaignOptions.map((option) => (
+            <MenuItem key={option.id} value={option.id}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+        
       </DialogContent>
+      
+      <hr className="customHr" />
       <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit} color="primary">
-          Add
-        </Button>
-      </DialogActions>
+        
+  <Button
+    onClick={onClose}
+    style={{
+      backgroundColor: "lightgray",
+      color: "#fff",
+      marginRight: "8px",
+      transition: "background-color 0.3s", // smooth transition
+    }}
+    onMouseEnter={(e) => {
+      e.target.style.backgroundColor = "darkgray"; // Change color on hover
+    }}
+    onMouseLeave={(e) => {
+      e.target.style.backgroundColor = "lightgray"; // Revert color when mouse leaves
+    }}
+  >
+    Cancel
+  </Button>
+  <Button
+    onClick={handleSubmit}
+    style={{
+      backgroundColor: "#1976d2", // Use primary color
+      color: "#fff",
+    }}
+  >
+    Add
+  </Button>
+</DialogActions>
+
     </Dialog>
   );
 };
-
 export default DispositionList;

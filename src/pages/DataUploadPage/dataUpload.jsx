@@ -5,8 +5,7 @@ import NumbersIcon from '@mui/icons-material/Numbers'; // This is a placeholder;
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Swal from "sweetalert2"; // Import SweetAlert2
 import "./dataUpload.scss";
-import { DataGrid } from "@mui/x-data-grid";
-import { Link } from "react-router-dom";
+import { DataGrid } from "@mui/x-data-grid"; 
 import AddIcon from '@mui/icons-material/Add';
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -32,21 +31,26 @@ import {
 
 const DataUpload = () => {
   const columns = [
-    { field: "listId", headerName: "LIST ID", width: 80 },
-    { field: "name", headerName: "NAME", width: 100 },
-    { field: "description", headerName: "DESCRIPTION", width: 150 },
-    { field: "leadsCount", headerName: "LEADS COUNT", width: 150 },
-    { field: "campaign", headerName: "CAMPAIGN", width: 150 },
+    { field: "listId", headerName: "LIST ID", width: 80, headerClassName: "customHeader" },
+    { field: "name", headerName: "NAME", width: 100, headerClassName: "customHeader" },
+    { field: "description", headerName: "DESCRIPTION", width: 150, headerClassName: "customHeader" },
+    { field: "leadsCount", headerName: "LEADS COUNT", width: 150, headerClassName: "customHeader" },
+    { field: "campaign", headerName: "CAMPAIGN", width: 150, headerClassName: "customHeader" },
     {
       field: "active",
-      headerName: "ACTIVE",
+      headerName: "ACTION",
       width: 80,
+      headerClassName: "customHeader",
       renderCell: (params) => (
-        <span className={params.value ? "activeStatus active" : "activeStatus inactive"}>
-          {params.value ? "Yes" : "No"}
-        </span>
+        <button
+          className={`statusButton ${params.value ? "active" : "inactive"}`}
+          onClick={() => handleToggleStatus(params.row.listId)}
+        >
+          {params.value ? "Active" : "Inactive"}
+        </button>
       ),
     },
+    
     { field: "createTime", headerName: "CREATE TIME", width: 180 },
     {
       field: "action",
@@ -73,6 +77,19 @@ const DataUpload = () => {
       ),
     },
   ];
+
+  const handleToggleStatus = (id) => {
+    // Find the row with the matching ID
+    const updatedData = data.map((item) =>
+      item.listId === id ? { ...item, active: !item.active } : item
+    );
+  
+    // Update the state with the modified data
+    setData(updatedData);
+  };
+  
+
+
 
   const [data, setData] = useState([]);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -160,8 +177,8 @@ const DataUpload = () => {
   //   }
   // };
 
-   // Handle Delete with SweetAlert confirmation
-   const handleDelete = (id) => {
+  // Handle Delete with SweetAlert confirmation
+  const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "This will permanently delete the block.",
@@ -301,117 +318,145 @@ const DataUpload = () => {
     }
   };
 
+
+  // Modify columns to allow colored spans for status
+  const modifiedColumns = columns.map((col) => {
+    if (col.field === "status") {
+      return {
+        ...col,
+        headerName: "STATUS",
+        width: 150,
+        sortable: false,
+        filterable: false,
+        renderCell: (params) => {
+          const isActive = params.row.status === "active";
+          return (
+            <button
+              className={`statusButton ${isActive ? "active" : "inactive"}`}
+              onClick={() => handleToggleStatus(params.row.id)}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
+          );
+        },
+      };
+    }
+    return col;
+  });
+
+
+
   return (
     <div className="datatable">
       <div className="datatableTitle">
         SHOW LIST
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAddNewList} style={{
-                marginLeft: '640px'
-              }}>
+          marginLeft: '640px'
+        }}>
           Add New List
         </Button>
-        <Button variant="outlined" onClick={handleDownload}  style={{
-                backgroundColor: 'green',
-                color: 'white',
-                borderColor: 'green',
-              }}>
-            Export<DownloadIcon />
-          </Button>
+        <Button variant="outlined" onClick={handleDownload} style={{
+          color: 'primary',
+          
+        }}>
+         <DownloadIcon /> Download
+        </Button>
       </div>
       <DataGrid
         rows={data}
-        columns={columns}
+        columns={modifiedColumns}
         pageSize={9}
         rowsPerPageOptions={[9]}
         getRowId={(row) => row.listId}
+        style={{ fontSize: '12px' }}
       />
 
       {/* View Dialog */}
       <Dialog open={addDialogOpen} onClose={handleCloseAddDialog} maxWidth="sm" fullWidth>
-  <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center' }}>
-     Add New List
-  </DialogTitle>
-  <DialogContent sx={{ paddingTop: '20px' }}>
-    <Typography variant="subtitle1" sx={{ marginBottom: '20px', textAlign: 'center' }}>
-      Fill in the details to create a new list.
-    </Typography>
-    <TextField
-      label="Name"
-      name="name"
-      value={formData.name}
-      onChange={handleFormChange}
-      fullWidth
-      margin="normal"
-      variant="outlined"
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <PersonIcon />
-          </InputAdornment>
-        ),
-      }}
-    />
-    <TextField
-      label="Description"
-      name="description"
-      value={formData.description}
-      onChange={handleFormChange}
-      fullWidth
-      margin="normal"
-      variant="outlined"
-      multiline
-      rows={2}
-    />
-    <TextField
-      label="Leads Count"
-      name="leadsCount"
-      type="number"
-      value={formData.leadsCount}
-      onChange={handleFormChange}
-      fullWidth
-      margin="normal"
-      variant="outlined"
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <NumbersIcon />
-          </InputAdornment>
-        ),
-      }}
-    />
-    <TextField
-      label="Campaign"
-      name="campaign"
-      value={formData.campaign}
-      onChange={handleFormChange}
-      fullWidth
-      margin="normal"
-      variant="outlined"
-    />
-    <FormControlLabel
-      control={
-        <Switch
-          checked={formData.active}
-          onChange={handleFormChange}
-          name="active"
-          color="primary"
-        />
-      }
-      label="Active"
-      sx={{ marginTop: '20px' }}
-    />
-  </DialogContent>
-  <DialogActions sx={{ padding: '10px 24px' }}>
-    <Button
-      onClick={handleSaveAdd}
-      variant="contained"
-      color="primary"
-      sx={{ width: '100%' }}
-    >
-       Add List
-    </Button>
-  </DialogActions>
-</Dialog>
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', textAlign: 'center' }}>
+          Add New List
+        </DialogTitle>
+        <DialogContent sx={{ paddingTop: '20px' }}>
+          <Typography variant="subtitle1" sx={{ marginBottom: '20px', textAlign: 'center' }}>
+            Fill in the details to create a new list.
+          </Typography>
+          <TextField
+            label="Name"
+            name="name"
+            value={formData.name}
+            onChange={handleFormChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Description"
+            name="description"
+            value={formData.description}
+            onChange={handleFormChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            multiline
+            rows={2}
+          />
+          <TextField
+            label="Leads Count"
+            name="leadsCount"
+            type="number"
+            value={formData.leadsCount}
+            onChange={handleFormChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <NumbersIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            label="Campaign"
+            name="campaign"
+            value={formData.campaign}
+            onChange={handleFormChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.active}
+                onChange={handleFormChange}
+                name="active"
+                color="primary"
+              />
+            }
+            label="Active"
+            sx={{ marginTop: '20px' }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ padding: '10px 24px' }}>
+          <Button
+            onClick={handleSaveAdd}
+            variant="contained"
+            color="primary"
+            sx={{ width: '100%' }}
+          >
+            Add List
+          </Button>
+        </DialogActions>
+      </Dialog>
 
     </div>
   );

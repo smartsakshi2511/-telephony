@@ -1,6 +1,4 @@
-// src/components/sidebar/Sidebar.jsx
-
-import React, { useContext } from "react";
+ import React, { useContext, useState  } from "react";
 import "./sidebar.scss";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -12,17 +10,17 @@ import CallIcon from "@mui/icons-material/Call";
 import InsertChartOutlinedIcon from "@mui/icons-material/InsertChartOutlined";   
 import BlockIcon from "@mui/icons-material/Block";   
 import ListAltIcon from "@mui/icons-material/ListAlt";  
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";  
-import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";   
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link, useLocation } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { Tooltip } from "@mui/material";
+import {Close as CloseIcon} from '@mui/icons-material';
 
-const Sidebar = () => {
+const Sidebar = ({ openSidebarToggle, OpenSidebar }) => {
   const { dispatch } = useContext(DarkModeContext);
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   // Tooltip titles for each menu item
   const tooltipTitles = {
@@ -47,8 +45,13 @@ const Sidebar = () => {
     return location.pathname === path;
   };
 
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div className="sidebar">
+    
+    <div  id="sidebar" className={openSidebarToggle ? "sidebar-responsive" : ""}>
       <div className="top">
       <Link to="/" style={{ textDecoration: "none" }}>
       <span className="logo">
@@ -59,6 +62,7 @@ const Sidebar = () => {
         />
       </span>
     </Link>
+    <span className="close-icon-container"> <CloseIcon className="icon close_icon" onClick={OpenSidebar} /></span>
       </div>
       <hr />
       <div className="center">
@@ -184,27 +188,9 @@ const Sidebar = () => {
               </li>
             </Link>
           </Tooltip>
-
-          {/* <Tooltip title={tooltipTitles.logout} placement="right" arrow>
-            <Link to="/logout" style={{ textDecoration: "none" }}>
-              <li className={isActiveRoute("/logout") ? "active" : ""}>
-                <ExitToAppIcon className="icon" />
-                <span>Logout</span>
-              </li>
-            </Link>
-          </Tooltip> */}
         </ul>
       </div>
-      {/* <div className="bottom">
-        <div
-          className="colorOption"
-          onClick={() => dispatch({ type: "LIGHT" })}
-        ></div>
-        <div
-          className="colorOption"
-          onClick={() => dispatch({ type: "DARK" })}
-        ></div>
-      </div> */}
+ 
     </div>
   );
 };

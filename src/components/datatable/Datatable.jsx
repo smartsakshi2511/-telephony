@@ -17,6 +17,14 @@ const Datatable = () => {
   const [editRowId, setEditRowId] = useState(null); // For tracking which row is being edited
   const [tempData, setTempData] = useState({}); // For holding data during edit mode
 
+   // Toggle status
+   const handleToggleStatus = (id) => {
+    const updatedData = data.map((item) =>
+      item.id === id ? { ...item, status: item.status === "active" ? "inactive" : "active" } : item
+    );
+    setData(updatedData);
+  };
+
  // Handle Delete with SweetAlert confirmation
  const handleDelete = (id) => {
   Swal.fire({
@@ -80,6 +88,7 @@ const handleUpdate = (id) => {
       field: "action",
       headerName: "ACTION",
       width: 150,
+      headerClassName: "customHeader",
       renderCell: (params) => {
         const isEditing = params.row.id === editRowId;
 
@@ -168,6 +177,28 @@ const handleUpdate = (id) => {
       return params.value;
     },
   }));
+
+   // Adding Status Toggle Column
+   const dataColumns = editableColumns.map((col) => {
+    if (col.field === "status") {
+      return {
+        ...col,
+        renderCell: (params) => {
+          const isActive = params.row.status === "active";
+          return (
+            <button
+              className={`statusButton ${isActive ? "active" : "inactive"}`}
+              onClick={() => handleToggleStatus(params.row.id)}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
+          );
+        },
+      };
+    }
+    return col;
+  });
+
 
   return (
     <div className="datatable">
@@ -289,10 +320,11 @@ const handleUpdate = (id) => {
       <DataGrid
         className="datagrid"
         rows={data}
-        columns={editableColumns.concat(actionColumn)}
+        columns={dataColumns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
+        
+        style={{ fontSize: '12px' }}
       />
     </div>
   );

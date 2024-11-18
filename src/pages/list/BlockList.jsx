@@ -1,10 +1,11 @@
 // src/pages/list/BlockList.jsx
-
+import "./list.scss";
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import Swal from "sweetalert2"; // Import SweetAlert2
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { Close as CloseIcon } from "@mui/icons-material";
 import {
   IconButton,
   Tooltip,
@@ -36,10 +37,10 @@ const initialBlockRows = [
 
 // Columns definition for the blocks
 const blockColumns = [
-  { field: "sr", headerName: "SR.", width: 70 },
-  { field: "blockNo", headerName: "BLOCK NO.", width: 150 },
-  { field: "date", headerName: "DATE", width: 130 },
-  { field: "status", headerName: "STATUS", width: 120 },
+  { field: "sr", headerName: "SR.", width: 70, headerClassName: "customHeader" },
+  { field: "blockNo", headerName: "BLOCK NO.", width: 150, headerClassName: "customHeader" },
+  { field: "date", headerName: "DATE", width: 130, headerClassName: "customHeader" },
+  { field: "status", headerName: "STATUS", width: 120, headerClassName: "customHeader" },
 ];
 
 const BlockList = () => {
@@ -138,6 +139,7 @@ const BlockList = () => {
       field: "action",
       headerName: "ACTION",
       width: 180,
+      headerClassName: "customHeader",
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -166,7 +168,7 @@ const BlockList = () => {
               </>
             ) : (
               <>
-                <Tooltip title="View">
+                {/* <Tooltip title="View">
                   <IconButton
                     color="primary"
                     onClick={() => handleView(params.row)}
@@ -182,7 +184,7 @@ const BlockList = () => {
                   >
                     <EditIcon />
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
                 
                 <Tooltip title="Delete">
                   <IconButton
@@ -200,28 +202,24 @@ const BlockList = () => {
     },
   ];
 
-  // Modify columns to use colored spans for the status
+  // Modify columns to allow colored spans for status
   const columns = blockColumns.map((col) => {
     if (col.field === "status") {
       return {
         ...col,
         headerName: "STATUS",
-        width: 120,
+        width: 150,
         sortable: false,
         filterable: false,
         renderCell: (params) => {
-          const statusColor = params.row.status === "active" ? "green" : "red";
+          const isActive = params.row.status === "active";
           return (
-            <span
+            <button
+              className={`statusButton ${isActive ? "active" : "inactive"}`}
               onClick={() => handleToggleStatus(params.row.id)}
-              style={{
-                color: statusColor,
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
             >
-              {params.row.status.charAt(0).toUpperCase() + params.row.status.slice(1)}
-            </span>
+              {isActive ? "Active" : "Inactive"}
+            </button>
           );
         },
       };
@@ -248,7 +246,8 @@ const BlockList = () => {
         columns={columns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
+       
+        style={{ fontSize: '12px' }}
       />
  
       <ViewDialog
@@ -341,9 +340,21 @@ const AddDialog = ({ open, onClose, onAdd }) => {
     setError("");
   };
 
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add New Block No.</DialogTitle>
+      <DialogTitle>Add New Block No.
+
+         {/* Close Icon Button to close the dialog */}
+         <IconButton
+          edge="end"
+          color="inherit"
+          onClick={handleClose}
+          style={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
       <DialogContent dividers>
         <form noValidate autoComplete="off">
           <TextField
@@ -357,26 +368,37 @@ const AddDialog = ({ open, onClose, onAdd }) => {
             error={Boolean(error)}
             helperText={error}
           />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={status === "active"}
-                onChange={(e) => setStatus(e.target.checked ? "active" : "deactive")}
-                color="primary"
-              />
-            }
-            label="Active Status"
-            style={{ marginTop: "10px" }}
-          />
+          
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSubmit} color="primary" variant="contained">
-          Add
-        </Button>
-        <Button onClick={handleClose} color="secondary" variant="outlined">
-          Cancel
-        </Button>
+      <Button
+    onClick={onClose}
+    style={{
+      backgroundColor: "lightgray",
+      color: "#fff",
+      marginRight: "8px",
+      transition: "background-color 0.3s", // smooth transition
+    }}
+    onMouseEnter={(e) => {
+      e.target.style.backgroundColor = "darkgray"; // Change color on hover
+    }}
+    onMouseLeave={(e) => {
+      e.target.style.backgroundColor = "lightgray"; // Revert color when mouse leaves
+    }}
+  >
+    Cancel
+  </Button>
+  <Button
+    onClick={handleSubmit}
+    style={{
+      backgroundColor: "#1976d2", // Use primary color
+      color: "#fff",
+    }}
+  >
+    Add
+  </Button>
+        
       </DialogActions>
     </Dialog>
   );

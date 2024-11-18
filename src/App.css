@@ -1,36 +1,120 @@
- body::-webkit-scrollbar {
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.icon {
+  vertical-align: middle;
+  line-height: 1px;
+  font-size: 20px;
+}
+
+.close_icon {
+  color: red;
+  margin-left: 30px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr 1fr;
+  grid-template-rows: 0.2fr 3fr;
+  grid-template-areas:
+    'sidebar navbar navbar navbar'
+    'sidebar main main main';
+  height: 100vh;
+}
+/* .mainContent{
+  grid-area: main;
+  overflow-y: auto;
+  padding: 20px 20px;
+ 
+} */
+/* Header  */
+ 
+
+.menu-icon {
+  display: none;
+}
+ 
+.sidebar-responsive {
+  display: inline !important;
+  position: absolute;
+ 
+  z-index: 12 !important;
+}
+ 
+/* Medium <= 992px */
+  
+@media screen and (max-width: 992px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 0.2fr 3fr;
+    grid-template-areas:
+      'navbar'
+      'outlet';
+  }
+
+  #sidebar {
     display: none;
   }
-    /* src/pages/callReport/new.scss */
 
+  .menu-icon {
+    display: inline;
+  }
 
+  .sidebar-title > span {
+    display: inline;
+  }
+}
 
-    .status {
-      font-weight: bold;
-    }
-    
-    .approved {
-      color: green;
-    }
-    
-    .pending {
-      color: orange;
-    }
-    
-    .canceled {
-      color: red;
-    }
-    
-    .answered {
-      color: blue;
-    }
-    
-    .widget-card {
-      transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
-    }
-    
-    .selected {
-      background-color: #1976d2 !important; /* Material-UI primary color */
-      color: #fff;
-    }
-    
+/* Small <= 768px */
+  
+@media screen and (max-width: 768px) {
+  .main-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+    margin-top: 30px;
+  }
+}
+
+/* Extra Small <= 576px */
+
+@media screen and (max-width: 576px) {
+  .header-left {
+    display: none;
+  }
+}
+
+.close-icon-container {
+  display: none; 
+
+  .close_icon {
+    font-size: 30px;
+    color: #333;
+    cursor: pointer;
+  }
+
+  &.active {
+    color: red;  
+  }
+}
+
+/* Sidebar Styles */
+.sidebar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+ 
+  .close-icon-container {
+    display: block;  
+  }
+}

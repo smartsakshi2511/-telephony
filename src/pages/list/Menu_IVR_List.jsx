@@ -30,28 +30,29 @@ const MenuList = () => {
     {
       field: "userGroup",
       headerName: "USER GROUP",
-      width: 150,
+      width: 150, headerClassName: "customHeader"
     },
     {
       field: "groupName",
       headerName: "GROUP NAME",
-      width: 200,
+      width: 200, headerClassName: "customHeader"
     },
     {
       field: "pressKey",
       headerName: "PRESS KEY",
-      width: 150,
+      width: 150, headerClassName: "customHeader"
     },
     {
       field: "campaign",
       headerName: "CAMPAIGN",
-      width: 200,
+      width: 200, headerClassName: "customHeader"
     },
 
     {
       field: "action",
       headerName: "ACTION",
       width: 150,
+      headerClassName: "customHeader",
       sortable: false,
       filterable: false,
       renderCell: (params) => (
@@ -85,10 +86,8 @@ const MenuList = () => {
     },
   ]);
 
-  // State for user group data
-  const [data, setData] = useState([]);
-
-  // State for campaigns
+ 
+  const [data, setData] = useState([]); 
   const [campaignOptions, setCampaignOptions] = useState([]);
 
   // State for View Dialog
@@ -180,9 +179,9 @@ const MenuList = () => {
   // };
 
 
-  
-   // Handle Delete with SweetAlert confirmation
-   const handleDelete = (id) => {
+
+  // Handle Delete with SweetAlert confirmation
+  const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "This will permanently delete the block.",
@@ -245,54 +244,54 @@ const MenuList = () => {
   };
 
 
-// Handle Save in Edit Dialog with Confirmation
-const handleSaveEdit = async () => {
-  // Close the edit dialog before showing SweetAlert
-  handleCloseEditDialog();
+  // Handle Save in Edit Dialog with Confirmation
+  const handleSaveEdit = async () => {
+    // Close the edit dialog before showing SweetAlert
+    handleCloseEditDialog();
 
-  // Ask for confirmation with SweetAlert
-  Swal.fire({
-    title: "Are you sure?",
-    text: "This will save the changes you made.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#4CAF50",
-    cancelButtonColor: "#f44336",
-    confirmButtonText: "Yes, save it!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        // Replace with your actual API endpoint
-        await axios.put(`https://api.example.com/usergroups/${formData.id}`, formData);
-        
-        // Update local data state
-        setData(
-          data.map((item) => (item.id === formData.id ? { ...formData } : item))
-        );
+    // Ask for confirmation with SweetAlert
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will save the changes you made.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#f44336",
+      confirmButtonText: "Yes, save it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Replace with your actual API endpoint
+          await axios.put(`https://api.example.com/usergroups/${formData.id}`, formData);
 
-        // Show SweetAlert success notification
-        Swal.fire({
-          icon: 'success',
-          title: 'Saved!',
-          text: 'User group details have been updated successfully.',
-          confirmButtonColor: '#3085d6',
-        });
+          // Update local data state
+          setData(
+            data.map((item) => (item.id === formData.id ? { ...formData } : item))
+          );
 
-      } catch (error) {
-        console.error("Error updating user group:", error);
-        
-        // Show SweetAlert error notification
-        Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Failed to update the user group.',
-          confirmButtonColor: '#d33',
-          
-        });
+          // Show SweetAlert success notification
+          Swal.fire({
+            icon: 'success',
+            title: 'Saved!',
+            text: 'User group details have been updated successfully.',
+            confirmButtonColor: '#3085d6',
+          });
+
+        } catch (error) {
+          console.error("Error updating user group:", error);
+
+          // Show SweetAlert error notification
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to update the user group.',
+            confirmButtonColor: '#d33',
+
+          });
+        }
       }
-    }
-  });
-};
+    });
+  };
 
 
   // Handle Status Toggle
@@ -333,8 +332,8 @@ const handleSaveEdit = async () => {
         columns={columns}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
         autoHeight
+        style={{ fontSize: '12px' }}
       />
 
       {/* View Dialog */}

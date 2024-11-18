@@ -12,26 +12,11 @@
 
     .widgets {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      padding: 20px;
-
-      // Styling for each Widget item
-      .widget {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-        box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-
-        &:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-      }
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Decreased min width */
+      gap: 15px; /* Reduced spacing between boxes */
+      padding: 10px; /* Reduced overall padding */
     }
+    
 
     .charts {
       display: grid;
@@ -40,7 +25,7 @@
       padding: 5px 20px;
 
       @media (min-width: 768px) {
-        grid-template-columns: 1fr 1fr; // Two columns for larger screens
+        grid-template-columns: 1fr 1fr;
       }
     }
 

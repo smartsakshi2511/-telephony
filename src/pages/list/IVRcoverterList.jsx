@@ -1,9 +1,9 @@
 import "./list.scss"
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import Swal from "sweetalert2";
 import {
-  IconButton,
-  Switch,
+  IconButton, 
   Tooltip,
   Dialog,
   DialogTitle,
@@ -18,7 +18,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 
 import {
-  Visibility as VisibilityIcon,
+ 
   Edit as EditIcon,
   Delete as DeleteIcon,
   Save as SaveIcon,
@@ -32,7 +32,7 @@ const initialIVRRows = [
     srNo: 1,
     type: "Type A",
     campaign: "Campaign X",
-    file: "ivr1.pdf",
+    file: "ivr1.mp3",
     date: "2024-Oct-04",
     status: "active",
   },
@@ -41,7 +41,7 @@ const initialIVRRows = [
     srNo: 2,
     type: "Type B",
     campaign: "Campaign Y",
-    file: "ivr2.docx",
+    file: "ivr2.wav",
     date: "2024-Oct-01",
     status: "deactive",
   },
@@ -49,11 +49,11 @@ const initialIVRRows = [
 
 // Columns definition for IVR Converters
 const ivrColumns = [
-  { field: "srNo", headerName: "SR NO.", width: 100 },
-  { field: "type", headerName: "TYPE", width: 150 },
-  { field: "campaign", headerName: "CAMPAIGN", width: 150 },
-  { field: "file", headerName: "FILE", width: 200 },
-  { field: "date", headerName: "DATE", width: 150 },
+  { field: "srNo", headerName: "SR NO.", width: 100, headerClassName: "customHeader" },
+  { field: "type", headerName: "TYPE", width: 150,headerClassName: "customHeader" },
+  { field: "campaign", headerName: "CAMPAIGN", width: 150, headerClassName: "customHeader" },
+  { field: "file", headerName: "FILE", width: 200, headerClassName: "customHeader" },  
+  { field: "date", headerName: "DATE", width: 150, headerClassName: "customHeader" },
   // Status column can be added if needed
 ];
 
@@ -75,49 +75,49 @@ const IVRList = () => {
       row.date.includes(searchQuery)
   );
 
-  // Handle Delete
+  // Function to delete a row
   const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
-    // Optionally, make an API call to delete the IVR Converter
-    // axios.delete(`https://api.example.com/ivrconverters/${id}`)
-    //   .then(() => { /* Handle success */ })
-    //   .catch(error => { console.error("Error deleting IVR Converter:", error); });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setData(data.filter((item) => item.id !== id));
+        Swal.fire("Deleted!", "The entry has been deleted.", "success");
+      }
+    });
   };
 
-  // Handle Edit
+
+
+  // Function to edit a row
   const handleEdit = (id) => {
     setEditRowId(id);
   };
 
-  const handleSaveEdit = (updatedRow) => {
-    setData((prevData) =>
-      prevData.map((item) => (item.id === updatedRow.id ? updatedRow : item))
+
+  // Function to save the edited row
+  const handleSaveEdit = (row) => {
+    const updatedData = data.map((item) => (item.id === row.id ? row : item));
+    setData(updatedData);
+    setEditRowId(null);
+  };
+
+  // Function to toggle status between 'active' and 'deactive'
+  const handleToggleStatus = (id) => {
+    const updatedData = data.map((item) =>
+      item.id === id
+        ? { ...item, status: item.status === "active" ? "deactive" : "active" }
+        : item
     );
-    setEditRowId(null); // Exit edit mode after saving
+    setData(updatedData);
   };
 
-  // Handle Status Toggle
-  const handleToggleStatus = async (id) => {
-    try {
-      const updatedIVR = data.find((item) => item.id === id);
-      const newStatus = updatedIVR.status === "active" ? "deactive" : "active";
-
-      // Make an API call to update the status
-      await axios.put(`https://api.example.com/ivrconverters/${id}`, { status: newStatus });
-
-      // Update the state
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
-      // Optionally, show a notification to the user
-    }
-  };
-
-  // Handle View
+  // Function to view details of a row
   const handleView = (row) => {
     setViewData(row);
     setViewDialogOpen(true);
@@ -172,11 +172,13 @@ const IVRList = () => {
     {
       field: "action",
       headerName: "ACTION",
+      headerClassName: "customHeader",
       width: 180,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
         const isEditing = params.row.id === editRowId;
+
 
         return (
           <div className="cellAction">
@@ -191,49 +193,33 @@ const IVRList = () => {
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Cancel">
-                  <IconButton
-                    color="secondary"
-                    onClick={() => setEditRowId(null)}
-                  >
+                  <IconButton color="secondary" onClick={() => setEditRowId(null)}>
                     <CancelIcon />
                   </IconButton>
                 </Tooltip>
               </>
             ) : (
               <>
-                <Tooltip title="View">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleView(params.row)}
-                  >
+                {/* <Tooltip title="View">
+                  <IconButton color="primary" onClick={() => handleView(params.row)}>
                     <VisibilityIcon />
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
                 <Tooltip title="Edit">
-                  <IconButton
-                    color="info"
-                    onClick={() => handleEdit(params.row.id)}
-                  >
+                  <IconButton color="info" onClick={() => handleEdit(params.row.id)}>
                     <EditIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(params.row.id)}
-                  >
+                  <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
                     <DeleteIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="Toggle Status">
-                  <Switch
-                    checked={params.row.status === "active"}
-                    onChange={() => handleToggleStatus(params.row.id)}
-                    color="primary"
-                    name="status"
-                    inputProps={{ "aria-label": "primary checkbox" }}
-                  />
-                </Tooltip>
+                {/* <Switch
+                  checked={params.row.status === "active"}
+                  onChange={() => handleToggleStatus(params.row.id)}
+                  color="primary"
+                /> */}
               </>
             )}
           </div>
@@ -242,49 +228,52 @@ const IVRList = () => {
     },
   ];
 
-  const columns = ivrColumns.map((col) => {
-    if (col.field === "status") {
-      return {
-        ...col,
-        headerName: "STATUS",
-        width: 120,
-        sortable: false,
-        filterable: false,
-        renderCell: (params) => {
-          return (
-            <Switch
-              checked={params.row.status === "active"}
-              onChange={() => handleToggleStatus(params.row.id)}
-              color="primary"
-              name="status"
-              inputProps={{ "aria-label": "primary checkbox" }}
-            />
-          );
-        },
-      };
-    }
-    return col;
-  });
+  // Combine columns with action column
+  const columns = [...ivrColumns, ...actionColumn];
+
+  // const columns = ivrColumns.map((col) => {
+  //   if (col.field === "status") {
+  //     return {
+  //       ...col,
+  //       headerName: "STATUS",
+  //       width: 120,
+  //       sortable: false,
+  //       filterable: false,
+  //       renderCell: (params) => {
+  //         return (
+  //           <Switch
+  //             checked={params.row.status === "active"}
+  //             onChange={() => handleToggleStatus(params.row.id)}
+  //             color="primary"
+  //             name="status"
+  //             inputProps={{ "aria-label": "primary checkbox" }}
+  //           />
+  //         );
+  //       },
+  //     };
+  //   }
+  //   return col;
+  // });
 
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
       <div className="datatableTitle" style={styles.datatableTitle}>
         <Typography variant="h6">IVR CONVERTER LIST</Typography>
 
-        <TextField 
-  variant="outlined"
-  placeholder="Search..."
-  value={searchQuery}
-  onChange={(e) => setSearchQuery(e.target.value)}
-  style={{ marginBottom: "30px", marginLeft: "500px", marginTop:"30px" }}
-  InputProps={{
-    style: {
-      height: "40px",    // Adjust height here
-      padding: "0px",    // Remove default padding if needed
-      fontSize: "14px"   // Adjust font size for compactness
-    }
-  }}
-/>
+        <TextField
+          variant="outlined"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ marginBottom: "30px", marginLeft: "500px", marginTop: "30px" }}
+          InputProps={{
+            style: {
+              height: "40px",    // Adjust height here
+              padding: "0px",    // Remove default padding if needed
+              fontSize: "14px"   // Adjust font size for compactness
+            }
+          }}
+        />
 
         <Button
           variant="contained"
@@ -294,10 +283,10 @@ const IVRList = () => {
         >
           Create Speech
         </Button>
-       
+
       </div>
 
-     
+
 
       <DataGrid
         className="datagrid"
@@ -305,7 +294,9 @@ const IVRList = () => {
         columns={columns}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
+
+        style={{ fontSize: '12px' }}
+        
       />
 
       {/* View Dialog */}
@@ -525,18 +516,6 @@ const AddDialog = ({ open, onClose, onAdd }) => {
             <MenuItem value="Account">Account</MenuItem>
           </TextField>
 
-          {/* Date Input */}
-          <TextField
-            margin="dense"
-            label="Date (YYYY-MMM-DD)"
-            type="text"
-            fullWidth
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            error={Boolean(error.date)}
-            helperText={error.date}
-            placeholder="e.g., 2024-Oct-04"
-          />
         </form>
       </DialogContent>
       <DialogActions>
@@ -547,7 +526,11 @@ const AddDialog = ({ open, onClose, onAdd }) => {
           Cancel
         </Button>
       </DialogActions>
+
+      
     </Dialog>
+
+    
   );
 };
 

@@ -28,17 +28,17 @@ import {
 
 const CallReportList = () => {
   const columns = [
-    { field: "sr", headerName: "SR", width: 70 },
-    { field: "agentName", headerName: "AGENT NAME", width: 150 },
-    { field: "agentId", headerName: "AGENT ID", width: 100 },
-    { field: "callFrom", headerName: "CALL FROM", width: 150 },
-    { field: "callTo", headerName: "CALL TO", width: 150 },
-    { field: "campaignName", headerName: "CAMPAIGN NAME", width: 150 },
-    { field: "startTime", headerName: "START TIME", width: 180 },
-    { field: "duration", headerName: "DURATION", width: 100 },
-    { field: "direction", headerName: "DIRECTION", width: 100 },
-    { field: "status", headerName: "STATUS", width: 100 },
-    { field: "hangup", headerName: "HANGUP", width: 100 },
+    { field: "sr", headerName: "SR", width: 70, headerClassName: "customHeader" },
+    { field: "agentName", headerName: "AGENT NAME", width: 150, headerClassName: "customHeader" },
+    { field: "agentId", headerName: "AGENT ID", width: 100, headerClassName: "customHeader" },
+    { field: "callFrom", headerName: "CALL FROM", width: 150, headerClassName: "customHeader" },
+    { field: "callTo", headerName: "CALL TO", width: 150, headerClassName: "customHeader" },
+    { field: "campaignName", headerName: "CAMPAIGN NAME", width: 150, headerClassName: "customHeader" },
+    { field: "startTime", headerName: "START TIME", width: 180, headerClassName: "customHeader" },
+    { field: "duration", headerName: "DURATION", width: 100, headerClassName: "customHeader" },
+    { field: "direction", headerName: "DIRECTION", width: 100, headerClassName: "customHeader" },
+    { field: "status", headerName: "STATUS", width: 100, headerClassName: "customHeader" },
+    { field: "hangup", headerName: "HANGUP", width: 100, headerClassName: "customHeader" },
     {
       field: "recording",
       headerName: "Recording",
@@ -210,6 +210,7 @@ const CallReportList = () => {
         autoHeight
         getRowId={(row) => row.sr}
         disableSelectionOnClick
+        style={{ fontSize: '12px' }}
       />
       <Dialog open={filterDialogOpen} onClose={handleFilterDialogClose}>
         <DialogTitle>Filter Call Records</DialogTitle>

@@ -30,27 +30,32 @@ const GroupList = () => {
       field: "userGroup",
       headerName: "USER GROUP",
       width: 150,
+      headerClassName: "customHeader",
     },
     {
       field: "groupName",
       headerName: "GROUP NAME",
       width: 200,
+      headerClassName: "customHeader",
     },
     {
       field: "pressKey",
       headerName: "PRESS KEY",
       width: 150,
+      headerClassName: "customHeader",
     },
     {
       field: "campaign",
       headerName: "CAMPAIGN",
       width: 200,
+      headerClassName: "customHeader",
     },
  
     {
       field: "action",
       headerName: "ACTION",
       width: 150,
+      headerClassName: "customHeader",
       sortable: false,
       filterable: false,
       renderCell: (params) => (
@@ -279,8 +284,8 @@ const GroupList = () => {
         columns={columns}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
         autoHeight
+        style={{ fontSize: '12px' }}
       />
 
       {/* View Dialog */}

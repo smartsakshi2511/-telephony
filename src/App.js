@@ -7,7 +7,6 @@ import Layout from "./components/Layout/Layout"; // Import the Layout component
 import "./style/dark.scss";
 import {userInputs} from "./formSource"
  
-import BlockList from "./pages/list/BlockList";
 import DispositionList from "./pages/list/DispositionList";
 import IVRList from "./pages/list/IVRcoverterList";
 import DataList from "./pages/home/DataList";
@@ -15,15 +14,15 @@ import Datatable from "./components/datatable/Datatable";
 import DateFilterComponent from "./components/datatable/Agent_Break";
 import LoginReport from "./components/datatable/LoginReport";
 import AgentReport from "./components/datatable/AgentReport";
+ 
 const LeadReportList =lazy(()=>import("./pages/list/LeadReportList")) ;
 const Home = lazy(() => import("./pages/home/Home"));
 const Login = lazy(() => import("./pages/login/Login"));
-const List = lazy(() => import("./pages/list/List"));
 const Single = lazy(() => import("./pages/single/Single"));
 const New = lazy(() => import("./pages/new/New"));
 const Profile = lazy(() => import("./pages/Profile/Profile"));
 const EditProfile = lazy(() => import("./pages/Profile/EditPro"));
-const CompaignList = lazy(() => import("./pages/list/CompaignList"));
+// const CompaignList = lazy(() => import("./pages/list/CompaignList"));
 const NewCompaign = lazy(() => import("./pages/new/NewCompaign"));
 const GroupList = lazy(() => import("./pages/list/GroupList"));
 const CallReport = lazy(()=>import("./pages/list/CallReportList"))
@@ -89,7 +88,7 @@ function App() {
                 <Route to="" />
               </Route>
               <Route path="blockList">
-                <Route index element={<BlockList/>} />
+                {/* <Route index element={<BlockList/>} /> */}
                 <Route to="" />
               </Route>
               <Route path="dispositionList">

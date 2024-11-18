@@ -9,7 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { Button } from '@mui/material';
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { IconButton, Switch, Tooltip } from "@mui/material";
+import { IconButton,  Tooltip } from "@mui/material";
 import {
   Visibility as VisibilityIcon,
   Edit as EditIcon,
@@ -86,28 +86,7 @@ const handleUpdateEdit = (updatedRow) => {
 };
 
 
-  // Handle Status Toggle
-  const handleToggleStatus = async (id) => {
-    try {
-      const updatedCampaign = data.find((item) => item.id === id);
-      const newStatus =
-        updatedCampaign.status === "active" ? "deactive" : "active";
-      // Make an API call to update the status
-      await axios.put(`https://api.example.com/campaigns/${id}`, {
-        status: newStatus,
-      });
-      // Update the state
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
-      // Optionally, show a notification to the user
-    }
-  };
-
+ 
   // Handle View
   const handleView = (row) => {
     setViewData(row);
@@ -125,6 +104,7 @@ const handleUpdateEdit = (updatedRow) => {
       field: "action",
       headerName: "ACTION",
       width: 180,
+      headerClassName: "customHeader",
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -184,30 +164,54 @@ const handleUpdateEdit = (updatedRow) => {
     },
   ];
 
-  // Modify columns to allow editable cells
+  const handleToggleStatus = async (id) => {
+    try {
+      const updatedCampaign = data.find((item) => item.id === id);
+      const newStatus = updatedCampaign.status === "active" ? "inactive" : "active";
+      
+      // Make an API call to update the status on the server
+      await axios.put(`https://api.example.com/campaigns/${id}`, {
+        status: newStatus,
+      });
+    
+      // Update the state to reflect the new status
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, status: newStatus } : item
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      // Optionally, show a notification to the user
+    }
+  };
+  
+  // Modify columns to allow colored spans for status
   const columns = CompaignColumn.map((col) => {
     if (col.field === "status") {
       return {
         ...col,
-        headerName: "Status",
-        width: 120,
+        headerName: "STATUS",
+        width: 100,
         sortable: false,
         filterable: false,
         renderCell: (params) => {
+          const isActive = params.row.status === "active";
           return (
-            <Switch
-              checked={params.row.status === "active"}
-              onChange={() => handleToggleStatus(params.row.id)}
-              color="primary"
-              name="status"
-              inputProps={{ "aria-label": "primary checkbox" }}
-            />
+            <button
+              className={`statusButton ${isActive ? "active" : "inactive"}`}
+              onClick={() => handleToggleStatus(params.row.id)}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
           );
         },
       };
     }
     return col;
   });
+
+
 
   return (
     <div className="datatable">
@@ -229,7 +233,8 @@ const handleUpdateEdit = (updatedRow) => {
         columns={columns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
+        
+        style={{ fontSize: '12px' }}
       />
 
       {/* Edit Dialog */}

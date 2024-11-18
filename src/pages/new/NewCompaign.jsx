@@ -1,11 +1,8 @@
-// NewcCampaign.jsx
-
+ 
 import React, { useState, useEffect } from "react";
 import "./new.scss"; // Retain if you have additional styles
 import DriveFolderUploadOutlinedIcon from "@mui/icons-material/DriveFolderUploadOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios"; // Import Axios for API requests
 
 // MUI Components
@@ -141,7 +138,7 @@ const NewcCampaign = ({ title }) => {
 
     getCampaigns();
   }, []);
- 
+
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
@@ -201,19 +198,19 @@ const NewcCampaign = ({ title }) => {
       newErrors.ringTime = "Ring Time is required";
     }
 
-    
+
     if (!formData.autoDialLevel.trim()) {
       newErrors.autoDialLevel = "Auto Dial Level is required";
     }
- 
+
     if (!formData.ringType.trim()) {
       newErrors.ringType = "Ring Type is required";
     }
- 
+
     if (!formData.callingTime.trim()) {
       newErrors.callingTime = "Calling Time is required";
     }
- 
+
     if (!formData.weekOff.trim()) {
       newErrors.weekOff = "Week Off is required";
     }
@@ -226,10 +223,10 @@ const NewcCampaign = ({ title }) => {
     }
 
     setErrors(newErrors);
- 
+
     return Object.keys(newErrors).length === 0;
   };
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -363,7 +360,7 @@ const NewcCampaign = ({ title }) => {
   return (
     <Box display="flex" className="newContainer">
       <Box flex={6} p={2}>
-  
+
 
         {/* Top Section */}
         <Box mb={4}>
@@ -384,6 +381,8 @@ const NewcCampaign = ({ title }) => {
             boxShadow: 3,
           }}
         >
+
+
           <Grid container spacing={3}>
             {/* Campaign ID */}
             <Grid item xs={12} sm={6}>
@@ -445,45 +444,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Campaign Type */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" required error={Boolean(errors.campaignType)}>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="campaignType">
-                    Campaign Type
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("campaignType")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Select
-                  id="campaignType"
-                  name="campaignType"
-                  value={formData.campaignType}
-                  onChange={handleInputChange}
-                  displayEmpty
-                  label="Campaign Type"
-                >
-                  <MenuItem value="">
-                    <em>Select Campaign Type</em>
-                  </MenuItem>
-                  <MenuItem value="Marketing">Marketing</MenuItem>
-                  <MenuItem value="Support">Support</MenuItem>
-                  <MenuItem value="Sales">Sales</MenuItem>
-                  {/* Add more options as needed */}
-                </Select>
-                {errors.campaignType && (
-                  <Typography variant="caption" color="error">
-                    {errors.campaignType}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
+          
             {/* Inbound CID */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
@@ -544,6 +505,85 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
+
+  {/* Campaign Type */}
+  <Grid item xs={12} sm={6}>
+              <FormControl fullWidth variant="outlined" required error={Boolean(errors.campaignType)}>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography variant="subtitle1" component="label" htmlFor="campaignType">
+                    Campaign Type
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("campaignType")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Select
+                  id="campaignType"
+                  name="campaignType"
+                  value={formData.campaignType}
+                  onChange={handleInputChange}
+                  displayEmpty
+                  label="Campaign Type"
+                >
+                  <MenuItem value="">
+                    <em>Select Campaign Type</em>
+                  </MenuItem>
+                  <MenuItem value="Marketing">Both</MenuItem>
+                  <MenuItem value="Support">Inbound</MenuItem>
+                  <MenuItem value="Sales">Outbou</MenuItem>
+                  {/* Add more options as needed */}
+                </Select>
+                {errors.campaignType && (
+                  <Typography variant="caption" color="error">
+                    {errors.campaignType}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+
+              {/* Active Status */}
+              <Grid item xs={12} sm={6}>
+              <FormControl fullWidth variant="outlined" required error={Boolean(errors.active)}>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography variant="subtitle1" component="label" htmlFor="active">
+                    Active
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("active")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Select
+                  id="active"
+                  name="active"
+                  value={formData.active}
+                  onChange={handleInputChange}
+                  displayEmpty
+                  label="Active"
+                >
+                  <MenuItem value="">
+                    <em>Select</em>
+                  </MenuItem>
+                  <MenuItem value="Yes">Yes</MenuItem>
+                  <MenuItem value="No">No</MenuItem>
+                </Select>
+                {errors.active && (
+                  <Typography variant="caption" color="error">
+                    {errors.active}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+
             {/* Welcome IVR File Upload */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
@@ -560,7 +600,7 @@ const NewcCampaign = ({ title }) => {
                   </IconButton>
                 </Box>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
@@ -598,7 +638,7 @@ const NewcCampaign = ({ title }) => {
                   </IconButton>
                 </Box>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
@@ -636,7 +676,7 @@ const NewcCampaign = ({ title }) => {
                   </IconButton>
                 </Box>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
@@ -674,7 +714,7 @@ const NewcCampaign = ({ title }) => {
                   </IconButton>
                 </Box>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
@@ -712,7 +752,7 @@ const NewcCampaign = ({ title }) => {
                   </IconButton>
                 </Box>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
@@ -750,7 +790,7 @@ const NewcCampaign = ({ title }) => {
                   </IconButton>
                 </Box>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
@@ -772,45 +812,9 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Active Status */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" required error={Boolean(errors.active)}>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="active">
-                    Active
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("active")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Select
-                  id="active"
-                  name="active"
-                  value={formData.active}
-                  onChange={handleInputChange}
-                  displayEmpty
-                  label="Active"
-                >
-                  <MenuItem value="">
-                    <em>Select</em>
-                  </MenuItem>
-                  <MenuItem value="Yes">Yes</MenuItem>
-                  <MenuItem value="No">No</MenuItem>
-                </Select>
-                {errors.active && (
-                  <Typography variant="caption" color="error">
-                    {errors.active}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
+          
             {/* Call Time */}
-            <Grid item xs={12} sm={6}>
+            {/* <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
                   <Typography variant="subtitle1" component="label" htmlFor="callTime">
@@ -837,198 +841,273 @@ const NewcCampaign = ({ title }) => {
                   required
                 />
               </FormControl>
-            </Grid>
+            </Grid> */}
 
             {/* Ring Time */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="ringTime">
-                    Ring Time
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("ringTime")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
+                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography variant="subtitle1" component="label" htmlFor="ringTime">
+                      Ring Time
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("ringTime")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="ringTime">Select Ring Time</InputLabel>
+                    <Select
+                      name="ring_time"
+                      id="ring_time"
+                      label="Select Ring Time"
+                      defaultValue="60"
+                    >
+                      <MenuItem value="60">60 SECONDS</MenuItem>
+                      <MenuItem value="45">45 SECONDS</MenuItem>
+                      <MenuItem value="30">30 SECONDS</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
-                <TextField
-                  id="ringTime"
-                  name="ringTime"
-                  placeholder="e.g., 30 SECONDS"
-                  value={formData.ringTime}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.ringTime)}
-                  helperText={errors.ringTime}
-                  fullWidth
-                  variant="outlined"
-                  required
-                />
+
               </FormControl>
             </Grid>
 
             {/* Auto Dial Level */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="autoDialLevel">
-                    Auto Dial Level (0 = off)
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("autoDialLevel")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
+                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography variant="subtitle1" component="label" htmlFor="autoDialLevel">
+                      Auto Dial Level (0 = off)
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("autoDialLevel")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="autoDialLevel">Select Auto Dial Level</InputLabel>
+                    <Select
+                      name="auto_dial_level"
+                      id="auto_dial_level"
+                      label="Select Auto Dial Level"
+                      defaultValue=""
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      {[...Array(11).keys()].map((num) => (
+                        <MenuItem key={num} value={num}>
+                          {num}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Box>
-                <TextField
-                  id="autoDialLevel"
-                  name="autoDialLevel"
-                  type="number"
-                  placeholder="Enter Auto Dial Level"
-                  value={formData.autoDialLevel}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.autoDialLevel)}
-                  helperText={errors.autoDialLevel}
-                  fullWidth
-                  variant="outlined"
-                  inputProps={{ min: 0 }}
-                  required
-                />
+
               </FormControl>
             </Grid>
 
             {/* Ring Type */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth variant="outlined" required error={Boolean(errors.ringType)}>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="ringType">
-                    Ring Type
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("ringType")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
+                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography variant="subtitle1" component="label" htmlFor="ringType">
+                      Ring Type
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("ringType")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="ringType">Select Ring Type</InputLabel>
+                    <Select
+                      name="next_agent_call"
+                      id="next_agent_call"
+                      label="Select Ring Type"
+                      defaultValue="random"
+                    >
+                      <MenuItem value="random">Random</MenuItem>
+                      <MenuItem value="campaign_rank">Rank</MenuItem>
+                      <MenuItem value="ring_all">Ring All</MenuItem>
+                      <MenuItem value="longest_wait_time">Longest Wait Time</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
-                <Select
-                  id="ringType"
-                  name="ringType"
-                  value={formData.ringType}
-                  onChange={handleInputChange}
-                  displayEmpty
-                  label="Ring Type"
-                >
-                  <MenuItem value="">
-                    <em>Select Ring Type</em>
-                  </MenuItem>
-                  <MenuItem value="Random">Random</MenuItem>
-                  <MenuItem value="Sequential">Sequential</MenuItem>
-                  {/* Add more options as needed */}
-                </Select>
-                {errors.ringType && (
-                  <Typography variant="caption" color="error">
-                    {errors.ringType}
-                  </Typography>
-                )}
+
               </FormControl>
             </Grid>
 
             {/* Calling Time */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="callingTime">
-                    Calling Time
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("callingTime")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
+                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography variant="subtitle1" component="label" htmlFor="callingTime">
+                      Calling Time
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("callingTime")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="callingTime">Select Calling Time</InputLabel>
+                    <Select
+                      name="local_call_time"
+                      id="local_call_time"
+                      label="Select Calling Time"
+                      defaultValue="12am-11pm"
+                    >
+                      <MenuItem value="12am-11pm">24 hours - default 24 hours calling</MenuItem>
+                      <MenuItem value="9am-6pm">9am-6pm - default 9am to 6pm calling</MenuItem>
+                      <MenuItem value="10am-6pm">10am-6pm - default 10am to 6pm calling</MenuItem>
+                      <MenuItem value="10am-7pm">10am-7pm - default 10am to 7pm calling</MenuItem>
+                      <MenuItem value="12pm-5pm">12pm-5pm - default 12pm to 5pm calling</MenuItem>
+                      <MenuItem value="12pm-9pm">12pm-9pm - default 12pm to 9pm calling</MenuItem>
+                      <MenuItem value="5pm-9pm">5pm-9pm - default 5pm to 9pm calling</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
-                <TextField
-                  id="callingTime"
-                  name="callingTime"
-                  placeholder="e.g., 24hours"
-                  value={formData.callingTime}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.callingTime)}
-                  helperText={errors.callingTime}
-                  fullWidth
-                  variant="outlined"
-                  required
-                />
+
               </FormControl>
             </Grid>
 
             {/* Week Off */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="weekOff">
-                    Week Off
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("weekOff")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
+                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography variant="subtitle1" component="label" htmlFor="weekOff">
+                      Week Off
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("weekOff")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="weekOff">Select Week Off</InputLabel>
+                    <Select
+                      name="week_off"
+                      id="week_off"
+                      label="Select Week Off"
+                      defaultValue=""
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      <MenuItem value="Sunday">Sunday</MenuItem>
+                      <MenuItem value="Monday">Monday</MenuItem>
+                      <MenuItem value="Tuesday">Tuesday</MenuItem>
+                      <MenuItem value="Wednesday">Wednesday</MenuItem>
+                      <MenuItem value="Thursday">Thursday</MenuItem>
+                      <MenuItem value="Friday">Friday</MenuItem>
+                      <MenuItem value="Saturday">Saturday</MenuItem>
+                      <MenuItem value="SaturdaytoSunday">Saturday to Sunday</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
-                <TextField
-                  id="weekOff"
-                  name="weekOff"
-                  placeholder="e.g., Sunday"
-                  value={formData.weekOff}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.weekOff)}
-                  helperText={errors.weekOff}
-                  fullWidth
-                  variant="outlined"
-                  required
-                />
+
               </FormControl>
             </Grid>
 
             {/* Lead Form */}
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="leadForm">
-                    Lead Form
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("leadForm")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
+                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                  {/* Label and Info Icon */}
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography variant="subtitle1" component="label" htmlFor="leadForm">
+                      Lead Form
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("leadForm")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+
+                  {/* Dropdown for Lead Form */}
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="leadForm">Select Lead Form</InputLabel>
+                    <Select
+                      name="get_call_launch"
+                      id="get_call_launch"
+                      label="Select Lead Form"
+                      defaultValue=""
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      <MenuItem value="NONE">Inactive</MenuItem>
+                      <MenuItem value="WEBFORM">Active</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
-                <TextField
-                  id="leadForm"
-                  name="leadForm"
-                  type="url"
-                  placeholder="Enter Lead Form URL"
-                  value={formData.leadForm}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.leadForm)}
-                  helperText={errors.leadForm}
-                  fullWidth
-                  variant="outlined"
-                  required
-                />
+
               </FormControl>
             </Grid>
+
+
+
+<Grid item xs={12} sm={6}>
+      <FormControl fullWidth>
+        {/* Wrapper Box for Label and Dropdown */}
+        <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+          
+          {/* Label and Info Icon */}
+          <Box display="flex" alignItems="center" mb={1}>
+            <Typography variant="subtitle1" component="label" htmlFor="callRoute">
+              Call Route
+            </Typography>
+            <IconButton
+              aria-label="info"
+              size="small"
+              onClick={() => handleOpenDialog("callRoute")}
+            >
+              <InfoOutlinedIcon fontSize="small" />
+            </IconButton>
+          </Box>
+
+          {/* Dropdown for Call Route */}
+          <FormControl fullWidth variant="outlined">
+            <InputLabel htmlFor="callRoute">Select Call Route</InputLabel>
+            <Select
+              name="group_wise"
+              id="group_wise"
+              label="Select Call Route"
+              defaultValue=""
+            >
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="0">NONE</MenuItem>
+              {/* <MenuItem value="SCRIPT">SCRIPT</MenuItem> */}
+              <MenuItem value="1">GROUP</MenuItem>
+              <MenuItem value="2">Call Menu</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </FormControl>
+    </Grid>
+
+
 
             {/* Submit Button */}
             <Grid item xs={12}>
@@ -1045,6 +1124,8 @@ const NewcCampaign = ({ title }) => {
             </Grid>
           </Grid>
         </Box>
+
+
 
         {/* Campaign Table (Placeholder) */}
         {/* You can implement your campaign table here using MUI's Table components */}
