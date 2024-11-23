@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
- 
-
-
-import "./home.scss"
+import "./home.scss";
 import {
   Table,
   TableBody,
@@ -15,15 +12,21 @@ import {
   Paper,
   Typography,
   CircularProgress,
+  Button,
+  IconButton,
 } from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
+import DownloadIcon from "@mui/icons-material/Download";
+import * as XLSX from "xlsx";
 
 const DataList = () => {
   const { type } = useParams();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [playingId, setPlayingId] = useState(null); // To track which recording is playing
 
-  // Fallback data to show when the API fetch fails
   const fallbackData = [
     {
       id: 1,
@@ -35,7 +38,7 @@ const DataList = () => {
       status: "ANSWER",
       hangup: "CLIENT",
       direction: "inbound",
-      recordingUrl: "#",
+      recordingUrl: "https://www.example.com/audio1.mp3",
     },
     {
       id: 2,
@@ -47,7 +50,7 @@ const DataList = () => {
       status: "ANSWER",
       hangup: "CLIENT",
       direction: "inbound",
-      recordingUrl: "#",
+      recordingUrl: "https://www.example.com/audio2.mp3",
     },
     {
       id: 3,
@@ -59,7 +62,7 @@ const DataList = () => {
       status: "CANCEL",
       hangup: "CLIENT",
       direction: "inbound",
-      recordingUrl: "#",
+      recordingUrl: "https://www.example.com/audio3.mp3",
     },
   ];
 
@@ -74,16 +77,83 @@ const DataList = () => {
       })
       .catch(() => {
         setError("Failed to fetch data");
-        setData(fallbackData); // Use fallback data if fetch fails
+        setData(fallbackData);
         setLoading(false);
       });
   }, [type]);
 
+  // Export to Excel function
+  const handleExport = () => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+    XLSX.writeFile(workbook, `${type}_data.xlsx`);
+  };
+
+  // Play/Pause audio
+  const handlePlayPause = (recordingUrl, id) => {
+    const audio = document.getElementById(`audio-${id}`);
+    if (!audio) return;
+
+    if (playingId === id) {
+      audio.pause();
+      setPlayingId(null); // Stop tracking playing audio
+    } else {
+      if (playingId) {
+        // Pause any previously playing audio
+        const prevAudio = document.getElementById(`audio-${playingId}`);
+        if (prevAudio) prevAudio.pause();
+      }
+      audio.play();
+      setPlayingId(id); // Track the currently playing audio
+    }
+  };
+
+  // Download audio
+  const handleDownload = async (recordingUrl, id) => {
+    try {
+      // Fetch the audio file
+      const response = await fetch(recordingUrl);
+      if (!response.ok) {
+        throw new Error("Failed to fetch the recording");
+      }
+      const blob = await response.blob();
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Create an anchor element to trigger the download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `recording-${id}.mp3`; // Naming the file with the ID
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading recording:", error);
+      alert("Error downloading the recording. Please try again.");
+    }
+  };
+
   return (
     <div>
-      <Typography variant="h4" gutterBottom>
-        {type.toUpperCase()}
-      </Typography>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h4" gutterBottom>
+          {type.toUpperCase()}
+        </Typography>
+        <Button variant="contained" color="primary" onClick={handleExport}>
+          Export
+        </Button>
+      </div>
       {loading && <CircularProgress />}
       {error && <Typography color="error">{error}</Typography>}
 
@@ -100,7 +170,7 @@ const DataList = () => {
               <TableCell>Status</TableCell>
               <TableCell>Hangup</TableCell>
               <TableCell>Direction</TableCell>
-              <TableCell>Recording URL</TableCell>
+              <TableCell>Recording</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -116,9 +186,17 @@ const DataList = () => {
                 <TableCell>{item.hangup}</TableCell>
                 <TableCell>{item.direction}</TableCell>
                 <TableCell>
-                  <a href={item.recordingUrl} target="_blank" rel="noopener noreferrer">
-                    Recording
-                  </a>
+                  <audio id={`audio-${item.id}`} src={item.recordingUrl} />
+                  <IconButton
+                    onClick={() => handlePlayPause(item.recordingUrl, item.id)}
+                  >
+                    {playingId === item.id ? <PauseIcon /> : <PlayArrowIcon />}
+                  </IconButton>
+                  <IconButton
+                    onClick={() => handleDownload(item.recordingUrl, item.id)}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}

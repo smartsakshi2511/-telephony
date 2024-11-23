@@ -1,21 +1,21 @@
- import React, { useContext, useState  } from "react";
+import React, { useContext, useState } from "react";
 import "./sidebar.scss";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import CampaignIcon from "@mui/icons-material/Campaign";  
-import GroupIcon from "@mui/icons-material/Group";  
-import CallToActionIcon from "@mui/icons-material/CallToAction"; 
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";  
-import CallIcon from "@mui/icons-material/Call";  
-import InsertChartOutlinedIcon from "@mui/icons-material/InsertChartOutlined";   
-import BlockIcon from "@mui/icons-material/Block";   
-import ListAltIcon from "@mui/icons-material/ListAlt";  
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";   
+import CampaignIcon from "@mui/icons-material/Campaign";
+import GroupIcon from "@mui/icons-material/Group";
+import CallToActionIcon from "@mui/icons-material/CallToAction";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CallIcon from "@mui/icons-material/Call";
+import InsertChartOutlinedIcon from "@mui/icons-material/InsertChartOutlined";
+import BlockIcon from "@mui/icons-material/Block";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link, useLocation } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { Tooltip } from "@mui/material";
-import {Close as CloseIcon} from '@mui/icons-material';
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const Sidebar = ({ openSidebarToggle, OpenSidebar }) => {
   const { dispatch } = useContext(DarkModeContext);
@@ -50,19 +50,22 @@ const Sidebar = ({ openSidebarToggle, OpenSidebar }) => {
   };
 
   return (
-    
-    <div  id="sidebar" className={openSidebarToggle ? "sidebar-responsive" : ""}>
+    <div id="sidebar" className={openSidebarToggle ? "sidebar-responsive" : ""}>
       <div className="top">
-      <Link to="/" style={{ textDecoration: "none" }}>
-      <span className="logo">
-        <img
-          src={`${process.env.PUBLIC_URL}/logo.png`}
-          
-          style={{ height: "50px", width:"100%", marginTop:"24px" }}  // Adjust height or width as needed
-        />
-      </span>
-    </Link>
-    <span className="close-icon-container"> <CloseIcon className="icon close_icon" onClick={OpenSidebar} /></span>
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <span className="logo">
+            <img
+              className="logo-img"
+              src={`${process.env.PUBLIC_URL}/logo.png`}
+              alt="Logo"
+              style={{ height: "50px", width: "80%", marginTop: "24px" }}
+            />
+          </span>
+        </Link>
+        <span className="close-icon-container">
+          {" "}
+          <CloseIcon className="icon close_icon" onClick={OpenSidebar} />
+        </span>
       </div>
       <hr />
       <div className="center">
@@ -76,7 +79,6 @@ const Sidebar = ({ openSidebarToggle, OpenSidebar }) => {
               </li>
             </Link>
           </Tooltip>
-
 
           <p className="title">LISTS</p>
           <Tooltip title={tooltipTitles.agentsList} placement="right" arrow>
@@ -93,6 +95,14 @@ const Sidebar = ({ openSidebarToggle, OpenSidebar }) => {
               <li className={isActiveRoute("/campaign") ? "active" : ""}>
                 <CampaignIcon className="icon" />
                 <span>Campaigns</span>
+              </li>
+            </Link>
+          </Tooltip>
+          <Tooltip title={tooltipTitles.campaigns} placement="right" arrow>
+            <Link to="/extension" style={{ textDecoration: "none" }}>
+              <li className={isActiveRoute("/extension") ? "active" : ""}>
+                <CampaignIcon className="icon" />
+                <span>Extensions</span>
               </li>
             </Link>
           </Tooltip>
@@ -179,7 +189,6 @@ const Sidebar = ({ openSidebarToggle, OpenSidebar }) => {
             </Link>
           </Tooltip> */}
 
-        
           <Tooltip title={tooltipTitles.profile} placement="right" arrow>
             <Link to="/userProfile" style={{ textDecoration: "none" }}>
               <li className={isActiveRoute("/userProfile") ? "active" : ""}>
@@ -190,7 +199,6 @@ const Sidebar = ({ openSidebarToggle, OpenSidebar }) => {
           </Tooltip>
         </ul>
       </div>
- 
     </div>
   );
 };

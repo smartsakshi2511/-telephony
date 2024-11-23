@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./list.scss";
-import { DataGrid, GridFilterListIcon } from "@mui/x-data-grid";
-
+import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -11,99 +10,38 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Typography,
   TextField,
   Tooltip,
   MenuItem,
   Select,
+  useMediaQuery,
 } from "@mui/material";
 import {
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
   Download as DownloadIcon,
-  FilterList,
+  FilterList as FilterListIcon
 } from "@mui/icons-material";
 
 const CallReportList = () => {
+  const isMobile = useMediaQuery("(max-width:768px)");
+
   const columns = [
-    {
-      field: "sr",
-      headerName: "SR",
-      width: 70,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "agentName",
-      headerName: "AGENT NAME",
-      width: 150,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "agentId",
-      headerName: "AGENT ID",
-      width: 100,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "callFrom",
-      headerName: "CALL FROM",
-      width: 150,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "callTo",
-      headerName: "CALL TO",
-      width: 150,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "campaignName",
-      headerName: "CAMPAIGN NAME",
-      width: 150,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "startTime",
-      headerName: "START TIME",
-      width: 180,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "duration",
-      headerName: "DURATION",
-      width: 100,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "direction",
-      headerName: "DIRECTION",
-      width: 100,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "status",
-      headerName: "STATUS",
-      width: 100,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "hangup",
-      headerName: "HANGUP",
-      width: 100,
-      headerClassName: "customHeader",
-    },
+    { field: "sr", headerName: "SR", width: isMobile ? 50 : 70, headerClassName: "customHeader" },
+    { field: "agentName", headerName: "AGENT NAME", width: isMobile ? 120 : 150, headerClassName: "customHeader" },
+    { field: "agentId", headerName: "AGENT ID", width: isMobile ? 80 : 100, headerClassName: "customHeader" },
+    { field: "callFrom", headerName: "CALL FROM", width: 150, headerClassName: "customHeader" },
+    { field: "callTo", headerName: "CALL TO", width: 150, headerClassName: "customHeader" },
+    { field: "campaignName", headerName: "CAMPAIGN NAME", width: 150, headerClassName: "customHeader" },
+    { field: "startTime", headerName: "START TIME", width: 180, headerClassName: "customHeader" },
+    { field: "duration", headerName: "DURATION", width: 100, headerClassName: "customHeader" },
+    { field: "direction", headerName: "DIRECTION", width: 100, headerClassName: "customHeader" },
+    { field: "status", headerName: "STATUS", width: 100, headerClassName: "customHeader" },
+    { field: "hangup", headerName: "HANGUP", width: 100, headerClassName: "customHeader" },
     {
       field: "recording",
       headerName: "Recording",
       width: 180,
       renderCell: (params) => (
-        <a
-          href={params.value}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: "#1976d2", textDecoration: "none" }}
-        >
+        <a href={params.value} target="_blank" rel="noopener noreferrer" style={{ color: "#1976d2" }}>
           Listen
         </a>
       ),
@@ -126,7 +64,6 @@ const CallReportList = () => {
     recording: "",
   });
 
-  // New states for filter dialog
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -136,12 +73,10 @@ const CallReportList = () => {
   useEffect(() => {
     const fetchCalls = async () => {
       try {
-        // Replace with your actual API endpoint
         const response = await axios.get("https://api.example.com/calls");
-        setData(response.data.calls); // Adjust based on API response structure
+        setData(response.data.calls);
       } catch (error) {
         console.error("Error fetching calls:", error);
-        // Fallback to predefined calls if API fails
         setData([
           {
             sr: 1,
@@ -157,29 +92,12 @@ const CallReportList = () => {
             hangup: "Yes",
             recording: "https://example.com/recording1",
           },
-          {
-            sr: 2,
-            agentName: "Jane Smith",
-            agentId: "A002",
-            callFrom: "+1234567891",
-            callTo: "+0987654322",
-            campaignName: "Campaign Y",
-            startTime: "2023-08-02 11:00 AM",
-            duration: "00:03:45",
-            direction: "Outbound",
-            status: "Missed",
-            hangup: "No",
-            recording: "https://example.com/recording2",
-          },
-          // Add more rows as needed
         ]);
       }
     };
-
     fetchCalls();
   }, []);
 
-  // Function to download the data as an Excel file
   const handleDownload = () => {
     if (data.length === 0) {
       alert("No data available to download.");
@@ -204,10 +122,7 @@ const CallReportList = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Calls");
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
@@ -223,8 +138,6 @@ const CallReportList = () => {
   };
 
   const handleFilterSubmit = () => {
-    // You can implement the filtering logic here based on fromDate, toDate, and selectedAgent
-    // For example, if your data has a startTime field, you can filter like this:
     const filteredData = data.filter((call) => {
       const callDate = new Date(call.startTime);
       const from = new Date(fromDate);
@@ -238,29 +151,28 @@ const CallReportList = () => {
     setData(filteredData);
     handleFilterDialogClose();
   };
+
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        TOTAL CALL REPORTS
+        <b>TOTAL CALL REPORTS</b>
         <div className="callFilter">
-          <Button
-            variant="outlined"
-            onClick={handleFilterDialogOpen}
-            endIcon={<GridFilterListIcon />}
-            style={{
-              marginRight: "20px",
-            }}
-          >
-            Filter
-          </Button>
+        <Button
+  variant="outlined"
+  onClick={handleFilterDialogOpen}
+  endIcon={<FilterListIcon />}
+  sx={{ marginRight: "10px" }}
+>
+  Filter
+</Button>
+
           <Tooltip title="Download Data">
             <Button
               variant="outlined"
               onClick={handleDownload}
-              style={{
-                background: "linear-gradient(90deg, #4caf50, #2e7d32)", // Green gradient
+              sx={{
+                background: "linear-gradient(90deg, #4caf50, #2e7d32)",
                 color: "white",
-                borderColor: "#4caf50",
               }}
             >
               Export <DownloadIcon />
@@ -276,7 +188,6 @@ const CallReportList = () => {
         autoHeight
         getRowId={(row) => row.sr}
         disableSelectionOnClick
-        style={{ fontSize: "12px" }}
       />
       <Dialog open={filterDialogOpen} onClose={handleFilterDialogClose}>
         <DialogTitle>Filter Call Records</DialogTitle>
@@ -300,11 +211,10 @@ const CallReportList = () => {
             InputLabelProps={{ shrink: true }}
           />
           <Select
-            label="Select Agent"
             value={selectedAgent}
             onChange={(e) => setSelectedAgent(e.target.value)}
             fullWidth
-            margin="normal"
+            displayEmpty
           >
             <MenuItem value="">
               <em>None</em>

@@ -1,15 +1,12 @@
-// src/pages/CompaignPage/CompaignPage.jsx
-
-import "./Compaignpage.scss";
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 import { CompaignColumn, compaignRows } from "../../datatablesource";
-import AddIcon from '@mui/icons-material/Add';
-import { Button } from '@mui/material';
+import AddIcon from "@mui/icons-material/Add";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { Button, IconButton, Menu, MenuItem } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { IconButton,  Tooltip } from "@mui/material";
 import {
   Visibility as VisibilityIcon,
   Edit as EditIcon,
@@ -17,30 +14,19 @@ import {
   Save as SaveIcon,
   Cancel as CancelIcon,
 } from "@mui/icons-material";
-
-// Import the new components
 import DeleteAction from "../../components/CampaignComp/DeleteCampaign";
 import ViewDialog from "../../components/CampaignComp/ViewCampaign";
 import EditDialog from "../../components/CampaignComp/EditCampaign";
+import "./Compaignpage.scss";
 
 const CompaignPage = () => {
   const [data, setData] = useState(compaignRows);
   const [editRowId, setEditRowId] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
+  const [filter, setFilter] = useState("all"); // For filtering data
+  const [anchorEl, setAnchorEl] = useState(null); // For the filter menu
 
-  // Handle Delete
-  // const handleDelete = (id) => {
-  //   setData(data.filter((item) => item.id !== id));
-    // Optionally, make an API call to delete the campaign
-    // axios.delete(`https://api.example.com/campaigns/${id}`)
-    //   .then(() => { /* Handle success */ })
-    //   .catch(error => { console.error("Error deleting campaign:", error); });
-  // };
-
-
-
-  // Handle Delete with SweetAlert confirmation
   const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -58,36 +44,30 @@ const CompaignPage = () => {
     });
   };
 
-  // Handle Edit
   const handleEdit = (id) => {
     setEditRowId(id);
   };
 
- // Updated handleUpdateEdit with SweetAlert confirmation
-const handleUpdateEdit = (updatedRow) => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to save the changes?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, update it!",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      setData((prevData) =>
-        prevData.map((item) => (item.id === updatedRow.id ? updatedRow : item))
-      );
-      setEditRowId(null); // Exit edit mode after saving
+  const handleUpdateEdit = (updatedRow) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to save the changes?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, update it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setData((prevData) =>
+          prevData.map((item) => (item.id === updatedRow.id ? updatedRow : item))
+        );
+        setEditRowId(null);
+        Swal.fire("Updated!", "The campaign has been updated.", "success");
+      }
+    });
+  };
 
-      Swal.fire("Updated!", "The campaign has been updated.", "success");
-    }
-  });
-};
-
-
- 
-  // Handle View
   const handleView = (row) => {
     setViewData(row);
     setViewDialogOpen(true);
@@ -98,83 +78,15 @@ const handleUpdateEdit = (updatedRow) => {
     setViewData(null);
   };
 
-  // Define the action column with icons
-  const actionColumn = [
-    {
-      field: "action",
-      headerName: "ACTION",
-      width: 180,
-      headerClassName: "customHeader",
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => {
-        const isEditing = params.row.id === editRowId;
-
-        return (
-          <div className="cellAction">
-            {isEditing ? (
-              <>
-                <Tooltip title="Update">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleUpdateEdit(params.row)} >
-                    <SaveIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Cancel">
-                  <IconButton
-                    color="secondary"
-                    onClick={() => setEditRowId(null)}
-                  >
-                    <CancelIcon />
-                  </IconButton>
-                </Tooltip>
-              </>
-            ) : (
-              <>
-                <Tooltip title="View">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleView(params.row)}
-                  >
-                    <VisibilityIcon style={{ cursor: "pointer", color: "blue" }}/>
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Edit">
-                  <IconButton
-                    color="info"
-                    onClick={() => handleEdit(params.row.id)}
-                  >
-                    <EditIcon style={{ cursor: "pointer", color: "green" }}/>
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Delete">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(params.row.id)}
-                  >
-                    <DeleteIcon style={{ cursor: "pointer", color: "red" }}/>
-                  </IconButton>
-                </Tooltip>
-              </>
-            )}
-          </div>
-        );
-      },
-    },
-  ];
-
   const handleToggleStatus = async (id) => {
     try {
       const updatedCampaign = data.find((item) => item.id === id);
       const newStatus = updatedCampaign.status === "active" ? "inactive" : "active";
-      
-      // Make an API call to update the status on the server
+
       await axios.put(`https://api.example.com/campaigns/${id}`, {
         status: newStatus,
       });
-    
-      // Update the state to reflect the new status
+
       setData((prevData) =>
         prevData.map((item) =>
           item.id === id ? { ...item, status: newStatus } : item
@@ -182,11 +94,23 @@ const handleUpdateEdit = (updatedRow) => {
       );
     } catch (error) {
       console.error("Error updating status:", error);
-      // Optionally, show a notification to the user
     }
   };
-  
-  // Modify columns to allow colored spans for status
+
+  const handleFilterClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterChange = (filterOption) => {
+    setFilter(filterOption);
+    setAnchorEl(null);
+  };
+
+  const filteredData =
+    filter === "active"
+      ? data.filter((item) => item.status === "active")
+      : data;
+
   const columns = CompaignColumn.map((col) => {
     if (col.field === "status") {
       return {
@@ -211,12 +135,63 @@ const handleUpdateEdit = (updatedRow) => {
     return col;
   });
 
+  const actionColumn = [
+    {
+      field: "action",
+      headerName: "ACTION",
+      width: 180,
+      headerClassName: "customHeader",
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const isEditing = params.row.id === editRowId;
 
+        return (
+          <div className="cellAction">
+            {isEditing ? (
+              <>
+                <IconButton
+                  color="primary"
+                  onClick={() => handleUpdateEdit(params.row)}
+                >
+                  <SaveIcon />
+                </IconButton>
+                <IconButton color="" onClick={() => setEditRowId(null)}>
+                  <CancelIcon />
+                </IconButton>
+              </>
+            ) : (
+              <>
+                <IconButton
+                  color="primary"
+                  onClick={() => handleView(params.row)}
+                >
+                  <VisibilityIcon />
+                </IconButton>
+                <IconButton
+                  color="info"
+                  onClick={() => handleEdit(params.row.id)}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  color="error"
+                  onClick={() => handleDelete(params.row.id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div className="datatable">
       <div className="datatableTitle">
-      CAMPAIGN LIST
+      <b>CAMPAIGN LIST</b>
         <Button
           variant="contained"
           color="primary"
@@ -224,28 +199,37 @@ const handleUpdateEdit = (updatedRow) => {
           component={Link}
           to="/campaign/newCampaign"
           sx={{
-            background: 'linear-gradient(90deg, #283593, #3F51B5)',
-            color: '#fff',
-            '&:hover': {
-              background: 'linear-gradient(90deg, #1e276b, #32408f)', // Darker shade on hover
+            background: "linear-gradient(90deg, #283593, #3F51B5)",
+            color: "#fff",
+            "&:hover": {
+              background: "linear-gradient(90deg, #1e276b, #32408f)",
             },
           }}
-
         >
           Add CAMPAIGN
         </Button>
+        <IconButton onClick={handleFilterClick}>
+          <FilterListIcon />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+        >
+          <MenuItem onClick={() => handleFilterChange("all")}>All</MenuItem>
+          <MenuItem onClick={() => handleFilterChange("active")}>
+            Active
+          </MenuItem>
+        </Menu>
       </div>
       <DataGrid
         className="datagrid"
-        rows={data}
+        rows={filteredData}
         columns={columns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       />
-
-      {/* Edit Dialog */}
       {editRowId && (
         <EditDialog
           open={Boolean(editRowId)}
@@ -254,8 +238,6 @@ const handleUpdateEdit = (updatedRow) => {
           onSave={handleUpdateEdit}
         />
       )}
-
-      {/* View Dialog */}
       <ViewDialog
         open={viewDialogOpen}
         onClose={handleCloseViewDialog}

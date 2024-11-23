@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";  
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -26,7 +25,7 @@ import {
 const MenuList = () => {
   // Define columns for the DataGrid
   const [columns, setColumns] = useState([
-    { field: "id", headerName: "ID", width: 70 },
+  
     {
       field: "userGroup",
       headerName: "USER GROUP",
@@ -315,7 +314,7 @@ const MenuList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        USER MENU GROUPS
+        <b> USER MENU GROUPS </b>
         <Button
           variant="contained"
           color="primary"

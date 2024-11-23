@@ -16,11 +16,20 @@
     background: linear-gradient(180deg, #F4F5F7, #E6E8EB);
     color: #37474F;
     
+    // .logo {
+    //   font-size: 20px;
+    //   font-weight: bold;
+    //   color: #6439ff;
+    // }
+
     .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: #6439ff;
+      display: flex; /* Flexbox for centering */
+      justify-content: center; /* Centers horizontally */
+      align-items: flex-start; /* Aligns the image at the top */
+      height: auto; /* Adjust container height as needed */
+      width: 100%; /* Full width container */
     }
+    
   }
 
   hr {

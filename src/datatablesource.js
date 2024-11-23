@@ -212,11 +212,11 @@ export const userRows = [
 ];
 
 export const CompaignColumn =[
-  { field: "com_id", headerName: " COMP ID", width: 50, headerClassName: "customHeader" },
+  { field: "com_id", headerName: " COMP ID", width: 100, headerClassName: "customHeader" },
   {
     field: "userName",
     headerName: "NAME",
-    width: 80,
+    width: 100,
     renderCell: (params) => {
       return (
         <div className="cellWithImg">
@@ -226,9 +226,9 @@ export const CompaignColumn =[
     },
   },
   { field: "status", headerName: "STATUS", width: 10, headerClassName: "customHeader" },
-  { field: "inbound_cid", headerName: "INBOUND CID.", width: 100, headerClassName: "customHeader" },
-  { field: "outbound_cid", headerName: "OUTBOUND CID.", width: 100, headerClassName: "customHeader" },
-  { field: "calltime", headerName: "CALL TIME", width: 100, headerClassName: "customHeader" },
+  { field: "inbound_cid", headerName: "INBOUND CID.", width: 120, headerClassName: "customHeader" },
+  { field: "outbound_cid", headerName: "OUTBOUND CID.", width: 120, headerClassName: "customHeader" },
+  { field: "calltime", headerName: "CALL TIME", width: 120, headerClassName: "customHeader" },
   { field: "weekoff", headerName: "WEEK OFF", width: 80, headerClassName: "customHeader" },
   { field: "after_ivr", headerName: "AFTER IVR", width: 80, headerClassName: "customHeader" },
   { field: "ivr", headerName: "PARK MUSIC", width: 100, headerClassName: "customHeader" },

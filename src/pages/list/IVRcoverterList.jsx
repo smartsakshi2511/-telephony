@@ -46,8 +46,7 @@ const initialIVRRows = [
     status: "deactive",
   },
 ];
-
-// Columns definition for IVR Converters
+ 
 const ivrColumns = [
   { field: "srNo", headerName: "SR NO.", width: 100, headerClassName: "customHeader" },
   { field: "type", headerName: "TYPE", width: 150,headerClassName: "customHeader" },
@@ -92,15 +91,11 @@ const IVRList = () => {
     });
   };
 
-
-
-  // Function to edit a row
+ 
   const handleEdit = (id) => {
     setEditRowId(id);
   };
-
-
-  // Function to save the edited row
+ 
   const handleSaveEdit = (row) => {
     const updatedData = data.map((item) => (item.id === row.id ? row : item));
     setData(updatedData);
@@ -116,8 +111,7 @@ const IVRList = () => {
     );
     setData(updatedData);
   };
-
-  // Function to view details of a row
+ 
   const handleView = (row) => {
     setViewData(row);
     setViewDialogOpen(true);
@@ -258,7 +252,7 @@ const IVRList = () => {
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
       <div className="datatableTitle" style={styles.datatableTitle}>
-        <Typography variant="h6">IVR CONVERTER LIST</Typography>
+        <Typography variant="h6" style={{ fontWeight: 'bold' }}> IVR CONVERTER LIST</Typography>
 
         <TextField
           variant="outlined"

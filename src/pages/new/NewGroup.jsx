@@ -1,6 +1,5 @@
-// NewGroup.jsx
 import "./new.scss";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -8,7 +7,6 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Typography,
   Grid,
   IconButton,
@@ -20,50 +18,52 @@ import {
   Paper,
   Snackbar,
   Alert,
-} from '@mui/material';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import DriveFolderUploadOutlinedIcon from '@mui/icons-material/DriveFolderUploadOutlined';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import axios from 'axios'; // Import Axios for API requests
+} from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import axios from "axios"; // Import Axios for API requests
 
 const NewGroup = () => {
   const [file, setFile] = useState(null);
   const [formData, setFormData] = useState({
-    groupId: '',
-    groupName: '',
-    campaignName: '',
-    enterPressKey: '',
+    groupId: "",
+    groupName: "",
+    campaignName: "",
+    enterPressKey: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [campaignOptions, setCampaignOptions] = useState([]); // For dynamic campaign names
   const [openDialog, setOpenDialog] = useState(false); // State to control Dialog visibility
-  const [currentField, setCurrentField] = useState(''); // To track which field's info to display
+  const [currentField, setCurrentField] = useState(""); // To track which field's info to display
   const [groups, setGroups] = useState([]); // State to store fetched groups
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' }); // For notifications
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  }); // For notifications
 
   // Mapping of field names to their detailed descriptions
   const fieldDetails = {
-    groupId: 'Unique identifier for the group. It cannot be changed once set.',
-    groupName: 'Name of the group. It should be descriptive and unique.',
-    campaignName: 'Name of your Campaign.',
-    enterPressKey: 'Enter the key to be pressed for specific actions within the group.',
+    groupId: "Unique identifier for the group. It cannot be changed once set.",
+    groupName: "Name of the group. It should be descriptive and unique.",
+    campaignName: "Name of your Campaign.",
+    enterPressKey:
+      "Enter the key to be pressed for specific actions within the group.",
   };
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
         // Replace with your actual API endpoint
-        const response = await axios.get('https://api.example.com/campaigns');
+        const response = await axios.get("https://api.example.com/campaigns");
         setCampaignOptions(response.data.campaigns); // Adjust based on API response structure
       } catch (error) {
-        console.error('Error fetching campaigns:', error);
+        console.error("Error fetching campaigns:", error);
         // Fallback to predefined campaigns if API fails
         setCampaignOptions([
-          { id: 1, name: 'Sales Team' },
-          { id: 2, name: 'HR Team' },
-          { id: 3, name: 'Software Team' },
+          { id: 1, name: "Sales Team" },
+          { id: 2, name: "HR Team" },
+          { id: 3, name: "Software Team" },
         ]);
       }
     };
@@ -76,17 +76,17 @@ const NewGroup = () => {
     const getGroups = async () => {
       try {
         // Replace with your actual API endpoint
-        const response = await axios.get('https://api.example.com/get-groups');
+        const response = await axios.get("https://api.example.com/get-groups");
         setGroups(response.data.groups); // Adjust based on API response structure
       } catch (error) {
-        console.error('Error fetching group data:', error);
+        console.error("Error fetching group data:", error);
         // Fallback to mock data if API fails
         setGroups([
           {
-            groupId: 'GRP001',
-            groupName: 'Marketing Group',
-            campaignName: 'Summer Sale',
-            enterPressKey: '1',
+            groupId: "GRP001",
+            groupName: "Marketing Group",
+            campaignName: "Summer Sale",
+            enterPressKey: "1",
           },
           // Add more mock groups as needed
         ]);
@@ -118,22 +118,22 @@ const NewGroup = () => {
 
     // groupId Validation
     if (!formData.groupId.trim()) {
-      newErrors.groupId = 'Group ID is required';
+      newErrors.groupId = "Group ID is required";
     }
 
     // groupName Validation
     if (!formData.groupName.trim()) {
-      newErrors.groupName = 'Group Name is required';
+      newErrors.groupName = "Group Name is required";
     }
 
     // campaignName Validation
     if (!formData.campaignName.trim()) {
-      newErrors.campaignName = 'Campaign Name is required';
+      newErrors.campaignName = "Campaign Name is required";
     }
 
     // enterPressKey Validation
     if (!formData.enterPressKey.trim()) {
-      newErrors.enterPressKey = 'Enter Press Key is required';
+      newErrors.enterPressKey = "Enter Press Key is required";
     }
 
     setErrors(newErrors);
@@ -151,54 +151,67 @@ const NewGroup = () => {
 
       try {
         const formDataToSubmit = new FormData(); // Use FormData for file uploads
-        formDataToSubmit.append('groupId', formData.groupId);
-        formDataToSubmit.append('groupName', formData.groupName);
-        formDataToSubmit.append('campaignName', formData.campaignName);
-        formDataToSubmit.append('enterPressKey', formData.enterPressKey);
+        formDataToSubmit.append("groupId", formData.groupId);
+        formDataToSubmit.append("groupName", formData.groupName);
+        formDataToSubmit.append("campaignName", formData.campaignName);
+        formDataToSubmit.append("enterPressKey", formData.enterPressKey);
 
-        // Append file if it exists
         if (formData.file) {
-          formDataToSubmit.append('file', formData.file);
+          formDataToSubmit.append("file", formData.file);
         }
 
         // Example API URL - Replace with your actual API endpoint
         const response = await axios.post(
-          'https://api.example.com/create-group',
+          "https://api.example.com/create-group",
           formDataToSubmit,
           {
             headers: {
-              'Content-Type': 'multipart/form-data', // For file uploads
+              "Content-Type": "multipart/form-data", // For file uploads
             },
           }
         );
 
-        console.log('Group created successfully:', response.data);
+        console.log("Group created successfully:", response.data);
         setIsSubmitting(false); // Reset loading state
 
         // Optional: Reset form fields after successful submission
         setFormData({
-          groupId: '',
-          groupName: '',
-          campaignName: '',
-          enterPressKey: '',
+          groupId: "",
+          groupName: "",
+          campaignName: "",
+          enterPressKey: "",
         });
         setFile(null);
 
         // Refresh group list
-        const updatedGroups = await axios.get('https://api.example.com/get-groups');
+        const updatedGroups = await axios.get(
+          "https://api.example.com/get-groups"
+        );
         setGroups(updatedGroups.data.groups);
 
         // Show success snackbar
-        setSnackbar({ open: true, message: 'Group created successfully!', severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: "Group created successfully!",
+          severity: "success",
+        });
       } catch (error) {
-        console.error('Error submitting the form:', error);
+        console.error("Error submitting the form:", error);
         setIsSubmitting(false); // Reset loading state
         // Show error snackbar
-        setSnackbar({ open: true, message: 'Failed to create group.', severity: 'error' });
+        setSnackbar({
+          open: true,
+          message: "Failed to create group.",
+          severity: "error",
+        });
       }
     } else {
-      console.log('Form has errors');
-      setSnackbar({ open: true, message: 'Please fix the errors in the form.', severity: 'warning' });
+      console.log("Form has errors");
+      setSnackbar({
+        open: true,
+        message: "Please fix the errors in the form.",
+        severity: "warning",
+      });
     }
   };
 
@@ -211,7 +224,7 @@ const NewGroup = () => {
   // Handle closing the Dialog
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setCurrentField('');
+    setCurrentField("");
   };
 
   // Handle closing the Snackbar
@@ -222,26 +235,34 @@ const NewGroup = () => {
   // Handle Edit Group
   const handleEditGroup = (group) => {
     // Implement edit functionality, e.g., open a form with group data
-    console.log('Edit Group:', group);
+    console.log("Edit Group:", group);
     // You can set the formData to the selected group's data to allow editing
   };
 
   // Handle Delete Group
   const handleDeleteGroup = async (groupId) => {
     try {
-       
       await axios.delete(`https://api.example.com/delete-group/${groupId}`);
       console.log(`Group ${groupId} deleted successfully.`);
-      
-      const updatedGroups = await axios.get('https://api.example.com/get-groups');
+
+      const updatedGroups = await axios.get(
+        "https://api.example.com/get-groups"
+      );
       setGroups(updatedGroups.data.groups);
 
-    
-      setSnackbar({ open: true, message: 'Group deleted successfully!', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: "Group deleted successfully!",
+        severity: "success",
+      });
     } catch (error) {
-      console.error('Error deleting group:', error);
-      
-      setSnackbar({ open: true, message: 'Failed to delete group.', severity: 'error' });
+      console.error("Error deleting group:", error);
+
+      setSnackbar({
+        open: true,
+        message: "Failed to delete group.",
+        severity: "error",
+      });
     }
   };
 
@@ -259,12 +280,24 @@ const NewGroup = () => {
             {/* Group ID */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <InputLabel htmlFor="groupId">Group ID</InputLabel>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={1}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="groupId"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Group ID
+                  </Typography>
                   <IconButton
                     aria-label="info"
                     size="small"
-                    onClick={() => handleOpenDialog('groupId')}
+                    onClick={() => handleOpenDialog("groupId")}
                   >
                     <InfoOutlinedIcon fontSize="small" />
                   </IconButton>
@@ -285,12 +318,24 @@ const NewGroup = () => {
             {/* Group Name */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <InputLabel htmlFor="groupName">Group Name</InputLabel>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={1}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="groupName"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Group Name
+                  </Typography>
                   <IconButton
                     aria-label="info"
                     size="small"
-                    onClick={() => handleOpenDialog('groupName')}
+                    onClick={() => handleOpenDialog("groupName")}
                   >
                     <InfoOutlinedIcon fontSize="small" />
                   </IconButton>
@@ -311,12 +356,24 @@ const NewGroup = () => {
             {/* Campaign Name */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth error={Boolean(errors.campaignName)}>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <InputLabel id="campaign-name-label">Campaign Name</InputLabel>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={1}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    id="campaign-name-label"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Campaign Name
+                  </Typography>
                   <IconButton
                     aria-label="info"
                     size="small"
-                    onClick={() => handleOpenDialog('campaignName')}
+                    onClick={() => handleOpenDialog("campaignName")}
                   >
                     <InfoOutlinedIcon fontSize="small" />
                   </IconButton>
@@ -327,7 +384,7 @@ const NewGroup = () => {
                   name="campaignName"
                   value={formData.campaignName}
                   onChange={handleInputChange}
-                  label="Campaign Name"
+                  displayEmpty
                 >
                   <MenuItem value="">
                     <em>Select Campaign</em>
@@ -349,12 +406,24 @@ const NewGroup = () => {
             {/* Enter Press Key */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <InputLabel htmlFor="enterPressKey">Enter Press Key</InputLabel>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={1}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="enterPressKey"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    Enter Press Key
+                  </Typography>
                   <IconButton
                     aria-label="info"
                     size="small"
-                    onClick={() => handleOpenDialog('enterPressKey')}
+                    onClick={() => handleOpenDialog("enterPressKey")}
                   >
                     <InfoOutlinedIcon fontSize="small" />
                   </IconButton>
@@ -372,43 +441,6 @@ const NewGroup = () => {
               </FormControl>
             </Grid>
 
-            {/* File Upload */}
-            {/* <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <InputLabel htmlFor="file">Upload File</InputLabel>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog('file')}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Button
-                  variant="contained"
-                  component="label"
-                  startIcon={<DriveFolderUploadOutlinedIcon />}
-                  fullWidth
-                >
-                  {formData.file ? formData.file.name : 'Choose File'}
-                  <input
-                    type="file"
-                    id="file"
-                    name="file"
-                    hidden
-                    onChange={handleInputChange}
-                    accept=".jpg,.jpeg,.png,.pdf" // Adjust file types as needed
-                  />
-                </Button>
-                {errors.file && (
-                  <Typography variant="caption" color="error">
-                    {errors.file}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid> */}
-
             {/* Submit Button */}
             <Grid item xs={12}>
               <Button
@@ -419,17 +451,13 @@ const NewGroup = () => {
                 disabled={isSubmitting}
                 startIcon={isSubmitting && <CircularProgress size={20} />}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit'}
+                {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </Grid>
           </Grid>
         </form>
       </Paper>
 
-      {/* Groups Table */}
-   
-
-      {/* Dialog for Field Details */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Field Details</DialogTitle>
         <DialogContent>
@@ -443,13 +471,17 @@ const NewGroup = () => {
       </Dialog>
 
       {/* Snackbar for Notifications */}
-      <Snackbar 
+      <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

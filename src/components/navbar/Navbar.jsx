@@ -7,6 +7,8 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import Button from "@mui/material/Button"; 
 import { DarkModeContext } from "../../context/darkModeContext";
 import PopupIframe from './LiveCall';
+import Phone from './PhoneCall';
+
 
 const Navbar = ({OpenSidebar}) => {
   const { dispatch } = useContext(DarkModeContext);
@@ -49,13 +51,13 @@ const Navbar = ({OpenSidebar}) => {
 
           {/* Button to toggle Live Calls popup */}
           <div className="item">
-            <Button className='pulse-effect'
+            <Button className='pulse-effect responsive-button'
               variant="contained"
               style={{   background: "linear-gradient(90deg, #283593, #3F51B5,  #283593)",
                 color: "#fff", marginRight: '10px' }}
               onClick={toggleIframe1}
             >
-              {iframe1Visible ? ' Calls' : 'Live Calls'}
+              {iframe1Visible ? ' Calls' : 'Calls'}
             </Button>
           </div>
 
@@ -103,16 +105,17 @@ const Navbar = ({OpenSidebar}) => {
       <PopupIframe
         visible={iframe1Visible}
         toggleVisibility={toggleIframe1}
-        iframeSrc="https://www.example.com/live-calls"
         title="Live Calls"
       />
 
       {/* PopupIframe for Phone */}
-      <PopupIframe
+      <Phone
         visible={iframe2Visible}
         toggleVisibility={toggleIframe2}
-        iframeSrc="https://www.wikipedia.org"
         title="Phone"
+        // src="src/components/Phone/Phone/index.html"
+         iframeSrc="./softphone/Phone/index.html"
+         
       />
     </div>
   );

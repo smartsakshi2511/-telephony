@@ -65,7 +65,7 @@ const GroupList = () => {
               color="primary"
               onClick={() => handleView(params.row)}
             >
-              <VisibilityIcon style={{ cursor: "pointer", color: "blue"}}/>
+              <VisibilityIcon style={{ cursor: "pointer", color: "blue", marginRight: "10px" }}/>
             </IconButton>
           </Tooltip>
           <Tooltip title="Edit">
@@ -73,7 +73,7 @@ const GroupList = () => {
               color="info"
               onClick={() => handleEdit(params.row)}
             >
-              <EditIcon style={{ cursor: "pointer", color: "green"}}/>
+              <EditIcon style={{ cursor: "pointer", color: "green" }} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
@@ -263,7 +263,7 @@ const GroupList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        ADD NEW USER GROUP
+       <b> GROUP LIST </b>
        
         <Button
           variant="contained"
@@ -271,13 +271,6 @@ const GroupList = () => {
           startIcon={<AddIcon />}
           component={Link}
           to="/group/newGroup"
-          sx={{
-            background: 'linear-gradient(90deg, #283593, #3F51B5)',
-            color: '#fff',
-            '&:hover': {
-              background: 'linear-gradient(90deg, #1e276b, #32408f)', // Darker shade on hover
-            },
-          }}
         >
           Add Group
         </Button>

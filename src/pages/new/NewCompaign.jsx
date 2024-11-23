@@ -1,11 +1,9 @@
- 
 import React, { useState, useEffect } from "react";
 import "./new.scss"; // Retain if you have additional styles
 import DriveFolderUploadOutlinedIcon from "@mui/icons-material/DriveFolderUploadOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import axios from "axios"; // Import Axios for API requests
-
-// MUI Components
+ 
 import {
   Box,
   Button,
@@ -15,9 +13,9 @@ import {
   FormControl,
   InputLabel,
   Typography,
-  Switch,
+ 
   Grid,
-  FormControlLabel,
+ 
   IconButton,
   Dialog,
   DialogTitle,
@@ -58,7 +56,8 @@ const NewcCampaign = ({ title }) => {
 
   // Mapping of field names to their detailed descriptions
   const fieldDetails = {
-    campaignId: "Unique identifier for the campaign. It cannot be changed once set.",
+    campaignId:
+      "Unique identifier for the campaign. It cannot be changed once set.",
     campaignName: "Name of the campaign. It should be descriptive and unique.",
     campaignType: "Type of the campaign, e.g., Marketing, Support, Sales.",
     inboundCID: "Inbound Caller ID (CLI/DID) assigned to the campaign.",
@@ -104,7 +103,9 @@ const NewcCampaign = ({ title }) => {
     const getCampaigns = async () => {
       try {
         // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/get-campaigns");
+        const response = await axios.get(
+          "https://api.example.com/get-campaigns"
+        );
         setCampaigns(response.data.campaigns); // Adjust based on API response structure
       } catch (error) {
         console.error("Error fetching campaign data:", error);
@@ -157,28 +158,23 @@ const NewcCampaign = ({ title }) => {
   // Validate form data
   const validate = () => {
     let newErrors = {};
-
-    // campaignId Validation
+ 
     if (!formData.campaignId.trim()) {
       newErrors.campaignId = "Campaign ID is required";
     }
-
-    // campaignName Validation
+ 
     if (!formData.campaignName.trim()) {
       newErrors.campaignName = "Campaign Name is required";
     }
-
-    // campaignType Validation
+ 
     if (!formData.campaignType.trim()) {
       newErrors.campaignType = "Campaign Type is required";
     }
-
-    // inboundCID Validation
+ 
     if (!formData.inboundCID.trim()) {
       newErrors.inboundCID = "Inbound CID is required";
     }
-
-    // outboundCID Validation
+ 
     if (!formData.outboundCID.trim()) {
       newErrors.outboundCID = "Outbound CID is required";
     }
@@ -198,7 +194,6 @@ const NewcCampaign = ({ title }) => {
       newErrors.ringTime = "Ring Time is required";
     }
 
-
     if (!formData.autoDialLevel.trim()) {
       newErrors.autoDialLevel = "Auto Dial Level is required";
     }
@@ -216,9 +211,7 @@ const NewcCampaign = ({ title }) => {
     }
     if (!formData.leadForm.trim()) {
       newErrors.leadForm = "Lead Form URL is required";
-    } else if (
-      !/^(ftp|http|https):\/\/[^ "]+$/.test(formData.leadForm)
-    ) {
+    } else if (!/^(ftp|http|https):\/\/[^ "]+$/.test(formData.leadForm)) {
       newErrors.leadForm = "Lead Form URL is invalid";
     }
 
@@ -344,7 +337,9 @@ const NewcCampaign = ({ title }) => {
   const handleDeleteCampaign = async (campaignId) => {
     try {
       // Replace with your actual API endpoint
-      await axios.delete(`https://api.example.com/delete-campaign/${campaignId}`);
+      await axios.delete(
+        `https://api.example.com/delete-campaign/${campaignId}`
+      );
       console.log(`Campaign ${campaignId} deleted successfully.`);
       // Refresh campaign list
       const updatedCampaigns = await axios.get(
@@ -360,8 +355,6 @@ const NewcCampaign = ({ title }) => {
   return (
     <Box display="flex" className="newContainer">
       <Box flex={6} p={2}>
-
-
         {/* Top Section */}
         <Box mb={4}>
           <Typography variant="h4" component="h1">
@@ -381,14 +374,16 @@ const NewcCampaign = ({ title }) => {
             boxShadow: 3,
           }}
         >
-
-
           <Grid container spacing={3}>
             {/* Campaign ID */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="campaignId">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="campaignId"
+                  >
                     Campaign ID
                   </Typography>
                   <IconButton
@@ -418,7 +413,11 @@ const NewcCampaign = ({ title }) => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="campaignName">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="campaignName"
+                  >
                     Campaign Name
                   </Typography>
                   <IconButton
@@ -444,12 +443,15 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-          
             {/* Inbound CID */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="inboundCID">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="inboundCID"
+                  >
                     Inbound (CLI/DID)
                   </Typography>
                   <IconButton
@@ -479,7 +481,11 @@ const NewcCampaign = ({ title }) => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="outboundCID">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="outboundCID"
+                  >
                     Outbound (CLD/DID)
                   </Typography>
                   <IconButton
@@ -505,12 +511,20 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-
-  {/* Campaign Type */}
-  <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" required error={Boolean(errors.campaignType)}>
+            {/* Campaign Type */}
+            <Grid item xs={12} sm={6}>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                required
+                error={Boolean(errors.campaignType)}
+              >
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="campaignType">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="campaignType"
+                  >
                     Campaign Type
                   </Typography>
                   <IconButton
@@ -545,12 +559,20 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-
-              {/* Active Status */}
-              <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" required error={Boolean(errors.active)}>
+            {/* Active Status */}
+            <Grid item xs={12} sm={6}>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                required
+                error={Boolean(errors.active)}
+              >
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="active">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="active"
+                  >
                     Active
                   </Typography>
                   <IconButton
@@ -583,12 +605,15 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-
             {/* Welcome IVR File Upload */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="welcomeIVR">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="welcomeIVR"
+                  >
                     Welcome IVR
                   </Typography>
                   <IconButton
@@ -604,7 +629,9 @@ const NewcCampaign = ({ title }) => {
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
-                  {formData.welcomeIVR ? formData.welcomeIVR.name : "Choose File"}
+                  {formData.welcomeIVR
+                    ? formData.welcomeIVR.name
+                    : "Choose File"}
                   <input
                     type="file"
                     id="welcomeIVR"
@@ -626,7 +653,11 @@ const NewcCampaign = ({ title }) => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="afterOfficeIVR">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="afterOfficeIVR"
+                  >
                     After Office IVR
                   </Typography>
                   <IconButton
@@ -642,7 +673,9 @@ const NewcCampaign = ({ title }) => {
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
-                  {formData.afterOfficeIVR ? formData.afterOfficeIVR.name : "Choose File"}
+                  {formData.afterOfficeIVR
+                    ? formData.afterOfficeIVR.name
+                    : "Choose File"}
                   <input
                     type="file"
                     id="afterOfficeIVR"
@@ -664,7 +697,11 @@ const NewcCampaign = ({ title }) => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="callOnHoldMusic">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="callOnHoldMusic"
+                  >
                     Call on hold music
                   </Typography>
                   <IconButton
@@ -680,7 +717,9 @@ const NewcCampaign = ({ title }) => {
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
-                  {formData.callOnHoldMusic ? formData.callOnHoldMusic.name : "Choose File"}
+                  {formData.callOnHoldMusic
+                    ? formData.callOnHoldMusic.name
+                    : "Choose File"}
                   <input
                     type="file"
                     id="callOnHoldMusic"
@@ -702,7 +741,11 @@ const NewcCampaign = ({ title }) => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="ringToneMusic">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="ringToneMusic"
+                  >
                     Ring Tone Music
                   </Typography>
                   <IconButton
@@ -718,7 +761,9 @@ const NewcCampaign = ({ title }) => {
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
-                  {formData.ringToneMusic ? formData.ringToneMusic.name : "Choose File"}
+                  {formData.ringToneMusic
+                    ? formData.ringToneMusic.name
+                    : "Choose File"}
                   <input
                     type="file"
                     id="ringToneMusic"
@@ -740,7 +785,11 @@ const NewcCampaign = ({ title }) => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="noAgentIVR">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="noAgentIVR"
+                  >
                     No Agent IVR
                   </Typography>
                   <IconButton
@@ -756,7 +805,9 @@ const NewcCampaign = ({ title }) => {
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
-                  {formData.noAgentIVR ? formData.noAgentIVR.name : "Choose File"}
+                  {formData.noAgentIVR
+                    ? formData.noAgentIVR.name
+                    : "Choose File"}
                   <input
                     type="file"
                     id="noAgentIVR"
@@ -778,7 +829,11 @@ const NewcCampaign = ({ title }) => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="subtitle1" component="label" htmlFor="weekOffIVR">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="weekOffIVR"
+                  >
                     Week off IVR
                   </Typography>
                   <IconButton
@@ -794,7 +849,9 @@ const NewcCampaign = ({ title }) => {
                   component="label"
                   startIcon={<DriveFolderUploadOutlinedIcon />}
                 >
-                  {formData.weekOffIVR ? formData.weekOffIVR.name : "Choose File"}
+                  {formData.weekOffIVR
+                    ? formData.weekOffIVR.name
+                    : "Choose File"}
                   <input
                     type="file"
                     id="weekOffIVR"
@@ -812,7 +869,6 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-          
             {/* Call Time */}
             {/* <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
@@ -846,9 +902,18 @@ const NewcCampaign = ({ title }) => {
             {/* Ring Time */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography variant="subtitle1" component="label" htmlFor="ringTime">
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="ringTime"
+                    >
                       Ring Time
                     </Typography>
                     <IconButton
@@ -873,16 +938,24 @@ const NewcCampaign = ({ title }) => {
                     </Select>
                   </FormControl>
                 </Box>
-
               </FormControl>
             </Grid>
 
             {/* Auto Dial Level */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography variant="subtitle1" component="label" htmlFor="autoDialLevel">
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="autoDialLevel"
+                    >
                       Auto Dial Level (0 = off)
                     </Typography>
                     <IconButton
@@ -894,7 +967,9 @@ const NewcCampaign = ({ title }) => {
                     </IconButton>
                   </Box>
                   <FormControl fullWidth variant="outlined">
-                    <InputLabel htmlFor="autoDialLevel">Select Auto Dial Level</InputLabel>
+                    <InputLabel htmlFor="autoDialLevel">
+                      Select Auto Dial Level
+                    </InputLabel>
                     <Select
                       name="auto_dial_level"
                       id="auto_dial_level"
@@ -912,16 +987,29 @@ const NewcCampaign = ({ title }) => {
                     </Select>
                   </FormControl>
                 </Box>
-
               </FormControl>
             </Grid>
 
             {/* Ring Type */}
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" required error={Boolean(errors.ringType)}>
-                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+              <FormControl
+                fullWidth
+                variant="outlined"
+                required
+                error={Boolean(errors.ringType)}
+              >
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography variant="subtitle1" component="label" htmlFor="ringType">
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="ringType"
+                    >
                       Ring Type
                     </Typography>
                     <IconButton
@@ -943,20 +1031,30 @@ const NewcCampaign = ({ title }) => {
                       <MenuItem value="random">Random</MenuItem>
                       <MenuItem value="campaign_rank">Rank</MenuItem>
                       <MenuItem value="ring_all">Ring All</MenuItem>
-                      <MenuItem value="longest_wait_time">Longest Wait Time</MenuItem>
+                      <MenuItem value="longest_wait_time">
+                        Longest Wait Time
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
-
               </FormControl>
             </Grid>
 
             {/* Calling Time */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography variant="subtitle1" component="label" htmlFor="callingTime">
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="callingTime"
+                    >
                       Calling Time
                     </Typography>
                     <IconButton
@@ -968,33 +1066,57 @@ const NewcCampaign = ({ title }) => {
                     </IconButton>
                   </Box>
                   <FormControl fullWidth variant="outlined">
-                    <InputLabel htmlFor="callingTime">Select Calling Time</InputLabel>
+                    <InputLabel htmlFor="callingTime">
+                      Select Calling Time
+                    </InputLabel>
                     <Select
                       name="local_call_time"
                       id="local_call_time"
                       label="Select Calling Time"
                       defaultValue="12am-11pm"
                     >
-                      <MenuItem value="12am-11pm">24 hours - default 24 hours calling</MenuItem>
-                      <MenuItem value="9am-6pm">9am-6pm - default 9am to 6pm calling</MenuItem>
-                      <MenuItem value="10am-6pm">10am-6pm - default 10am to 6pm calling</MenuItem>
-                      <MenuItem value="10am-7pm">10am-7pm - default 10am to 7pm calling</MenuItem>
-                      <MenuItem value="12pm-5pm">12pm-5pm - default 12pm to 5pm calling</MenuItem>
-                      <MenuItem value="12pm-9pm">12pm-9pm - default 12pm to 9pm calling</MenuItem>
-                      <MenuItem value="5pm-9pm">5pm-9pm - default 5pm to 9pm calling</MenuItem>
+                      <MenuItem value="12am-11pm">
+                        24 hours - default 24 hours calling
+                      </MenuItem>
+                      <MenuItem value="9am-6pm">
+                        9am-6pm - default 9am to 6pm calling
+                      </MenuItem>
+                      <MenuItem value="10am-6pm">
+                        10am-6pm - default 10am to 6pm calling
+                      </MenuItem>
+                      <MenuItem value="10am-7pm">
+                        10am-7pm - default 10am to 7pm calling
+                      </MenuItem>
+                      <MenuItem value="12pm-5pm">
+                        12pm-5pm - default 12pm to 5pm calling
+                      </MenuItem>
+                      <MenuItem value="12pm-9pm">
+                        12pm-9pm - default 12pm to 9pm calling
+                      </MenuItem>
+                      <MenuItem value="5pm-9pm">
+                        5pm-9pm - default 5pm to 9pm calling
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
-
               </FormControl>
             </Grid>
 
             {/* Week Off */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography variant="subtitle1" component="label" htmlFor="weekOff">
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="weekOff"
+                    >
                       Week Off
                     </Typography>
                     <IconButton
@@ -1021,21 +1143,31 @@ const NewcCampaign = ({ title }) => {
                       <MenuItem value="Thursday">Thursday</MenuItem>
                       <MenuItem value="Friday">Friday</MenuItem>
                       <MenuItem value="Saturday">Saturday</MenuItem>
-                      <MenuItem value="SaturdaytoSunday">Saturday to Sunday</MenuItem>
+                      <MenuItem value="SaturdaytoSunday">
+                        Saturday to Sunday
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
-
               </FormControl>
             </Grid>
 
             {/* Lead Form */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
                   {/* Label and Info Icon */}
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Typography variant="subtitle1" component="label" htmlFor="leadForm">
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="leadForm"
+                    >
                       Lead Form
                     </Typography>
                     <IconButton
@@ -1062,52 +1194,57 @@ const NewcCampaign = ({ title }) => {
                     </Select>
                   </FormControl>
                 </Box>
-
               </FormControl>
             </Grid>
 
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                {/* Wrapper Box for Label and Dropdown */}
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
+                  {/* Label and Info Icon */}
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="callRoute"
+                    >
+                      Call Route
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("callRoute")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
 
-
-<Grid item xs={12} sm={6}>
-      <FormControl fullWidth>
-        {/* Wrapper Box for Label and Dropdown */}
-        <Box display="flex" flexDirection="column" alignItems="flex-start" width="100%">
-          
-          {/* Label and Info Icon */}
-          <Box display="flex" alignItems="center" mb={1}>
-            <Typography variant="subtitle1" component="label" htmlFor="callRoute">
-              Call Route
-            </Typography>
-            <IconButton
-              aria-label="info"
-              size="small"
-              onClick={() => handleOpenDialog("callRoute")}
-            >
-              <InfoOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Box>
-
-          {/* Dropdown for Call Route */}
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="callRoute">Select Call Route</InputLabel>
-            <Select
-              name="group_wise"
-              id="group_wise"
-              label="Select Call Route"
-              defaultValue=""
-            >
-              <MenuItem value="">None</MenuItem>
-              <MenuItem value="0">NONE</MenuItem>
-              {/* <MenuItem value="SCRIPT">SCRIPT</MenuItem> */}
-              <MenuItem value="1">GROUP</MenuItem>
-              <MenuItem value="2">Call Menu</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-      </FormControl>
-    </Grid>
-
-
+                  {/* Dropdown for Call Route */}
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="callRoute">
+                      Select Call Route
+                    </InputLabel>
+                    <Select
+                      name="group_wise"
+                      id="group_wise"
+                      label="Select Call Route"
+                      defaultValue=""
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      <MenuItem value="0">NONE</MenuItem>
+                      {/* <MenuItem value="SCRIPT">SCRIPT</MenuItem> */}
+                      <MenuItem value="1">GROUP</MenuItem>
+                      <MenuItem value="2">Call Menu</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </FormControl>
+            </Grid>
 
             {/* Submit Button */}
             <Grid item xs={12}>
@@ -1124,17 +1261,13 @@ const NewcCampaign = ({ title }) => {
             </Grid>
           </Grid>
         </Box>
-
-
-
-        {/* Campaign Table (Placeholder) */}
-        {/* You can implement your campaign table here using MUI's Table components */}
-
-        {/* Dialog for Field Details */}
+ 
         <Dialog open={openDialog} onClose={handleCloseDialog}>
           <DialogTitle>Field Details</DialogTitle>
           <DialogContent>
-            <Typography variant="body1">{fieldDetails[currentField]}</Typography>
+            <Typography variant="body1">
+              {fieldDetails[currentField]}
+            </Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog} color="primary">

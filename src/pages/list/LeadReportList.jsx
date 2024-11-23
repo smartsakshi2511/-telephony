@@ -159,7 +159,7 @@ const LeadReportList = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-      TOTAL LEAD REPORTS
+      <b>TOTAL LEAD REPORTS</b>
         <div className="callFilter">
    <Tooltip title="Filter the data by date and Agent">
    <Button variant="outlined" onClick={handleFilterDialogOpen}  endIcon={<GridFilterListIcon/>} style={{

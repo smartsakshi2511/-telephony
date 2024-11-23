@@ -12,9 +12,9 @@
 
     .widgets {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Decreased min width */
-      gap: 15px; /* Reduced spacing between boxes */
-      padding: 10px; /* Reduced overall padding */
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));  
+      gap: 15px; 
+      padding: 10px;  
     }
     
 

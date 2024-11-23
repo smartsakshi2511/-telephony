@@ -51,22 +51,27 @@
       gap: 10px;
     }
 
-    .activeStatus {
-      padding: 5px 10px;
-      border-radius: 5px;
-      color: white;
-      font-weight: bold;
+    .statusButton {
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
       font-size: 12px;
-      text-align: center;
+      font-weight: bold;
+      text-transform: capitalize;
+      border: none;
+      outline: none;
     }
-
-    .activeStatus.active {
-      background-color: #4caf50; // Green for active
+    
+    .statusButton.active {
+      background-color: #e0f7fa; /* Light blue background */
+      color: #00796b; /* Dark green text */
     }
-
-    .activeStatus.inactive {
-      background-color: #f44336; // Red for inactive
+    
+    .statusButton.inactive {
+      background-color: #fbe9e7; /* Light red background */
+      color: #d32f2f; /* Dark red text */
     }
+    
   }
 
   /* Dialog Styling */
@@ -145,7 +150,6 @@
     }
   }
 
-  /* Additional Styles for List Upload */
   .datatableTitle {
     h1 {
       color: #333;
@@ -162,3 +166,206 @@
     }
   }
 }
+
+
+
+
+.container {
+  margin-top: 20px;
+
+  .total-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .select {
+      display: flex;
+      gap: 10px;
+
+      .btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 5px;
+        cursor: pointer;
+
+        &.btn-primary {
+          background-color: #007bff;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #0056b3;
+          }
+        }
+
+        &.btn-success {
+          background-color: #28a745;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #218838;
+          }
+        }
+
+        &.btn-danger {
+          background-color: #dc3545;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #c82333;
+          }
+        }
+      }
+    }
+  }
+
+  .table-responsive {
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #dee2e6;
+      text-align: left;
+
+      thead {
+        background-color: #f8f9fa;
+
+        th {
+          padding: 10px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          text-align: center;
+          border: 1px solid #dee2e6;
+        }
+      }
+
+      tbody {
+        tr {
+          &:nth-child(even) {
+            background-color: #f2f2f2;
+          }
+        }
+
+        td {
+          padding: 8px;
+          font-size: 0.9rem;
+          text-align: center;
+          border: 1px solid #dee2e6;
+        }
+
+        .no-data {
+          text-align: center;
+          font-size: 1rem;
+          font-weight: bold;
+          color: #999;
+        }
+      }
+    }
+  }
+
+  .modal {
+    &.show {
+      background-color: rgba(0, 0, 0, 0.5);
+
+      .modal-dialog {
+        .modal-content {
+          .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+
+            .modal-title {
+              font-size: 1.2rem;
+              font-weight: bold;
+            }
+
+            .close {
+              font-size: 1.5rem;
+              border: none;
+              background: none;
+              cursor: pointer;
+
+              &:hover {
+                color: #dc3545;
+              }
+            }
+          }
+
+          .modal-body {
+            .form-group {
+              margin-bottom: 20px;
+
+              label {
+                display: block;
+                font-size: 0.9rem;
+                font-weight: 500;
+              }
+
+              select,
+              input {
+                width: 100%;
+                padding: 8px;
+                font-size: 0.9rem;
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+
+                &:focus {
+                  border-color: #80bdff;
+                  outline: none;
+                }
+              }
+            }
+          }
+
+          .modal-footer {
+            display: flex;
+            justify-content: space-between;
+
+            .btn {
+              padding: 10px 15px;
+              font-size: 0.9rem;
+              border-radius: 5px;
+
+              &.btn-primary {
+                background-color: #007bff;
+                color: white;
+
+                &:hover {
+                  background-color: #0056b3;
+                }
+              }
+
+              &.btn-secondary {
+                background-color: #6c757d;
+                color: white;
+
+                &:hover {
+                  background-color: #5a6268;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+@media (max-width: 768px) {
+  .btn {
+    width: 100%; /* Buttons take full width on small screens */
+    margin: 5px 0;
+  }
+  h3 {
+    font-size: 1.2rem; /* Smaller heading */
+  }
+}
+
+
+

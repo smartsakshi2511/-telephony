@@ -13,10 +13,50 @@ import "./table.scss";
 
 // Sample data
 const initialRows = [
-  { id: 1, agent: "John Smith", status: "Ready", lastCall: "2 min ago", login: "8:00 AM", talk: "5 min", cancel: "1", other: "0", total: "6" },
-  { id: 2, agent: "Jane Doe", status: "Pause", lastCall: "5 min ago", login: "8:05 AM", talk: "3 min", cancel: "0", other: "2", total: "5" },
-  { id: 3, agent: "Michael Brown", status: "Ready", lastCall: "10 min ago", login: "8:10 AM", talk: "7 min", cancel: "0", other: "1", total: "8" },
-  { id: 4, agent: "Alice Green", status: "Ready", lastCall: "20 min ago", login: "8:15 AM", talk: "10 min", cancel: "0", other: "0", total: "10" },
+  {
+    id: 1,
+    agent: "John Smith",
+    status: "Ready",
+    lastCall: "2 min ago",
+    login: "8:00 AM",
+    talk: "5 min",
+    cancel: "1",
+    other: "0",
+    total: "6",
+  },
+  {
+    id: 2,
+    agent: "Jane Doe",
+    status: "Pause",
+    lastCall: "5 min ago",
+    login: "8:05 AM",
+    talk: "3 min",
+    cancel: "0",
+    other: "2",
+    total: "5",
+  },
+  {
+    id: 3,
+    agent: "Michael Brown",
+    status: "Ready",
+    lastCall: "10 min ago",
+    login: "8:10 AM",
+    talk: "7 min",
+    cancel: "0",
+    other: "1",
+    total: "8",
+  },
+  {
+    id: 4,
+    agent: "Alice Green",
+    status: "Ready",
+    lastCall: "20 min ago",
+    login: "8:15 AM",
+    talk: "10 min",
+    cancel: "0",
+    other: "0",
+    total: "10",
+  },
 ];
 
 // Reorder function for drag-and-drop
@@ -35,20 +75,25 @@ const List = () => {
   // Handle Drag-and-Drop
   const onDragEnd = (result) => {
     if (!result.destination) return;
-    const newRows = reorder(rows, result.source.index, result.destination.index);
+    const newRows = reorder(
+      rows,
+      result.source.index,
+      result.destination.index
+    );
     setRows(newRows);
   };
 
   // Filter Rows
   const filteredRows = rows.filter((row) => {
-    const matchesDate = dateFilter === "All" || (dateFilter === "Today" && row.lastCall.includes("min"));
+    const matchesDate =
+      dateFilter === "All" ||
+      (dateFilter === "Today" && row.lastCall.includes("min"));
     const matchesStatus = statusFilter === "All" || row.status === statusFilter;
     return matchesDate && matchesStatus;
   });
 
   return (
     <div>
-      {/* Dropdown Filters */}
       <div className="listHeader">
         <div className="listTitle">Agent Summary</div>
         <div className="dropdowns">
@@ -78,7 +123,12 @@ const List = () => {
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="tableRows">
           {(provided) => (
-            <TableContainer component={Paper} className="table" {...provided.droppableProps} ref={provided.innerRef}>
+            <TableContainer
+              component={Paper}
+              className="table"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
@@ -94,7 +144,11 @@ const List = () => {
                 </TableHead>
                 <TableBody>
                   {filteredRows.map((row, index) => (
-                    <Draggable key={row.id} draggableId={row.id.toString()} index={index}>
+                    <Draggable
+                      key={row.id}
+                      draggableId={row.id.toString()}
+                      index={index}
+                    >
                       {(provided) => (
                         <TableRow
                           ref={provided.innerRef}

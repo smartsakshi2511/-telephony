@@ -1,6 +1,6 @@
 .list {
   display: flex;
-  width: 100%;
+  width: auto;
   overflow: hidden;
   .listContainer {
     flex: 6;
@@ -13,6 +13,7 @@
 .datatable {
   height: 600px;
   padding: 20px;
+  
 
 
   .datatable::-webkit-scrollbar {
@@ -126,11 +127,13 @@
 }
 
 .customHeader {
-  font-size: 12px !important; /* Adjust font size here */
+ 
   font-weight: bold !important;
   font-family: 'Arial', sans-serif; 
   color: #0a0a0ade; /* Optional: Change header text color */
-  text-align: center; /* Center the text */
+  font-size: 14px;
+  text-align: center;
+ 
  
 }
 
@@ -155,12 +158,51 @@
   color: #d32f2f; /* Dark red text */
 }
 
-.customHr {
-  border: none;
-  border-top: 1px solid lightgray;
-  margin: 10px 0; /* optional for spacing */
+ 
+
+    b {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .callFilter {
+      display: flex;
+      gap: 10px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      button {
+        &:hover {
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+      }
+ 
+
+  .MuiDataGrid-root {
+    
+    border-radius: 10px;
+
+ 
+    .MuiDataGrid-cell {
+      font-size: 12px;
+      text-align: center;
+      color: solid grey;
+    }
+  }
 }
 
+@keyframes no-blink {
+  50% {
+    visibility: hidden;
+  }
+}
+
+input, textarea {
+  animation: no-blink 1s steps(1, end) infinite;
+}
 
 
 

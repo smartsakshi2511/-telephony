@@ -1,3 +1,4 @@
+/* Default styles (for large screens) */
 .userprofile {
   display: flex;
   width: 100%;
@@ -7,7 +8,7 @@
     .top {
       padding: 20px;
       display: flex;
-      gap: 4  0px;
+      gap: 4px;
       align-items: center;
 
       .left {
@@ -17,9 +18,8 @@
         padding: 20px;
         position: relative;
         gap: 20px;
-      justify-content: center;
-      text-align: justify;
-     
+        justify-content: center;
+        text-align: justify;
 
         .editButton {
           position: absolute;
@@ -35,17 +35,14 @@
 
         .item {
           display: flex;
-          gap: 200px;
-          align-items: center;
-          
+          gap: 40px;
+          align-items: start;
 
           .contact {
             width: auto;
             max-width: 100%;
-            text-align: center; /* Optional: center-align the text */
+            text-align: center;
           }
-          
-          
 
           .itemImg {
             width: 200px;
@@ -56,45 +53,43 @@
             margin-top: -50px;
           }
 
-          .heading{
+          .heading {
             margin-left: 90px;
           }
-        
 
           .details {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Using fractions to evenly distribute columns */
-            gap: 15px; /* Added gap between the grid items for better alignment */
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             padding: 10px;
-          
+
             .itemTitle {
               margin-bottom: 10px;
               color: #555;
-              grid-column: span 2; /* Ensure title spans across both columns */
+              grid-column: span 2;
             }
-          
+
             .detailItem {
               padding: 3px;
               font-size: 15px;
-              text-align: left; /* Align the text to the left for consistency */
+              text-align: left;
               display: flex;
-              justify-content: space-between; /* Align key and value horizontally */
-              align-items: center; /* Vertically center the content */
-          
+              justify-content: space-between;
+              align-items: center;
+
               .itemKey {
                 font-weight: bold;
                 color: gray;
                 margin-right: 10px;
               }
-          
+
               .itemValue {
                 font-weight: 300;
               }
-            }}}}
-
-      // .right {
-      //   flex: 2;
-      // }
+            }
+          }
+        }
+      }
     }
 
     .bottom {
@@ -105,13 +100,116 @@
     }
 
     .title {
-      // font-size: 16px;
       color: darkgray;
       margin-bottom: 20px;
       margin-left: 500px;
     }
   }
 }
+
+/* Mobile and Small Screen Adjustments */
+@media (max-width: 768px) {
+  .userprofile {
+    .profileContainer {
+      .top {
+        overflow: hidden; /* Prevents horizontal scrolling */
+
+        .left {
+          flex-direction: column;
+          padding: 10px;
+          width: 100%;
+          box-shadow: none;
+          text-align: center;
+        }
+
+        .heading {
+          margin-left: 20px; /* Reduce margin on smaller screens */
+          text-align: center; /* Center the heading */
+        }
+      
+        .editButton {
+          position: relative; /* Change position for small screens */
+          top: auto;
+          right: auto;
+          padding: 10px;
+          font-size: 14px; /* Increase font size slightly */
+          width: auto; /* Adjust width if necessary */
+          margin-top: 10px; /* Give space on top */
+        }
+      
+        .itemImg {
+          width: 150px; /* Adjust image size for small screens */
+          height: 150px;
+          margin: 0 auto; /* Center image */
+        }
+      
+        .item {
+          flex-direction: column;
+          gap: 15px;
+          align-items: center; /* Align items in the center */
+        }
+        .details {
+          grid-template-columns: 1fr;
+          gap: 10px;
+          padding: 5px;
+
+          .detailItem {
+            font-size: 13px;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: column;
+            width: 100%; /* Ensures details fit in small screens */
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .userprofile {
+    .profileContainer {
+      .top {
+        overflow: hidden; /* Prevents overflow */
+
+        .left {
+          padding: 8px;
+        }
+
+        .heading {
+          margin-left: 10px; /* Further reduce margin */
+          font-size: 18px; /* Smaller font size for very small screens */
+        }
+      
+        .editButton {
+          font-size: 14px; /* Slightly larger font size */
+          padding: 8px;
+          width: 100%; /* Make the button take full width */
+          text-align: center; /* Center the button */
+        }
+      
+        .itemImg {
+          width: 120px; /* Further reduce image size */
+          height: 120px;
+        }
+      
+        .item {
+          gap: 10px; /* Reduce gap between items */
+        }
+
+        .details {
+          .detailItem {
+            font-size: 12px;
+            flex-direction: column;
+            padding: 5px;
+            justify-content: space-between;
+          }
+        }
+      }
+    }
+  }
+}
+
 
 // src/pages/profile/EditProfile/EditPro.scss
 

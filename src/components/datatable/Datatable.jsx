@@ -1,21 +1,18 @@
 import "./datatable.scss";
 import { DataGrid } from "@mui/x-data-grid";
 import { userColumns, userRows } from "../../datatablesource";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";  
 import { Link } from "react-router-dom";
 import { useState } from "react";
-// Import Material UI Icons
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Tooltip, IconButton } from "@mui/material";
-
-
-
+import { Tooltip } from "@mui/material";
+ 
 const Datatable = () => {
   const [data, setData] = useState(userRows);
-  const [editRowId, setEditRowId] = useState(null); // For tracking which row is being edited
-  const [tempData, setTempData] = useState({}); // For holding data during edit mode
+  const [editRowId, setEditRowId] = useState(null);  
+  const [tempData, setTempData] = useState({});  
 
    // Toggle status
    const handleToggleStatus = (id) => {
@@ -23,9 +20,7 @@ const Datatable = () => {
       item.id === id ? { ...item, status: item.status === "active" ? "inactive" : "active" } : item
     );
     setData(updatedData);
-  };
-
- // Handle Delete with SweetAlert confirmation
+  }; 
  const handleDelete = (id) => {
   Swal.fire({
     title: "Are you sure?",
@@ -46,16 +41,14 @@ const Datatable = () => {
   const handleEdit = (id) => {
     setEditRowId(id);
     const row = data.find((item) => item.id === id);
-    setTempData({ ...row }); // Copy the row's current data into tempData
-  };
+    setTempData({ ...row });  
+  }; 
 
-  // Handle Input Changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setTempData({ ...tempData, [name]: value });
   };
-
- // Save Edited Row with SweetAlert confirmation
+ 
 const handleUpdate = (id) => {
   Swal.fire({
     title: "Are you sure?",
@@ -78,7 +71,7 @@ const handleUpdate = (id) => {
 
   // Cancel Edit
   const handleCancel = () => {
-    setEditRowId(null); // Exit edit mode
+    setEditRowId(null);  
     setTempData({});
   };
 
@@ -177,9 +170,7 @@ const handleUpdate = (id) => {
       return params.value;
     },
   }));
-
-   // Adding Status Toggle Column
-   const dataColumns = editableColumns.map((col) => {
+  const dataColumns = editableColumns.map((col) => {
     if (col.field === "status") {
       return {
         ...col,
@@ -202,7 +193,7 @@ const handleUpdate = (id) => {
 
   return (
     <div className="datatable">
-    <h2 className="title" style={{ color: '#5e6266', fontSize: '24px', fontWeight: 'bold'}}>ADD NEW USER</h2>
+    <h2 className="title" style={{ color: '#5e6266', fontSize: '25px', fontWeight: 'bold'}}>AGENT LIST</h2>
       <div className="datatableTitle">
       
         <div 

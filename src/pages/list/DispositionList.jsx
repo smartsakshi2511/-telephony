@@ -195,14 +195,14 @@ const DispositionList = () => {
               </>
             ) : (
               <>
-                {/* <Tooltip title="View">
+                <Tooltip title="View">
                   <IconButton
                     color="primary"
                     onClick={() => handleView(params.row)}
                   >
-                    <VisibilityIcon />
+                    <VisibilityIcon style={{ cursor: "pointer", color: "blue", marginRight: "10px" }}/>
                   </IconButton>
-                </Tooltip> */}
+                </Tooltip>
                 <Tooltip title="Edit">
                   <IconButton
                     color="info"
@@ -257,7 +257,7 @@ const DispositionList = () => {
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
       <div className="datatableTitle" style={styles.datatableTitle}>
-        <Typography variant="h6">DISPOSITION LIST</Typography>
+        <Typography variant="h6" style={{ fontWeight: 'bold' }}>DISPOSITION LIST</Typography>
         <Button
           variant="contained"
           color="primary"

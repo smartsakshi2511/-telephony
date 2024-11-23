@@ -8,11 +8,16 @@ import "./style/dark.scss";
 import {userInputs} from "./formSource"  
 import DispositionList from "./pages/list/DispositionList";
 import IVRList from "./pages/list/IVRcoverterList";
-import DataList from "./pages/home/DataList";
+import { Radio } from "react-loader-spinner";
 import Datatable from "./components/datatable/Datatable";
 import DateFilterComponent from "./components/datatable/Agent_Break";
 import LoginReport from "./components/datatable/LoginReport";
+import ShowList from "./pages/DataUploadPage/showList"; // Importing ShowList component
+
+
 import AgentReport from "./components/datatable/AgentReport";
+import ExtensionList from "./pages/list/ExtensionList";
+const DataList = lazy(()=> import("./pages/home/DataList"));
 const BlockList = lazy(()=>import("./pages/list/BlockList"))
 const LeadReportList =lazy(()=>import("./pages/list/LeadReportList")) ;
 const Home = lazy(() => import("./pages/home/Home"));
@@ -36,7 +41,14 @@ function App() {
   return (
     <div className={darkMode ? "app dark" : "app"}>
       <Router>
-        <Suspense fallback={<div>Loading...</div>}> 
+      <Suspense fallback={<div             style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100vh", // Full screen height
+                backgroundColor: darkMode ? "#333" : "#fff", // Match theme
+              }}> <Radio  
+                /></div>}>
           <Routes>
           <Route path="/login" element={<Login />} />
             <Route path="/" element={<Layout />}>
@@ -95,6 +107,13 @@ function App() {
                 <Route index element={<IVRList/>} />
                 <Route to="" />
               </Route>
+              <Route path="extension">
+                <Route index element={<ExtensionList/>} />
+                <Route to="" />
+              </Route>
+              {/* <Route path="showlist" element={<ShowList />} /> Add this route */}
+              <Route path="/" element={<DataUpload />} />
+              <Route path="/showlist/:listId" element={<ShowList />} />
             </Route>
           </Routes>
         </Suspense>

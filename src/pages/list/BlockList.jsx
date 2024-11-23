@@ -16,8 +16,6 @@ import {
   Button,
   Typography,
   TextField,
-  Switch,
-  FormControlLabel,
 } from "@mui/material";
 import {
   Visibility as VisibilityIcon,
@@ -252,7 +250,7 @@ const BlockList = () => {
   return (
     <div className="datatable" style={{ height: 600, width: "100%" }}>
       <div className="datatableTitle" style={styles.datatableTitle}>
-        <Typography variant="h6">BLOCK LIST</Typography>
+        <Typography variant="h6" style={{ fontWeight: 'bold' }}>BLOCK LIST</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
