@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./list.scss";
 import Swal from "sweetalert2";
 import { DataGrid } from "@mui/x-data-grid";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import {
   IconButton,
   Tooltip,
@@ -26,8 +27,20 @@ import {
 
 // Mock data
 const initialExtensions = [
-  { id: 1, userExtension: "1001", extensionName: "John Doe", pressKey: "1", campaign: "Sales" },
-  { id: 2, userExtension: "1002", extensionName: "Jane Smith", pressKey: "2", campaign: "Support" },
+  {
+    id: 1,
+    userExtension: "1001",
+    extensionName: "John Doe",
+    pressKey: "1",
+    campaign: "Sales",
+  },
+  {
+    id: 2,
+    userExtension: "1002",
+    extensionName: "Jane Smith",
+    pressKey: "2",
+    campaign: "Support",
+  },
 ];
 
 const campaignOptions = [
@@ -66,7 +79,8 @@ const ExtensionList = () => {
   };
 
   const handleAdd = (newExtension) => {
-    const newId = data.length > 0 ? Math.max(...data.map((item) => item.id)) + 1 : 1;
+    const newId =
+      data.length > 0 ? Math.max(...data.map((item) => item.id)) + 1 : 1;
     setData([...data, { id: newId, ...newExtension }]);
     setAddDialogOpen(false);
   };
@@ -83,10 +97,10 @@ const ExtensionList = () => {
   };
 
   const columns = [
-    { field: "userExtension", headerName: "USER Extension", width: 150 },
-    { field: "extensionName", headerName: "Extension NAME", width: 200 },
-    { field: "pressKey", headerName: "PRESS KEY", width: 150 },
-    { field: "campaign", headerName: "CAMPAIGN", width: 150 },
+    { field: "userExtension", headerName: "USER Extension", flex: 1},
+    { field: "extensionName", headerName: "Extension NAME", flex: 2 },
+    { field: "pressKey", headerName: "PRESS KEY", flex: 1 },
+    { field: "campaign", headerName: "CAMPAIGN", flex: 1  },
     {
       field: "action",
       headerName: "ACTION",
@@ -100,8 +114,7 @@ const ExtensionList = () => {
                 <Tooltip title="Save">
                   <IconButton
                     color="primary"
-                    onClick={() => handleSaveEdit(params.row)}
-                  >
+                    onClick={() => handleSaveEdit(params.row)}   >
                     <SaveIcon />
                   </IconButton>
                 </Tooltip>
@@ -116,36 +129,97 @@ const ExtensionList = () => {
               </>
             ) : (
               <>
-                <Tooltip title="Edit">
-                  <IconButton color="info" onClick={() => handleEdit(params.row.id)}>
-                    <EditIcon style={{ cursor: "pointer", color: "green" }}/>
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Delete">
-                  <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
-                    <DeleteIcon style={{ cursor: "pointer", color: "red" }}/>
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Assign Department to Agents">
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "8px",  
+                  }}
+                >
                   <IconButton
-                    onClick={() => setDropdownVisible(!dropdownVisible)}
+                    color="info"
+                    onClick={() => handleEdit(params.row.id)}
+                    style={{
+                      padding: "4px",
+                      border: "2px solid green",  
+                      borderRadius: "6px 6px",
+                      backgroundColor: "white",
+                    }}
                   >
-                    <img
-                      src="../assets/images/common-icons/addclint.png"
-                      alt="assign_department"
-                      style={{ height: 23, width: 23, cursor: "pointer", color: "primary"}}
-                      className="shadow-sm best_font cursor_p"
-                    />
+                    <Tooltip title="Edit">
+                      <EditIcon
+                        style={{
+                          cursor: "pointer",
+                          color: "green",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </Tooltip>
                   </IconButton>
-                </Tooltip>
-                <Tooltip title="Review Assigned Departments">
+                    <Tooltip title="Assign Department to Agents">
+                    <IconButton
+                      onClick={() => setDropdownVisible(!dropdownVisible)}
+                      style={{
+                        padding: "4px",
+                        border: "2px solid #1976d2", // Border matching icon color
+                        borderRadius: "6px 6px",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <ManageAccountsIcon
+                        style={{
+                          cursor: "pointer",
+                          color: "#1976d2",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Review Assigned Departments">
+                    <IconButton
+                      color="purple"
+                      onClick={() => setReviewDialogOpen(true)}
+                      style={{
+                        padding: "4px",
+                        border: "2px solid purple", // Border matching icon color
+                        borderRadius: "6px 6px",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <GroupIcon
+                        style={{
+                          cursor: "pointer",
+                          color: "purple",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+
                   <IconButton
-                    color="secondary"
-                    onClick={() => setReviewDialogOpen(true)}
+                    color="error"
+                    onClick={() => handleDelete(params.row.id)}
+                    style={{
+                      padding: "4px",
+                      border: "2px solid red",  
+                      borderRadius: "6px 6px",
+                      backgroundColor: "white",
+                    }}
                   >
-                    <GroupIcon  style={{ cursor: "pointer", color: "secondary" }}/>
+                    <Tooltip title="Delete">
+                      <DeleteIcon
+                        style={{
+                          cursor: "pointer",
+                          color: "red",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </Tooltip>
                   </IconButton>
-                </Tooltip>
+                </div>
               </>
             )}
           </div>
@@ -153,11 +227,10 @@ const ExtensionList = () => {
       },
     },
   ];
-
   return (
     <div className="datatable">
       <div className="datatableTitle">
-       <b> EXTENSION LIST </b>
+        <b> EXTENSION LIST </b>
         <Button
           variant="contained"
           color="primary"
@@ -178,6 +251,8 @@ const ExtensionList = () => {
         rows={data}
         columns={columns}
         pageSize={9}
+        disableColumnVirtualization
+        disableExtendRowFullWidth
         rowsPerPageOptions={[9]}
         style={{ fontSize: "12px" }}
       />
@@ -206,7 +281,11 @@ const ExtensionList = () => {
               {agentsList.map((agent) => (
                 <tr key={agent.id}>
                   <td>
-                    <input type="checkbox" value={agent.id} className="cursor-p agent mr-2" />
+                    <input
+                      type="checkbox"
+                      value={agent.id}
+                      className="cursor-p agent mr-2"
+                    />
                   </td>
                   <td>{agent.name}</td>
                   <td>{agent.agentId}</td>
@@ -231,7 +310,10 @@ const ExtensionList = () => {
         />
       )}
       {reviewDialogOpen && (
-        <Dialog open={reviewDialogOpen} onClose={() => setReviewDialogOpen(false)}>
+        <Dialog
+          open={reviewDialogOpen}
+          onClose={() => setReviewDialogOpen(false)}
+        >
           <DialogTitle>Review Assigned Departments</DialogTitle>
           <DialogContent>
             <Typography>Display department assignments here...</Typography>

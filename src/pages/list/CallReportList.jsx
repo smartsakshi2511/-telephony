@@ -5,71 +5,59 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+ 
   Button,
-  TextField,
+ 
   Tooltip,
-  MenuItem,
-  Select,
+ 
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import {
   Download as DownloadIcon,
-  FilterList as FilterListIcon
+  FilterList as FilterListIcon,
+  PlayArrow as PlayIcon,
+  Pause as PauseIcon,
 } from "@mui/icons-material";
 
 const CallReportList = () => {
   const isMobile = useMediaQuery("(max-width:768px)");
+  const [data, setData] = useState([]);
+  const [playingAudio, setPlayingAudio] = useState(null); // To track the playing audio
+  const [audioInstance, setAudioInstance] = useState(null); // To manage audio playback
 
+  // Columns definition
   const columns = [
-    { field: "sr", headerName: "SR", width: isMobile ? 50 : 70, headerClassName: "customHeader" },
-    { field: "agentName", headerName: "AGENT NAME", width: isMobile ? 120 : 150, headerClassName: "customHeader" },
-    { field: "agentId", headerName: "AGENT ID", width: isMobile ? 80 : 100, headerClassName: "customHeader" },
-    { field: "callFrom", headerName: "CALL FROM", width: 150, headerClassName: "customHeader" },
-    { field: "callTo", headerName: "CALL TO", width: 150, headerClassName: "customHeader" },
-    { field: "campaignName", headerName: "CAMPAIGN NAME", width: 150, headerClassName: "customHeader" },
-    { field: "startTime", headerName: "START TIME", width: 180, headerClassName: "customHeader" },
-    { field: "duration", headerName: "DURATION", width: 100, headerClassName: "customHeader" },
-    { field: "direction", headerName: "DIRECTION", width: 100, headerClassName: "customHeader" },
-    { field: "status", headerName: "STATUS", width: 100, headerClassName: "customHeader" },
-    { field: "hangup", headerName: "HANGUP", width: 100, headerClassName: "customHeader" },
+    { field: "sr", headerName: "SR", flex: 0.5, headerClassName: "customHeader" },
+    { field: "agentName", headerName: "AGENT NAME", flex: 1.5, headerClassName: "customHeader" },
+    { field: "agentId", headerName: "AGENT ID", flex: 1, headerClassName: "customHeader" },
+    { field: "callFrom", headerName: "CALL FROM", flex: 1.5, headerClassName: "customHeader" },
+    { field: "callTo", headerName: "CALL TO", flex: 1.5, headerClassName: "customHeader" },
+    { field: "campaignName", headerName: "CAMPAIGN NAME", flex: 1.5, headerClassName: "customHeader" },
+    { field: "startTime", headerName: "START TIME", flex: 2.5, headerClassName: "customHeader" },
+    { field: "duration", headerName: "DURATION", flex: 1.5, headerClassName: "customHeader" },
+    { field: "direction", headerName: "DIRECTION", flex: 1, headerClassName: "customHeader" },
+    { field: "status", headerName: "STATUS", flex: 1, headerClassName: "customHeader" },
+    { field: "hangup", headerName: "HANGUP", flex: 1, headerClassName: "customHeader" },
     {
       field: "recording",
       headerName: "Recording",
-      width: 180,
-      renderCell: (params) => (
-        <a href={params.value} target="_blank" rel="noopener noreferrer" style={{ color: "#1976d2" }}>
-          Listen
-        </a>
-      ),
+      flex: 1.5,
+      renderCell: (params) => {
+        const isPlaying = playingAudio === params.row.sr;
+        return (
+          <IconButton
+            onClick={() => handleAudioToggle(params.row.sr, params.value)}
+            color="primary"
+          >
+            {isPlaying ? <PauseIcon /> : <PlayIcon />}
+          </IconButton>
+        );
+      },
     },
   ];
 
-  const [data, setData] = useState([]);
-  const [formData, setFormData] = useState({
-    sr: "",
-    agentName: "",
-    agentId: "",
-    callFrom: "",
-    callTo: "",
-    campaignName: "",
-    startTime: "",
-    duration: "",
-    direction: "",
-    status: "",
-    hangup: "",
-    recording: "",
-  });
-
-  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [selectedAgent, setSelectedAgent] = useState("");
-  const [agents, setAgents] = useState([]);
-
+  // Fetch data
   useEffect(() => {
     const fetchCalls = async () => {
       try {
@@ -77,6 +65,7 @@ const CallReportList = () => {
         setData(response.data.calls);
       } catch (error) {
         console.error("Error fetching calls:", error);
+        // Default data for testing
         setData([
           {
             sr: 1,
@@ -90,7 +79,7 @@ const CallReportList = () => {
             direction: "Inbound",
             status: "Completed",
             hangup: "Yes",
-            recording: "https://example.com/recording1",
+            recording: "https://example.com/recording1.mp3",
           },
         ]);
       }
@@ -98,6 +87,23 @@ const CallReportList = () => {
     fetchCalls();
   }, []);
 
+  // Handle audio play/pause
+  const handleAudioToggle = (sr, audioUrl) => {
+    if (playingAudio === sr) {
+      // Pause the audio
+      audioInstance.pause();
+      setPlayingAudio(null);
+    } else {
+      // Play the audio
+      const newAudio = new Audio(audioUrl);
+      if (audioInstance) audioInstance.pause(); // Pause the currently playing audio
+      setAudioInstance(newAudio);
+      setPlayingAudio(sr);
+      newAudio.play();
+    }
+  };
+
+  // Handle download as Excel
   const handleDownload = () => {
     if (data.length === 0) {
       alert("No data available to download.");
@@ -129,43 +135,19 @@ const CallReportList = () => {
     saveAs(blob, "call_data.xlsx");
   };
 
-  const handleFilterDialogOpen = () => {
-    setFilterDialogOpen(true);
-  };
-
-  const handleFilterDialogClose = () => {
-    setFilterDialogOpen(false);
-  };
-
-  const handleFilterSubmit = () => {
-    const filteredData = data.filter((call) => {
-      const callDate = new Date(call.startTime);
-      const from = new Date(fromDate);
-      const to = new Date(toDate);
-      return (
-        (!fromDate || callDate >= from) &&
-        (!toDate || callDate <= to) &&
-        (!selectedAgent || call.agentId === selectedAgent)
-      );
-    });
-    setData(filteredData);
-    handleFilterDialogClose();
-  };
-
   return (
     <div className="datatable">
       <div className="datatableTitle">
         <b>TOTAL CALL REPORTS</b>
         <div className="callFilter">
-        <Button
-  variant="outlined"
-  onClick={handleFilterDialogOpen}
-  endIcon={<FilterListIcon />}
-  sx={{ marginRight: "10px" }}
->
-  Filter
-</Button>
-
+          <Button
+            variant="outlined"
+            onClick={() => {}}
+            endIcon={<FilterListIcon />}
+            sx={{ marginRight: "10px" }}
+          >
+            Filter
+          </Button>
           <Tooltip title="Download Data">
             <Button
               variant="outlined"
@@ -185,56 +167,9 @@ const CallReportList = () => {
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5]}
-        autoHeight
         getRowId={(row) => row.sr}
         disableSelectionOnClick
       />
-      <Dialog open={filterDialogOpen} onClose={handleFilterDialogClose}>
-        <DialogTitle>Filter Call Records</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="From Date"
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="To Date"
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-          />
-          <Select
-            value={selectedAgent}
-            onChange={(e) => setSelectedAgent(e.target.value)}
-            fullWidth
-            displayEmpty
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {agents.map((agent) => (
-              <MenuItem key={agent.id} value={agent.id}>
-                {agent.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleFilterDialogClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleFilterSubmit} color="primary">
-            Filter
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 };

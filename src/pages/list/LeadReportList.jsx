@@ -25,17 +25,16 @@ import {
 
 const LeadReportList = () => {
   const columns = [
-    { field: "sr", headerName: "SR", width: 70 },
-
-    { field: "agentId", headerName: "AGENT ID", width: 100, headerClassName: "customHeader" },
-    { field: "agentName", headerName: "CALLER NAME", width: 150, headerClassName: "customHeader" },
-    { field: "callFrom", headerName: "CALLER NUMBER", width: 150, headerClassName: "customHeader" },
-    { field: "callTo", headerName: "EMAIL", width: 150, headerClassName: "customHeader" },
-    { field: "campaignName", headerName: "DIAL STATUS", width: 150, headerClassName: "customHeader" },
-    { field: "startTime", headerName: "DATE", width: 180, headerClassName: "customHeader" },
-    
+    { field: "sr", headerName: "SR", flex: 0.5 },
+  
+    { field: "agentId", headerName: "AGENT ID", flex: 1.5, headerClassName: "customHeader" },
+    { field: "agentName", headerName: "CALLER NAME", flex: 1.5, headerClassName: "customHeader" },
+    { field: "callFrom", headerName: "CALLER NUMBER", flex: 1.5, headerClassName: "customHeader" },
+    { field: "callTo", headerName: "EMAIL", flex: 1.5, headerClassName: "customHeader" },
+    { field: "campaignName", headerName: "DIAL STATUS", flex: 1.5, headerClassName: "customHeader" },
+    { field: "startTime", headerName: "DATE", flex: 2, headerClassName: "customHeader" },
   ];
-
+  
   const [data, setData] = useState([]);
   const [formData, setFormData] = useState({
     sr: "",

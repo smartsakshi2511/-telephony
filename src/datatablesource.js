@@ -15,10 +15,10 @@ export const userColumns = [
       );
     },
   },
-  { field: "password", headerName: "PASSWORD", width: 100, headerClassName: "customHeader" },
+  { field: "password", headerName: "PASSWORD", width: 120, headerClassName: "customHeader" },
   {
     field: "Phonenumber",
-    headerName: "PHONE NUMBERr",
+    headerName: "PHONE NUMBER",
     width: 150, headerClassName: "customHeader",
     renderCell: (params) => {
       return (
@@ -39,7 +39,7 @@ export const userColumns = [
   {
     field: "clidid",
     headerName: "CLI/DID",
-    width: 120,
+    width: 160,
     headerClassName: "customHeader",
     required : true
   },

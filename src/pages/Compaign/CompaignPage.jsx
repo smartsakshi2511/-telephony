@@ -6,6 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { Button, IconButton, Menu, MenuItem } from "@mui/material";
 import { Link } from "react-router-dom";
+import { Tooltip } from "@mui/material";
 import axios from "axios";
 import {
   Visibility as VisibilityIcon,
@@ -60,7 +61,9 @@ const CompaignPage = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setData((prevData) =>
-          prevData.map((item) => (item.id === updatedRow.id ? updatedRow : item))
+          prevData.map((item) =>
+            item.id === updatedRow.id ? updatedRow : item
+          )
         );
         setEditRowId(null);
         Swal.fire("Updated!", "The campaign has been updated.", "success");
@@ -81,7 +84,8 @@ const CompaignPage = () => {
   const handleToggleStatus = async (id) => {
     try {
       const updatedCampaign = data.find((item) => item.id === id);
-      const newStatus = updatedCampaign.status === "active" ? "inactive" : "active";
+      const newStatus =
+        updatedCampaign.status === "active" ? "inactive" : "active";
 
       await axios.put(`https://api.example.com/campaigns/${id}`, {
         status: newStatus,
@@ -161,26 +165,78 @@ const CompaignPage = () => {
                 </IconButton>
               </>
             ) : (
-              <>
-                <IconButton
-                  color="primary"
-                  onClick={() => handleView(params.row)}
-                >
-                  <VisibilityIcon />
-                </IconButton>
-                <IconButton
-                  color="info"
-                  onClick={() => handleEdit(params.row.id)}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  color="error"
-                  onClick={() => handleDelete(params.row.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </>
+              <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px", // Adjust spacing between buttons
+              }}
+            >
+              <IconButton
+                color="primary"
+                onClick={() => handleView(params.row)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid blue", // Border matching icon color
+                  borderRadius: "6px 6px", // Circular border
+                  backgroundColor: "white", // White background
+                }}
+              >
+                 <Tooltip title="View">
+                <VisibilityIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "blue",
+                    fontSize: "12px", // Adjust icon size
+                  }}
+                />
+                </Tooltip>
+              </IconButton>
+
+              <IconButton
+                color="info"
+                onClick={() => handleEdit(params.row.id)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid green", // Border matching icon color
+                  borderRadius: "6px 6px",
+                  backgroundColor: "white",
+                }}
+              >
+                 <Tooltip title="Edit">
+                <EditIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "green",
+                    fontSize: "12px",
+                  }}
+                />
+                 </Tooltip>
+              </IconButton>
+              <IconButton
+                color="error"
+                onClick={() => handleDelete(params.row.id)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid red", // Border matching icon color
+                  borderRadius: "6px 6px",
+                  backgroundColor: "white",
+                }}
+              >
+                <Tooltip title="Delete">
+                <DeleteIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "red",
+                    fontSize: "12px",
+                  }}
+                />
+                </Tooltip>
+              </IconButton>
+            </div>
+            
             )}
           </div>
         );
@@ -190,24 +246,38 @@ const CompaignPage = () => {
 
   return (
     <div className="datatable">
+      
       <div className="datatableTitle">
-      <b>CAMPAIGN LIST</b>
+        <b>CAMPAIGN LIST</b>
         <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          component={Link}
-          to="/campaign/newCampaign"
-          sx={{
-            background: "linear-gradient(90deg, #283593, #3F51B5)",
-            color: "#fff",
-            "&:hover": {
-              background: "linear-gradient(90deg, #1e276b, #32408f)",
-            },
-          }}
-        >
-          Add CAMPAIGN
-        </Button>
+  variant="contained"
+  color="primary"
+  startIcon={<AddIcon />}
+  component={Link}
+  to="/campaign/newCampaign"
+  sx={{
+    background: "linear-gradient(90deg, #283593, #3F51B5)",
+    color: "#fff",
+    marginLeft: "600px",
+    "&:hover": {
+      background: "linear-gradient(90deg, #1e276b, #32408f)",
+    },
+    // Media query for responsiveness
+    "@media (max-width: 600px)": {
+      fontSize: "12px", // Adjust font size
+      padding: "6px 12px", // Adjust padding
+      marginLeft: "0", // Center or reposition the button
+      width: "100%", // Full width for small screens
+    },
+    "@media (max-width: 960px)": {
+      marginLeft: "auto", // Center the button on medium screens
+      marginRight: "auto",
+    },
+  }}
+>
+  Add CAMPAIGN
+</Button>
+
         <IconButton onClick={handleFilterClick}>
           <FilterListIcon />
         </IconButton>

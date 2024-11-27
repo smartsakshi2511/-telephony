@@ -13,7 +13,8 @@
 .datatable {
   height: 600px;
   padding: 20px;
-  
+  width: max-content;
+  margin: auto;
 
 
   .datatable::-webkit-scrollbar {
@@ -133,9 +134,9 @@
   color: #0a0a0ade; /* Optional: Change header text color */
   font-size: 14px;
   text-align: center;
- 
- 
+  
 }
+
 
 .statusButton {
   padding: 5px 12px;
@@ -158,7 +159,21 @@
   color: #d32f2f; /* Dark red text */
 }
 
+// .customHr {
+//   border: none;
+//   border-top: 1px solid lightgray;
+//   margin: 10px 0; /* optional for spacing */
+// }
+
+
+.datatable {
  
+
+  .datatableTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 
     b {
       font-size: 18px;
@@ -179,7 +194,8 @@
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
       }
- 
+    }
+  }
 
   .MuiDataGrid-root {
     
@@ -193,17 +209,6 @@
     }
   }
 }
-
-@keyframes no-blink {
-  50% {
-    visibility: hidden;
-  }
-}
-
-input, textarea {
-  animation: no-blink 1s steps(1, end) infinite;
-}
-
 
 
   

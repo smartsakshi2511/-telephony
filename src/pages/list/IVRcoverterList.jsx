@@ -48,12 +48,37 @@ const initialIVRRows = [
 ];
  
 const ivrColumns = [
-  { field: "srNo", headerName: "SR NO.", width: 100, headerClassName: "customHeader" },
-  { field: "type", headerName: "TYPE", width: 150,headerClassName: "customHeader" },
-  { field: "campaign", headerName: "CAMPAIGN", width: 150, headerClassName: "customHeader" },
-  { field: "file", headerName: "FILE", width: 200, headerClassName: "customHeader" },  
-  { field: "date", headerName: "DATE", width: 150, headerClassName: "customHeader" },
-  // Status column can be added if needed
+  {
+    field: "srNo",
+    headerName: "SR NO.",
+    flex: 0.5, // Smaller proportional size for serial numbers
+    headerClassName: "customHeader",
+  },
+  {
+    field: "type",
+    headerName: "TYPE",
+    flex: 1,  
+    headerClassName: "customHeader",
+  },
+  {
+    field: "campaign",
+    headerName: "CAMPAIGN",
+    flex: 1,  
+    headerClassName: "customHeader",
+  },
+  {
+    field: "file",
+    headerName: "FILE",
+    flex: 1.5, // Larger proportional size for potentially longer text
+    headerClassName: "customHeader",
+  },
+  {
+    field: "date",
+    headerName: "DATE",
+    flex: 1,  
+    headerClassName: "customHeader",
+  },
+  
 ];
 
 const IVRList = () => {
@@ -194,26 +219,56 @@ const IVRList = () => {
               </>
             ) : (
               <>
-                {/* <Tooltip title="View">
-                  <IconButton color="primary" onClick={() => handleView(params.row)}>
-                    <VisibilityIcon />
-                  </IconButton>
-                </Tooltip> */}
-                <Tooltip title="Edit">
-                  <IconButton color="info" onClick={() => handleEdit(params.row.id)}>
-                    <EditIcon style={{ cursor: "pointer", color: "green"}}  />
-                  </IconButton>
-                </Tooltip>
+                 <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "8px", // Adjust spacing between buttons
+                  }}
+                >
+                 <IconButton
+                color="info"
+                onClick={() => handleEdit(params.row.id)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid green", // Border matching icon color
+                  borderRadius: "6px 6px",
+                  backgroundColor: "white",
+                }}
+              >
+                 <Tooltip title="Edit">
+                <EditIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "green",
+                    fontSize: "12px",
+                  }}
+                />
+                 </Tooltip>
+              </IconButton>
+              <IconButton
+                color="error"
+                onClick={() => handleDelete(params.row.id)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid red", // Border matching icon color
+                  borderRadius: "6px 6px",
+                  backgroundColor: "white",
+                }}
+              >
                 <Tooltip title="Delete">
-                  <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
-                    <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-                  </IconButton>
+                <DeleteIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "red",
+                    fontSize: "12px",
+                  }}
+                />
                 </Tooltip>
-                {/* <Switch
-                  checked={params.row.status === "active"}
-                  onChange={() => handleToggleStatus(params.row.id)}
-                  color="primary"
-                /> */}
+              </IconButton>
+            </div>
               </>
             )}
           </div>

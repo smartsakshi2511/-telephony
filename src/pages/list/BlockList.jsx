@@ -38,28 +38,29 @@ const blockColumns = [
   {
     field: "sr",
     headerName: "SR.",
-    width: 70,
+    flex: 0.5, // Smaller proportional size for serial numbers
     headerClassName: "customHeader",
   },
   {
     field: "blockNo",
     headerName: "BLOCK NO.",
-    width: 150,
+    flex: 1, // Default proportional size for key information
     headerClassName: "customHeader",
   },
   {
     field: "date",
     headerName: "DATE",
-    width: 130,
+    flex: 1, // Adjust proportion to match typical date column length
     headerClassName: "customHeader",
   },
   {
     field: "status",
     headerName: "STATUS",
-    width: 120,
+    flex: 0.8, // Slightly smaller size for short status values
     headerClassName: "customHeader",
   },
 ];
+
 
 const BlockList = () => {
   const [data, setData] = useState(initialBlockRows); // Initialize data state
@@ -188,6 +189,15 @@ const BlockList = () => {
               </>
             ) : (
               <>
+               <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "8px", // Adjust spacing between buttons
+                  }}
+                >
                 {/* <Tooltip title="View">
                   <IconButton
                     color="primary"
@@ -206,14 +216,27 @@ const BlockList = () => {
                   </IconButton>
                 </Tooltip> */}
 
+<IconButton
+                color="error"
+                onClick={() => handleDelete(params.row.id)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid red", // Border matching icon color
+                  borderRadius: "6px 6px",
+                  backgroundColor: "white",
+                }}
+              >
                 <Tooltip title="Delete">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(params.row.id)}
-                  >
-                    <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-                  </IconButton>
+                <DeleteIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "red",
+                    fontSize: "12px",
+                  }}
+                />
                 </Tooltip>
+              </IconButton>
+            </div>
               </>
             )}
           </div>
@@ -391,6 +414,7 @@ const AddDialog = ({ open, onClose, onAdd }) => {
             onChange={(e) => setBlockNo(e.target.value)}
             error={Boolean(error)}
             helperText={error}
+            
           />
         </form>
       </DialogContent>

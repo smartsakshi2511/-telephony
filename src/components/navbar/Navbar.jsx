@@ -1,16 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from "react";
 import "./navbar.scss";
-import {
-  Menu as MenuIcon,
-} from '@mui/icons-material';
+import { Menu as MenuIcon } from "@mui/icons-material";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import Button from "@mui/material/Button"; 
+import Button from "@mui/material/Button";
 import { DarkModeContext } from "../../context/darkModeContext";
-import PopupIframe from './LiveCall';
-import Phone from './PhoneCall';
+import PopupIframe from "./LiveCall";
+import Phone from "./PhoneCall";
 
-
-const Navbar = ({OpenSidebar}) => {
+const Navbar = ({ OpenSidebar }) => {
   const { dispatch } = useContext(DarkModeContext);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -21,12 +18,24 @@ const Navbar = ({OpenSidebar}) => {
   const toggleIframe1 = () => setIframe1Visible(!iframe1Visible);
   const toggleIframe2 = () => setIframe2Visible(!iframe2Visible);
 
-  const handleMouseEnter = () => setDropdownVisible(true);
-  const handleMouseLeave = () => setDropdownVisible(false);
+  const toggleDropdown = () => setDropdownVisible(!isDropdownVisible);
 
   useEffect(() => {
+    // Update current time every second
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+
+    // Handle outside click to close the dropdown
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest(".menu")) {
+        setDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("click", handleOutsideClick);
+    };
   }, []);
 
   const formatTime = (date) => date.toLocaleTimeString();
@@ -37,27 +46,32 @@ const Navbar = ({OpenSidebar}) => {
         <MenuIcon className="icon" onClick={OpenSidebar} />
       </div>
       <div className="wrapper">
-        <div className="search">
-      
-        </div>
+        <div className="search"></div>
         <div className="items">
           <div className="item">
             <span className="live-time">{formatTime(currentTime)}</span>
           </div>
-    
+
           <div className="item">
-            <DarkModeOutlinedIcon className="icon" onClick={() => dispatch({ type: "TOGGLE" })} />
+            <DarkModeOutlinedIcon
+              className="icon"
+              onClick={() => dispatch({ type: "TOGGLE" })}
+            />
           </div>
 
           {/* Button to toggle Live Calls popup */}
           <div className="item">
-            <Button className='pulse-effect responsive-button'
+            <Button
+              className="pulse-effect responsive-button"
               variant="contained"
-              style={{   background: "linear-gradient(90deg, #283593, #3F51B5,  #283593)",
-                color: "#fff", marginRight: '10px' }}
+              style={{
+                background: "linear-gradient(90deg, #283593, #3F51B5,  #283593)",
+                color: "#fff",
+                marginRight: "10px",
+              }}
               onClick={toggleIframe1}
             >
-              {iframe1Visible ? ' Calls' : 'Calls'}
+              {iframe1Visible ? " Calls" : "Calls"}
             </Button>
           </div>
 
@@ -72,16 +86,12 @@ const Navbar = ({OpenSidebar}) => {
               }}
               onClick={toggleIframe2}
             >
-              {iframe2Visible ? 'Phone' : 'Phone'}
+              {iframe2Visible ? "Phone" : "Phone"}
             </Button>
           </div>
 
           <div className="item">
-            <div
-              className="menu"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
+            <div className="menu" onClick={toggleDropdown}>
               <img
                 src="https://images.pexels.com/photos/941693/pexels-photo-941693.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
                 alt=""
@@ -90,7 +100,9 @@ const Navbar = ({OpenSidebar}) => {
               {isDropdownVisible && (
                 <div className="dropdown-menu">
                   <ul>
-                    <li><a href="/userProfile">My Profile</a></li>
+                    <li>
+                      <a href="/userProfile">My Profile</a>
+                    </li>
                     <li>Menu 2</li>
                     <li>Menu 3</li>
                   </ul>
@@ -113,9 +125,7 @@ const Navbar = ({OpenSidebar}) => {
         visible={iframe2Visible}
         toggleVisibility={toggleIframe2}
         title="Phone"
-        // src="src/components/Phone/Phone/index.html"
-         iframeSrc="./softphone/Phone/index.html"
-         
+        iframeSrc="./softphone/Phone/index.html"
       />
     </div>
   );

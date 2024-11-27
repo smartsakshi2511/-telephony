@@ -25,7 +25,7 @@ import {
   Cancel as CancelIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
- 
+// Mock Data for dispositions
 const initialDispositionRows = [
   {
     id: 1,
@@ -47,12 +47,38 @@ const initialDispositionRows = [
 
 // Columns definition for the dispositions
 const dispositionColumns = [
-  { field: "sr", headerName: "SR.", width: 70 },
-  { field: "dispositionName", headerName: "DISPOSITION NAME", width: 200, headerClassName: "customHeader"},
-  { field: "campaignId", headerName: "CAMPAIGN ID", width: 150, headerClassName: "customHeader" },
-  { field: "status", headerName: "STATUS", width: 120, headerClassName: "customHeader" },
-  { field: "date", headerName: "DATE", width: 150, headerClassName: "customHeader" },
+  {
+    field: "sr",
+    headerName: "SR.",
+    flex: 0.5, // Smaller proportional size for serial numbers
+    headerClassName: "customHeader",
+  },
+  {
+    field: "dispositionName",
+    headerName: "DISPOSITION NAME",
+    flex: 1.5, // Larger proportional size for longer text
+    headerClassName: "customHeader",
+  },
+  {
+    field: "campaignId",
+    headerName: "CAMPAIGN ID",
+    flex: 1, // Standard proportional size
+    headerClassName: "customHeader",
+  },
+  {
+    field: "status",
+    headerName: "STATUS",
+    flex: 0.8, // Slightly reduced proportional size
+    headerClassName: "customHeader",
+  },
+  {
+    field: "date",
+    headerName: "DATE",
+    flex: 1, // Standard proportional size
+    headerClassName: "customHeader",
+  },
 ];
+
 
 const campaignOptions = [
   { id: '', label: '--- Select Campaign ID ---' },
@@ -195,30 +221,77 @@ const DispositionList = () => {
               </>
             ) : (
               <>
-                <Tooltip title="View">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleView(params.row)}
-                  >
-                    <VisibilityIcon style={{ cursor: "pointer", color: "blue", marginRight: "10px" }}/>
-                  </IconButton>
+                    <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px", // Adjust spacing between buttons
+              }}
+            >
+              <IconButton
+                color="primary"
+                onClick={() => handleView(params.row)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid blue", // Border matching icon color
+                  borderRadius: "6px 6px", // Circular border
+                  backgroundColor: "white", // White background
+                }}
+              >
+                 <Tooltip title="View">
+                <VisibilityIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "blue",
+                    fontSize: "12px", // Adjust icon size
+                  }}
+                />
                 </Tooltip>
-                <Tooltip title="Edit">
-                  <IconButton
-                    color="info"
-                    onClick={() => handleEdit(params.row.id)}
-                  >
-                    <EditIcon style={{ cursor: "pointer", color: "green" }} />
-                  </IconButton>
-                </Tooltip>
+              </IconButton>
+
+              <IconButton
+                color="info"
+                onClick={() => handleEdit(params.row.id)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid green", // Border matching icon color
+                  borderRadius: "6px 6px",
+                  backgroundColor: "white",
+                }}
+              >
+                 <Tooltip title="Edit">
+                <EditIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "green",
+                    fontSize: "12px",
+                  }}
+                />
+                 </Tooltip>
+              </IconButton>
+              <IconButton
+                color="error"
+                onClick={() => handleDelete(params.row.id)}
+                style={{
+                  padding: "4px",
+                  border: "2px solid red", // Border matching icon color
+                  borderRadius: "6px 6px",
+                  backgroundColor: "white",
+                }}
+              >
                 <Tooltip title="Delete">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(params.row.id)}
-                  >
-                    <DeleteIcon style={{ cursor: "pointer", color: "red" }} />
-                  </IconButton>
+                <DeleteIcon
+                  style={{
+                    cursor: "pointer",
+                    color: "red",
+                    fontSize: "12px",
+                  }}
+                />
                 </Tooltip>
+              </IconButton>
+            </div>
               </>
             )}
           </div>

@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Button,
   IconButton,
+  Tooltip
 } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -150,8 +151,12 @@ const DataList = () => {
         <Typography variant="h4" gutterBottom>
           {type.toUpperCase()}
         </Typography>
-        <Button variant="contained" color="primary" onClick={handleExport}>
-          Export
+        <Button variant="outlined" color="primary" onClick={handleExport} style={{
+                background: "linear-gradient(90deg, #4caf50, #2e7d32)", // Green gradient
+                color: "white",
+                borderColor: "#4caf50",
+              }}>
+          Export <DownloadIcon />
         </Button>
       </div>
       {loading && <CircularProgress />}
@@ -187,16 +192,64 @@ const DataList = () => {
                 <TableCell>{item.direction}</TableCell>
                 <TableCell>
                   <audio id={`audio-${item.id}`} src={item.recordingUrl} />
+                  <div  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "8px", // Adjust spacing between buttons
+                  }}>
                   <IconButton
+                    color="primary"
                     onClick={() => handlePlayPause(item.recordingUrl, item.id)}
+                    style={{
+                      padding: "4px",
+                      border: "2px solid #C2185B", // Border matching icon color
+                      borderRadius: "6px 6px",
+                      backgroundColor: "white",
+                    }}
                   >
-                    {playingId === item.id ? <PauseIcon /> : <PlayArrowIcon />}
+                    <Tooltip title={playingId === item.id ? "Pause" : "Play"}>
+                      {playingId === item.id ? (
+                        <PauseIcon
+                          style={{
+                            cursor: "pointer",
+                            color: "#C2185B",
+                            fontSize: "12px",
+                          }}
+                        />
+                      ) : (
+                        <PlayArrowIcon
+                          style={{
+                            cursor: "pointer",
+                            color: "#C2185B",
+                            fontSize: "12px",
+                          }}
+                        />
+                      )}
+                    </Tooltip>
                   </IconButton>
                   <IconButton
+                    color="primary"
                     onClick={() => handleDownload(item.recordingUrl, item.id)}
+                    style={{
+                      padding: "4px",
+                      border: "2px solid #1976d2", // Border matching icon color
+                      borderRadius: "6px 6px",
+                      backgroundColor: "white",
+                    }}
                   >
-                    <DownloadIcon />
+                    <Tooltip title="Download">
+                      <DownloadIcon
+                        style={{
+                          cursor: "pointer",
+                          color: "#1976d2",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </Tooltip>
                   </IconButton>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
