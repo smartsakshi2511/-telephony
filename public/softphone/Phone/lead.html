@@ -1,0 +1,33 @@
+<!-- public/softphone/gateway.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Connecting to WebPhone...</title>
+  <meta charset="UTF-8" />
+</head>
+<body>
+  <p>Loading WebPhone, please wait...</p>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (!token) {
+      document.body.innerHTML = "Token not found.";
+    } else {
+      fetch(`https://192.168.1.17:4000/api/get-softphone-link?token=${token}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.webphone_url) {
+            window.location.href = data.webphone_url;
+          } else {
+            document.body.innerHTML = data.message || "Access denied.";
+          }
+        })
+        .catch((err) => {
+          console.error("Error:", err);
+          document.body.innerHTML = "Unexpected error.";
+        });
+    }
+  </script>
+</body>
+</html>

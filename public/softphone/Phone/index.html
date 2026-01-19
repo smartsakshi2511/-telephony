@@ -45,9 +45,38 @@
         <!-- Provisioning -->
         <script type="text/javascript">
             // Provision runtime options can go here.
-            var phoneOptions = {
-                loadAlternateLang: true
-            }
+            function getPhoneOptions() {
+        let urlParams = new URLSearchParams(window.location.search);
+        let DND = urlParams.has("DND") ? urlParams.get("DND") : null;
+        let profileName = urlParams.has("profileName") ? urlParams.get("profileName") : null;
+        let SipDomain = urlParams.has("SipDomain") ? urlParams.get("SipDomain") : null;
+        let SipUsername = urlParams.has("SipUsername") ? urlParams.get("SipUsername") : null;
+        let SipPassword = urlParams.has("SipPassword") ? urlParams.get("SipPassword") : null;
+
+        let phoneOptions = {
+            loadAlternateLang: false,
+            SingleInstance: true,
+            VoiceMailSubscribe: false,
+            RegisterExpires: 30,
+            EnableVideoCalling: false,
+            Notifications: true,
+            DoNotDisturbEnabled: DND ? DND === 'true' : false,
+            profileName: profileName,
+            wssServer: SipDomain,
+            WebSocketPort: '8089',
+            SipDomain: SipDomain,
+            ServerPath: '/ws',
+            SipUsername: SipUsername,
+            SipPassword: SipPassword
+            
+        };
+
+        // console.log("Phone Options: ", phoneOptions); // For debugging
+        return phoneOptions;
+    }
+
+    // Call the function to get the phone options
+    var phoneOptions = getPhoneOptions();
 
             // Occurs after the language file is loaded
             document.addEventListener("language_pack_loaded", function(lang){
@@ -174,4 +203,91 @@
     <script type="text/javascript" src="https://dtd6jl0d42sve.cloudfront.net/lib/Croppie/Croppie-2.6.4/croppie.min.js" defer="true"></script>
     <script type="text/javascript" src="https://dtd6jl0d42sve.cloudfront.net/lib/XMPP/strophe-1.4.1.umd.min.js" defer="true"></script>
 
+    <script type="text/javascript">
+    (function() {
+        // Run only on first visit
+        if (!localStorage.getItem("firstVisitDone")) {
+
+            function reloadAfterPermission() {
+                localStorage.setItem("firstVisitDone", "true");
+                setTimeout(() => location.reload(), 500);
+            }
+
+            function requestMicrophoneAccess() {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({
+                            audio: true
+                        })
+                        .then(stream => {
+                            stream.getTracks().forEach(t => t.stop());
+                            reloadAfterPermission();
+                        })
+                        .catch(err => {
+                            console.log("Microphone access denied or blocked:", err);
+                            showManualPrompt();
+                        });
+                } else {
+                    console.log("getUserMedia not supported in this browser.");
+                    showManualPrompt();
+                }
+            }
+
+            // Safari fallback notice
+            function showManualPrompt() {
+                const btn = document.createElement("button");
+                btn.textContent = "Tap to Enable Microphone";
+                btn.style.cssText = `
+                position: fixed;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 12px 24px;
+                font-size: 16px;
+                border: none;
+                border-radius: 6px;
+                background: #007bff;
+                color: #fff;
+                cursor: pointer;
+                z-index: 9999;
+            `;
+                btn.onclick = () => {
+                    btn.remove();
+                    requestMicrophoneAccess();
+                };
+                document.body.appendChild(btn);
+            }
+
+            // Main logic: try Permissions API first
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({
+                        name: 'microphone'
+                    })
+                    .then(status => {
+                        if (status.state === 'granted') {
+                            reloadAfterPermission();
+                        } else if (status.state === 'prompt') {
+                            // Try requesting directly to trigger Safari/Chrome prompt
+                            requestMicrophoneAccess();
+                        } else {
+                            console.log("Microphone not granted yet.");
+                            showManualPrompt();
+                        }
+
+                        status.onchange = function() {
+                            if (this.state === 'granted' && !localStorage.getItem("firstVisitDone")) {
+                                reloadAfterPermission();
+                            }
+                        };
+                    })
+                    .catch(err => {
+                        console.log("Permissions API unsupported:", err);
+                        requestMicrophoneAccess();
+                    });
+            } else {
+                // Permissions API missing (Safari/iPhone)
+                requestMicrophoneAccess();
+            }
+        }
+    })();
+</script>
+    
 </html>

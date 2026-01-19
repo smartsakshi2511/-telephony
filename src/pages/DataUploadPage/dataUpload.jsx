@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from "react";
-import InputAdornment from "@mui/material/InputAdornment";
-import PersonIcon from "@mui/icons-material/Person";
-import NumbersIcon from "@mui/icons-material/Numbers";
-import FormControlLabel from "@mui/material/FormControlLabel";
-// import { Download as DownloadIcon } from "@mui/icons-material"; // Import DownloadIcon
-import Swal from "sweetalert2";
-import ShowList from "./showList";
+import  { useState, useEffect } from "react";
 import "./dataUpload.scss";
-import { DataGrid } from "@mui/x-data-grid";
+import UploadLeadDialog from "./UploadFile";
+import Swal from "sweetalert2";
 import AddIcon from "@mui/icons-material/Add";
-
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
+import SearchBar from "../../context/searchBar";
+import PaginatedGrid from "../Pagination/PaginatedGrid";
 import {
   IconButton,
   Dialog,
@@ -21,31 +16,33 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Typography,
   TextField,
   Tooltip,
-  Switch,
+  Divider,
+  MenuItem,
+  Grid,
 } from "@mui/material";
 import {
-  Visibility as VisibilityIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Download as DownloadIcon,
+  Upload as UploadIcon,
 } from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
+import SaveIcon from "@mui/icons-material/Save";
 
-const DataUpload = () => {
-  const navigate = useNavigate(); // Hook to navigate programmatically
-
+const DataUpload = ({ selectedListId }) => {
+  const navigate = useNavigate();
   const columns = [
     {
-      field: "listId",
+      field: "LIST_ID",
       headerName: "LIST ID",
-      flex: 0.5, // Takes less space
+      flex: 0.5,
       headerClassName: "customHeader",
       renderCell: (params) => (
         <button
           className="listIdButton"
-          onClick={() => navigate(`/showlist/${params.value}`)} // Navigate to ShowList page with listId
+          onClick={() => navigate(`showlist/${params.row.LIST_ID}`)}  
           style={{
             background: "none",
             border: "none",
@@ -54,53 +51,85 @@ const DataUpload = () => {
             cursor: "pointer",
           }}
         >
-          {params.value}
+          {params.row.LIST_ID}
         </button>
       ),
     },
     {
-      field: "name",
+      field: "NAME",
       headerName: "NAME",
-      flex: 1, 
-      headerClassName: "customHeader",
+      flex: 1,
     },
     {
-      field: "description",
+      field: "DESCRIPTION",
       headerName: "DESCRIPTION",
-      flex: 2,  
-      headerClassName: "customHeader",
-    },
-    {
-      field: "leadsCount",
-      headerName: "LEADS COUNT",
       flex: 1,
       headerClassName: "customHeader",
     },
     {
-      field: "campaign",
+      field: "LEADS_COUNT",
+      headerName: "LEADS COUNT",
+      flex: 1,
+      headerClassName: "customHeader",
+      renderCell: (params) => {
+        return (
+          <span
+            style={{
+              color: params.row.LEADS_COUNT != null ? "green" : "black",
+            }}
+          >
+            {params.row.LEADS_COUNT != null
+              ? params.row.LEADS_COUNT
+              : "Not available"}
+          </span>
+        );
+      },
+    },
+    {
+      field: "CAMPAIGN",
       headerName: "CAMPAIGN",
       flex: 1,
       headerClassName: "customHeader",
     },
     {
-      field: "active",
+      field: "ACTIVE",
       headerName: "STATUS",
-      flex: 1, // Takes less space
-      headerClassName: "customHeader",
-      renderCell: (params) => (
-        <button
-          className={`statusButton ${params.value ? "active" : "inactive"}`}
-          onClick={() => handleToggleStatus(params.row.listId)}
-        >
-          {params.value ? "Active" : "Inactive"}
-        </button>
-      ),
+      width: 180,
+      renderCell: (params) => {
+        const isActive = params.row.ACTIVE === "active"; // Define isActive here
+        return (
+          <button
+            className={`statusButton ${isActive ? "active" : "inactive"}`}
+            onClick={() => handleToggleStatus(params.row.LIST_ID)}
+          >
+            {isActive ? "Active" : "Inactive"}
+          </button>
+        );
+      },
     },
     {
-      field: "createTime",
+      field: "RTIME",
       headerName: "CREATE TIME",
-      flex: 1.5, // Slightly more space for date/time
-      headerClassName: "customHeader",
+      flex: 1.5,
+      renderCell: (params) => {
+        if (!params.value) return "-";
+        const utcDate = new Date(params.value);
+        const istDate = new Date(
+          utcDate.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+        );
+
+        const formattedDate = istDate.toLocaleString("en-IN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+
+        return formattedDate;
+      },
     },
     {
       field: "action",
@@ -114,57 +143,43 @@ const DataUpload = () => {
             flexWrap: "wrap",
             justifyContent: "center",
             alignItems: "center",
-            gap: "8px", // Adjust spacing between buttons
+            gap: "8px",
           }}
         >
-          {/* <IconButton
-            color="primary"
-            onClick={() => handleView(params.row)}
-            style={{
-              padding: "4px",
-              border: "2px solid blue", // Border matching icon color
-              borderRadius: "6px 6px", // Circular border
-              backgroundColor: "white", // White background
-            }}
-          >
-            <Tooltip title="View">
-              <VisibilityIcon
-                style={{
-                  cursor: "pointer",
-                  color: "blue",
-                  fontSize: "12px", // Adjust icon size
-                }}
-              />
-            </Tooltip>
-          </IconButton> */}
-
           <IconButton
             color="primary"
-            onClick={handleOpenDialog} // Opens the dialog box
+            onClick={() => handleOpenDialog(params.row)}  
             style={{
               padding: "4px",
-              border: "2px solid blue", // Border matching icon color
-              borderRadius: "6px 6px", // Circular border
-              backgroundColor: "white", // White background
+              border: "2px solid blue",
+              borderRadius: "6px 6px",
+              backgroundColor: "white",
             }}
           >
-            <Tooltip title="Download">
-              <DownloadIcon
+            <Tooltip title="Upload">
+              <UploadIcon
                 style={{
                   cursor: "pointer",
                   color: "blue",
-                  fontSize: "12px", // Adjust icon size
+                  fontSize: "12px",
                 }}
               />
             </Tooltip>
           </IconButton>
+
+          <UploadLeadDialog
+            openDialog={openDialog}
+            handleCloseDialog={handleCloseDialog}
+            listId={listId}
+            campaign={campaign}
+          />
 
           <IconButton
             color="info"
             onClick={() => handleEdit(params.row)}
             style={{
               padding: "4px",
-              border: "2px solid green", // Border matching icon color
+              border: "2px solid green",
               borderRadius: "6px 6px",
               backgroundColor: "white",
             }}
@@ -179,13 +194,12 @@ const DataUpload = () => {
               />
             </Tooltip>
           </IconButton>
-
           <IconButton
             color="error"
             onClick={() => handleDelete(params.row)}
             style={{
               padding: "4px",
-              border: "2px solid red", // Border matching icon color
+              border: "2px solid red",
               borderRadius: "6px 6px",
               backgroundColor: "white",
             }}
@@ -206,67 +220,191 @@ const DataUpload = () => {
   ];
 
   const [data, setData] = useState([]);
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [viewData, setViewData] = useState(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editData, setEditData] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [listId, setListId] = useState("");
+  const [campaign, setCampaign] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState("all"); // or "active"
+
   const [formData, setFormData] = useState({
     listId: "",
     name: "",
     description: "",
     leadsCount: "",
+    callTime: null,  
+    lastCallTime: null,
     campaign: "",
-    active: false,
-    createTime: "",
+    active: true,
   });
 
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [campaignOptions, setCampaignOptions] = useState([]);
   useEffect(() => {
-    const fetchLists = async () => {
-      try {
-        const response = await axios.get("https://api.example.com/lists");
-        setData(response.data.lists);
-      } catch (error) {
-        console.error("Error fetching lists:", error);
-        setData([
-          {
-            listId: 1,
-            name: "List A",
-            description: "Description for List A",
-            leadsCount: 100,
-            campaign: "Campaign A",
-            active: true,
-            createTime: "2023-08-01 10:00 AM",
-          },
-          {
-            listId: 2,
-            name: "List B",
-            description: "Description for List B",
-            leadsCount: 200,
-            campaign: "Campaign B",
-            active: false,
-            createTime: "2023-08-05 02:30 PM",
-          },
-        ]);
-      }
-    };
+    const token = localStorage.getItem("token");
 
-    fetchLists();
+    axios
+      .get(`https://${window.location.hostname}:4000/campaigns_dropdown`, {
+        headers: { Authorization: `Bearer ${token}` }, // No need for query params
+      })
+      .then((response) => {
+
+        const options = response.data.map((campaign) => ({
+          id: campaign.compaign_id,
+          label: campaign.compaignname,
+        }));
+        setCampaignOptions([
+          { id: "", label: "--- Select Campaign ID ---" },
+          ...options,
+        ]);
+      })
+      .catch((error) => {
+        console.error("Error fetching campaigns:", error);
+      });
   }, []);
 
-  const handleOpenDialog = () => setOpenDialog(true);
-  const handleCloseDialog = () => setOpenDialog(false);
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // Retrieve JWT Token
 
-  const handleToggleStatus = (id) => {
-    const updatedData = data.map((item) =>
-      item.listId === id ? { ...item, active: !item.active } : item
-    );
-    setData(updatedData);
+    if (!token) {
+      console.error("No token found, redirecting to login...");
+      navigate("/login");
+      return;
+    }
+
+    axios
+      .get(`https://${window.location.hostname}:4000/list`, {
+        headers: { Authorization: `Bearer ${token}` }, // Send token with request
+      })
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
+  const handleOpenDialog = (row) => {
+    setListId(row.LIST_ID);
+    setCampaign(row.CAMPAIGN);
+    setOpenDialog(true);
   };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setAddDialogOpen(false);
+    setEditDialogOpen(false);
+  };
+
+  const handleToggleStatus = async (id) => {
+    const updatedDisposition = data.find((item) => item.LIST_ID  === id);
+    const newStatus =
+      updatedDisposition.ACTIVE === "active" ? "inactive" : "active";
+    try {
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.LIST_ID  === id ? { ...item, ACTIVE: newStatus } : item
+        )
+      );
+
+      const response = await axios.put(
+        `https://${window.location.hostname}:4000/statusUpload/${id}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+const handleDelete = async (rowData) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.delete(
+      `https://${window.location.hostname}:4000/lists/${rowData.LIST_ID}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setData((prevData) =>
+      prevData.filter((item) => item.LIST_ID !== rowData.LIST_ID)
+    );
+
+    showToast("success", "The list has been deleted.");
+  } catch (error) {
+    console.error("Error deleting list:", error);
+    showToast("error", "Failed to delete the list.");
+  }
+};
+
+
+  const handleSaveAdd = async (event) => {
+    event.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+
+    const newData = {
+      LIST_ID: formData.listId,
+      NAME: formData.name,
+      DESCRIPTION: formData.description,
+      LEADS_COUNT: formData.leadsCount || 0,
+      CAMPAIGN: formData.campaign,
+      ACTIVE: formData.active ?? true,
+      RTIME: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axios.post(
+        `https://${window.location.hostname}:4000/listAdd`,
+        newData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setData((prevData) => [
+        ...prevData,
+        { ...newData, id: response.data.insertId },
+      ]);
+
+      handleCloseDialog(); // ✅ Close dialog
+
+      Toast.fire({
+        icon: "success",
+        title: "Data added successfully!",
+      });
+    } catch (error) {
+      console.error("Error adding data:", error);
+
+      Toast.fire({
+        icon: "error",
+        title: "Failed to add data!",
+      });
+    }
+  };
+
   const handleAddNewList = () => {
     setFormData({
-      listId: data.length + 1, // Auto-generate listId
+      listId: "", // Auto-generate listId
       name: "",
       description: "",
       leadsCount: "",
@@ -276,40 +414,27 @@ const DataUpload = () => {
     });
     setAddDialogOpen(true);
   };
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This will permanently delete the block.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setData(data.filter((item) => item.listId !== id));
-        Swal.fire("Deleted!", "The block has been deleted.", "success");
-      }
-    });
-  };
 
-  const handleDownload = () => {
-    if (data.length === 0) {
-      alert("No data available to download.");
-      return;
-    }
+   const handleDownload = () => {
+    const staticExcelData = [
+      {
+        email: "xyz@gmail.com",
+        name: "John",
+        phone_number: "1234567890",
+      },
+      {  
+        email: "abc@gmail.com",
+        name: "Jane",
+        phone_number: "9876543210",
+      },
+      { 
+        email: "abc@gmail.com",
+        name: "Alice",
+        phone_number: "2223334444",
+      },
+    ];
 
-    const excelData = data.map((item) => ({
-      "LIST ID": item.listId,
-      NAME: item.name,
-      DESCRIPTION: item.description,
-      "LEADS COUNT": item.leadsCount,
-      CAMPAIGN: item.campaign,
-      ACTIVE: item.active ? "Yes" : "No",
-      "CREATE TIME": item.createTime,
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const worksheet = XLSX.utils.json_to_sheet(staticExcelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Lists");
 
@@ -323,338 +448,451 @@ const DataUpload = () => {
     saveAs(blob, "list_data.xlsx");
   };
 
-  const handleView = (row) => {
-    setViewData(row);
-    setViewDialogOpen(true);
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
-  const handleCloseViewDialog = () => {
-    setViewDialogOpen(false);
-    setViewData(null);
+  useEffect(() => {
+    if (editDialogOpen && selectedListId) {
+      axios
+        .get(`https://${window.location.hostname}:4000/lists/${selectedListId}`)
+        .then((response) => {
+          if (response.data) {
+            setFormData(response.data); // Populate formData with fetched data
+          } else {
+            console.error("No data found for the provided listId.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
+    }
+  }, [editDialogOpen, selectedListId]);
+
+  const handleUpdate = () => {
+    if (!formData.listId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing List ID",
+        text: "Unable to save changes.",
+      });
+      return;
+    }
+    const token = localStorage.getItem("token");
+
+    axios
+      .put(
+        `https://${window.location.hostname}:4000/lists/${formData.listId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(() => {
+        // ✅ Update the data state
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.LIST_ID === formData.listId
+              ? {
+                  ...item,
+                  NAME: formData.name,
+                  DESCRIPTION: formData.description,
+                  LEADS_COUNT: formData.leadsCount,
+                  CAMPAIGN: formData.campaign,
+                  ACTIVE: formData.active,
+                }
+              : item
+          )
+        );
+        handleCloseEditDialog(); // ✅ Close first
+
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+
+        Toast.fire({
+          icon: "success",
+          title: "Data updated successfully",
+        });
+      })
+      .catch((error) => {
+        console.error("Error saving data:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: "Could not update the list. Please try again.",
+        });
+      });
   };
 
-  const handleEdit = (row) => {
-    setEditData(row);
-    setFormData(row);
+  const handleEdit = (rowData) => {
+    setFormData({
+      listId: rowData.LIST_ID, // Ensure correct key matching DB
+      name: rowData.NAME,
+      description: rowData.DESCRIPTION,
+      leadsCount: rowData.LEADS_COUNT,
+      campaign: rowData.CAMPAIGN,
+      active: rowData.ACTIVE === 1, // Convert 1/0 to true/false for Switch
+    });
     setEditDialogOpen(true);
   };
-
   const handleCloseEditDialog = () => {
-    setEditDialogOpen(false);
-    setEditData(null);
     setFormData({
       listId: "",
       name: "",
       description: "",
-      leadsCount: "",
       campaign: "",
-      active: false,
-      createTime: "",
     });
+    setAddDialogOpen(false);
+    setEditDialogOpen(false);
   };
 
-  const handleFormChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
+  const filteredData = data.filter((item) => {
+    if (filter === "active" && item.ACTIVE !== "active") return false;
+    if (!searchQuery) return true;
 
-  const handleSaveEdit = async () => {
-    setData(
-      data.map((item) =>
-        item.listId === formData.listId ? { ...formData } : item
-      )
+    const query = searchQuery.toLowerCase();
+
+    return (
+      (item.LIST_ID && item.LIST_ID.toString().toLowerCase().includes(query)) ||
+      (item.NAME && item.NAME.toLowerCase().includes(query)) ||
+      (item.CAMPAIGN && item.CAMPAIGN.toLowerCase().includes(query)) ||
+      (item.ACTIVE && item.ACTIVE.toLowerCase().includes(query)) ||
+      (item.RTIME &&
+        new Date(item.RTIME)
+          .toLocaleString("en-IN")
+          .toLowerCase()
+          .includes(query))
     );
-    handleCloseEditDialog();
-  };
+  });
 
   return (
-    <div className="datatable">
-      <div className="datatableTitle">
-        SHOW LIST
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => setAddDialogOpen(true)}
-          style={{ marginLeft: "640px" }}
-          sx={{
-            background: "linear-gradient(90deg, #283593, #3F51B5)",
-            color: "#fff",
-            "&:hover": {
-              background: "linear-gradient(90deg, #1e276b, #32408f)", // Darker shade on hover
-            },
-          }}
-        >
-          Add New List
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={handleDownload}
+    <div className="data">
+      <div
+        className="datatableT-header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <div style={{ fontSize: "20px", fontWeight: "bold" }}>SHOW LIST</div>
+
+        <div
           style={{
-            background: "linear-gradient(90deg, #4caf50, #2e7d32)", // Green gradient
-            color: "white",
-            borderColor: "#4caf50",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            flexWrap: "wrap",
           }}
         >
-          EXPORT <DownloadIcon />
-        </Button>
+          <SearchBar
+            onSearch={(value) => setSearchQuery(value)}
+            placeholder="Search list id, campaign..."
+          />
+
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleAddNewList}
+            sx={{
+              background: "linear-gradient(90deg, #283593, #3F51B5)",
+              color: "#fff",
+              "&:hover": {
+                background: "linear-gradient(90deg, #1e276b, #32408f)",
+              },
+            }}
+          >
+            Add New List
+          </Button>
+
+          <Tooltip title="Download the data format and upload your data in this format">
+            <Button
+              variant="outlined"
+              onClick={handleDownload}
+              style={{
+                color: "#1e276b",
+                borderColor: "#1e276b",
+              }}
+            >
+              sample <DownloadIcon />
+            </Button>
+          </Tooltip>
+        </div>
       </div>
 
+      <PaginatedGrid
+        rows={filteredData}
+        columns={columns}
+        pageSize={9}
+        rowsPerPageOptions={[9]}
+        getRowId={(row) => row.LIST_ID}
+        style={{ fontSize: "12px" }}
+        autoHeight
+      />
+
       <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        sx={{
-          "& .MuiDialog-paper": {
-            borderRadius: "12px",
-            padding: "16px",
-            background: "linear-gradient(135deg, #e3f2fd, #bbdefb)", // Add a gradient background
+        open={addDialogOpen || editDialogOpen}
+        onClose={handleCloseEditDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: 6,
+            p: 1,
           },
         }}
       >
         <DialogTitle
           sx={{
             fontWeight: "bold",
-            color: "#283593",
-            textAlign: "center",
+            fontSize: "1.25rem",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 3,
+            pt: 2,
           }}
         >
-          Upload Lead
+          {editDialogOpen ? "Edit List" : "Add New List"}
+          <IconButton onClick={handleCloseEditDialog}>
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "16px",
-              alignItems: "center",
-            }}
-          >
-            <TextField
-              label="List ID"
-              variant="outlined"
-              disabled
-              defaultValue="12345" // Replace with dynamic value if necessary
-              sx={{
-                width: "100%",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-              }}
-            />
-            <TextField
-              label="Campaign Name"
-              variant="outlined"
-              defaultValue="34567" // Replace with dynamic value if necessary
-              sx={{
-                width: "100%",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-              }}
-            />
-            <Button
-              variant="outlined"
-              component="label"
-              sx={{
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "#3F51B5",
-                borderColor: "#3F51B5",
-                "&:hover": {
-                  backgroundColor: "#e8eaf6",
-                },
-              }}
-            >
-              Choose File
-              <input type="file" hidden />
-            </Button>
-          </div>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "center" }}>
-          <Button
-            onClick={handleCloseDialog}
-            sx={{
-              color: "#757575",
-              "&:hover": {
-                color: "#000",
-              },
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
-              background: "linear-gradient(90deg, #283593, #3F51B5)",
-              color: "#fff",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              "&:hover": {
-                background: "linear-gradient(90deg, #1e276b, #32408f)",
-              },
-            }}
-          >
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
 
-      <DataGrid
-        rows={data}
-        columns={columns}
-        pageSize={9}
-        rowsPerPageOptions={[9]}
-        getRowId={(row) => row.listId}
-        style={{ fontSize: "12px" }}
-      />
-
-      {/* View Dialog */}
-      <Dialog
-        open={viewDialogOpen}
-        onClose={handleCloseViewDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{ bgcolor: "primary.main", color: "white", textAlign: "center" }}
+        <Divider />
+        <DialogContent
+          sx={{
+            px: 3,
+            pt: 2,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "15px",
+            },
+          }}
         >
-          View Details
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="h6" gutterBottom>
-            List Details
-          </Typography>
-          {viewData && (
-            <div style={{ padding: "10px" }}>
-              <Typography variant="body1">
-                <strong>List ID:</strong> {viewData.listId}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Name:</strong> {viewData.name}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Description:</strong> {viewData.description}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Leads Count:</strong> {viewData.leadsCount}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Campaign:</strong> {viewData.campaign}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Active:</strong> {viewData.active ? "Yes" : "No"}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Create Time:</strong> {viewData.createTime}
-              </Typography>
-            </div>
-          )}
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="List ID"
+                name="listId"
+                value={formData.listId}
+                onChange={handleFormChange}
+                fullWidth
+                margin="dense"
+                disabled={editDialogOpen}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="List Name"
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                fullWidth
+                margin="dense"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="List Description"
+                name="description"
+                value={formData.description}
+                onChange={handleFormChange}
+                fullWidth
+                margin="dense"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                label="Select Campaign"
+                name="campaign"
+                value={formData.campaign}
+                onChange={handleFormChange}
+                fullWidth
+                margin="dense"
+              >
+                {campaignOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.id}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
+
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
-            onClick={handleCloseViewDialog}
-            color="primary"
+            onClick={handleSaveAdd}
             variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
           >
-            Close
+            Save
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog
         open={editDialogOpen}
         onClose={handleCloseEditDialog}
         maxWidth="sm"
         fullWidth
+        BackdropProps={{
+          style: {
+            backgroundColor: "transparent", // No dim effect
+          },
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: "20px", // Rounded corners
+          },
+        }}
       >
-        <DialogTitle
-          sx={{ bgcolor: "primary.main", color: "white", textAlign: "center" }}
-        >
+        <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.25rem", pb: 0 }}>
           Edit List
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={handleFormChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <PersonIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Description"
-            name="description"
-            value={formData.description}
-            onChange={handleFormChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            multiline
-            rows={2}
-          />
-          <TextField
-            label="Leads Count"
-            name="leadsCount"
-            type="number"
-            value={formData.leadsCount}
-            onChange={handleFormChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <NumbersIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Campaign"
-            name="campaign"
-            value={formData.campaign}
-            onChange={handleFormChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.active}
-                onChange={handleFormChange}
-                name="active"
-                color="primary"
-              />
-            }
-            label="Active"
-            sx={{ marginTop: "20px" }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleSaveEdit}
-            variant="contained"
-            color="primary"
-            sx={{ width: "100%" }}
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseEditDialog}
+            sx={{ position: "absolute", right: 8, top: 8, color: "grey.500" }}
           >
-            Save Changes
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent
+          dividers
+          sx={{
+            px: 3,
+            pt: 2,
+            "& .MuiTextField-root .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+            },
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="List ID"
+                value={formData.listId}
+                onChange={(e) =>
+                  setFormData({ ...formData, listId: e.target.value })
+                }
+                fullWidth
+                margin="dense"
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                fullWidth
+                margin="dense"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                fullWidth
+                margin="dense"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Leads Count"
+                value={formData.leadsCount}
+                onChange={(e) =>
+                  setFormData({ ...formData, leadsCount: e.target.value })
+                }
+                fullWidth
+                margin="dense"
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                select
+                label="Select Campaign"
+                value={formData.campaign}
+                onChange={(e) =>
+                  setFormData({ ...formData, campaign: e.target.value })
+                }
+                fullWidth
+                margin="dense"
+              >
+                {campaignOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.id}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button
+            onClick={handleUpdate}
+            color="primary"
+            variant="contained"
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              px: 3,
+            }}
+          >
+            Save
           </Button>
         </DialogActions>
       </Dialog>
     </div>
   );
 };
-
 export default DataUpload;
+export const showToast = (icon, title) => {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
+
+  Toast.fire({
+    icon,
+    title,
+  });
+};

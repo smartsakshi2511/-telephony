@@ -2,6 +2,8 @@
   display: flex;
   justify-content: center;
   padding: 20px;
+  opacity: 0;
+  animation: fadeIn 1s forwards; /* Fade-in animation for the whole page */
 
   .homeContainer {
     width: 100%;
@@ -9,16 +11,9 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    animation: slideUp 1s forwards; /* Slide-in animation for the container */
 
-    .widgets {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));  
-      gap: 15px; 
-      padding: 10px;  
-    }
-    
-
-    .charts {
+    .topSection {
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
@@ -27,7 +22,58 @@
       @media (min-width: 768px) {
         grid-template-columns: 1fr 1fr;
       }
+      opacity: 0;
+      animation: fadeIn 1s forwards 1s; /* Fade-in for charts with delay */
     }
+    .widgets {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(150px, 1fr)
+      ); /* Decreased min width */
+      gap: 15px;  
+      padding: 10px; /* Reduced overall padding */
+      opacity: 0;
+      animation: fadeIn 1s forwards 0.5s; /* Fade-in for widgets with delay */
+    }
+ 
+    // .charts {
+    //   display: grid;
+    //   grid-template-columns: 1fr;
+    //   gap: 20px;
+    //   padding: 5px 20px;
+    //   @media (min-width: 768px) {
+    //     grid-template-columns: 1fr 1fr;
+    //   }
+    //   opacity: 0;
+    //   animation: fadeIn 1s forwards 1s; /* Fade-in for charts with delay */
+    // }
+.charts {
+  padding: 5px 20px;
+  opacity: 0;
+  animation: fadeIn 1s forwards 1s;
+
+  .chartRow {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    > div {
+      flex: 1;
+      min-width: 300px;
+      height: 350px; // 👈 Reduced height (adjust as needed)
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+}
+
 
     .listContainer {
       -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
@@ -36,6 +82,8 @@
       padding: 20px;
       margin: 20px;
       border-radius: 8px;
+      opacity: 0;
+      animation: fadeIn 1s forwards 1.5s; /* Fade-in for listContainer with delay */
 
       .listTitle {
         font-weight: 500;
@@ -46,7 +94,6 @@
   }
 }
 
-// Media Queries for Responsiveness
 @media (max-width: 1200px) {
   .homeContainer {
     padding: 15px;
@@ -61,7 +108,7 @@
 
 @media (max-width: 768px) {
   .home {
-    padding: 0px;
+    padding: 10px;
   }
 
   .listContainer {
@@ -97,12 +144,12 @@
 @media (max-width: 600px) {
   .listHeader {
     flex-direction: column;
-    align-items: stretch; /* Stretch items to fill width */
-    gap: 10px; /* Add spacing between title and dropdowns */
+    align-items: stretch;
+    gap: 10px;
 
     .listTitle {
-      font-size: 20px; /* Slightly reduce title size */
-      text-align: center; /* Center-align title on small screens */
+      font-size: 20px;
+      text-align: center;
     }
 
     .dropdowns {
@@ -119,3 +166,40 @@
     }
   }
 }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(50px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.widget {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05); /* Slight scaling effect on hover */
+    opacity: 0.95; /* Slight opacity change for hover effect */
+  }
+}
+ 
+.phoneIcon , .blockIcon{
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  margin: 0;
+  padding: 0%;
+  background: none;
+} 
+

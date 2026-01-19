@@ -1,10 +1,9 @@
-// src/pages/list/BlockList.jsx
 import "./list.scss";
-import React, { useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
-import Swal from "sweetalert2"; // Import SweetAlert2
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";  
 import axios from "axios";
+import PaginatedGrid from "../Pagination/PaginatedGrid";
+import SearchBar from "../../context/searchBar";
 import { Close as CloseIcon } from "@mui/icons-material";
 import {
   IconButton,
@@ -14,63 +13,120 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Typography,
   TextField,
+  Divider,
 } from "@mui/material";
 import {
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
   Delete as DeleteIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
 
-// Mock Data for blocks
-const initialBlockRows = [
-  { id: 1, sr: 1, blockNo: "A-101", status: "active", date: "2023-09-21" },
-  { id: 2, sr: 2, blockNo: "B-202", status: "inactive", date: "2023-09-22" },
-  { id: 3, sr: 3, blockNo: "C-303", status: "active", date: "2023-09-23" },
-];
-
-// Columns definition for the blocks
 const blockColumns = [
-  {
+   {
     field: "sr",
     headerName: "SR.",
-    flex: 0.5, // Smaller proportional size for serial numbers
-    headerClassName: "customHeader",
+    flex: 0.5,
+    valueGetter: (params) => params.api.getRowIndex(params.id) + 1,
   },
   {
-    field: "blockNo",
-    headerName: "BLOCK NO.",
-    flex: 1, // Default proportional size for key information
-    headerClassName: "customHeader",
+    field: "id",
+    headerName: "ID",
+    flex: 0.5,
+    hide: true, 
+  },
+
+  {
+    field: "block_no",
+    headerName: "BLOCK NO",
+    flex: 1,
   },
   {
-    field: "date",
+    field: "ins_date",
     headerName: "DATE",
-    flex: 1, // Adjust proportion to match typical date column length
-    headerClassName: "customHeader",
+    flex: 1,
+    renderCell: (params) => {
+      if (!params.value) return "-";
+
+      const date = new Date(params.value);
+
+      const formattedDate = date.toLocaleString("en-IN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata",  
+      });
+
+      return formattedDate;
+    },
   },
+
   {
     field: "status",
     headerName: "STATUS",
-    flex: 0.8, // Slightly smaller size for short status values
-    headerClassName: "customHeader",
+    flex: 0.8,
   },
 ];
 
-
 const BlockList = () => {
-  const [data, setData] = useState(initialBlockRows); // Initialize data state
+  const [data, setData] = useState([]);
   const [editRowId, setEditRowId] = useState(null);
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [viewData, setViewData] = useState(null);
-  const [addDialogOpen, setAddDialogOpen] = useState(false); // State for Add Dialog
+  const [addDialogOpen, setAddDialogOpen] = useState(false);  
+  const [filter, setFilter] = useState("all");  
+  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Handle Delete with SweetAlert confirmation
+ const fetchBlockList = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No authentication token found. Please log in.");
+      return;
+    }
+
+    const response = await axios.get(
+      `https://${window.location.hostname}:4000/block`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setData(response.data);
+    setError("");
+  } catch (err) {
+    console.error(
+      "Error fetching Block List:",
+      err.response?.data?.message || err.message
+    );
+    setError("An error occurred while fetching blocks.");
+  }
+};
+
+ useEffect(() => {
+  fetchBlockList();
+}, []);
+
+
   const handleDelete = (id) => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+
     Swal.fire({
       title: "Are you sure?",
       text: "This will permanently delete the block.",
@@ -79,54 +135,90 @@ const BlockList = () => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setData(data.filter((item) => item.id !== id));
-        Swal.fire("Deleted!", "The block has been deleted.", "success");
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            Toast.fire({
+              icon: "error",
+              title: "No authentication token found. Please log in.",
+            });
+            return;
+          }
+
+          const response = await axios.delete(
+            `https://${window.location.hostname}:4000/deleteBlock/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            setData((prevData) => prevData.filter((item) => item.id !== id));
+            Toast.fire({
+              icon: "success",
+              title: "Block deleted successfully!",
+            });
+          } else {
+            Toast.fire({
+              icon: "error",
+              title: "Failed to delete block. Please try again.",
+            });
+          }
+        } catch (error) {
+          console.error("Error deleting block:", error);
+          Toast.fire({
+            icon: "error",
+            title: "An error occurred. Please try again.",
+          });
+        }
       }
     });
-  };
-
-  // Handle Edit
-  const handleEdit = (id) => {
-    setEditRowId(id);
   };
 
   const handleSaveEdit = (updatedRow) => {
     setData((prevData) =>
       prevData.map((item) => (item.id === updatedRow.id ? updatedRow : item))
     );
-    setEditRowId(null); // Exit edit mode after saving
+    setEditRowId(null);
   };
 
-  // Handle Status Toggle
-  const handleToggleStatus = async (id) => {
-    const updatedBlock = data.find((item) => item.id === id);
-    const newStatus = updatedBlock.status === "active" ? "Inactive" : "active";
+  const handleToggleStatus = async (blockId, currentStatus) => {
+    if (!blockId) {
+      console.error("Block ID is undefined");
+      return;
+    }
 
-    // Optionally, make an API call to update the status
-    // await axios.put(`https://api.example.com/blocks/${id}`, { status: newStatus });
+    const newStatus = currentStatus === 0 ? 1 : 0;
 
-    // Update the state
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, status: newStatus } : item
-      )
-    );
+    try {
+      const response = await axios.post(
+        `https://${window.location.hostname}:4000/blockStatus`,
+        { id: blockId, status: newStatus },  
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setData((prevData) =>
+          prevData.map((row) =>
+            row.id === blockId ? { ...row, status: newStatus } : row
+          )
+        );
+      } else {
+        console.error("Failed to update status.");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
-
-  // Handle View
-  const handleView = (row) => {
-    setViewData(row);
-    setViewDialogOpen(true);
-  };
-
-  const handleCloseViewDialog = () => {
-    setViewDialogOpen(false);
-    setViewData(null);
-  };
-
-  // Handle Add Dialog
   const handleOpenAddDialog = () => {
     setAddDialogOpen(true);
   };
@@ -136,31 +228,34 @@ const BlockList = () => {
   };
 
   const handleAddBlock = (newBlock) => {
+    const isDuplicate = data.some(
+      (block) => block.block_no === newBlock.block_no
+    );
+
+    if (isDuplicate) {
+      return;
+    }
+
     const newId =
       data.length > 0 ? Math.max(...data.map((item) => item.id)) + 1 : 1;
-    const newSr =
-      data.length > 0 ? Math.max(...data.map((item) => item.sr)) + 1 : 1;
-    const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     const blockToAdd = {
       id: newId,
-      sr: newSr,
-      blockNo: newBlock.blockNo,
+      block_no: newBlock.block_no,
       status: newBlock.status,
-      date: newBlock.date || currentDate,
+      ins_date: newBlock.ins_date,
     };
 
-    setData([...data, blockToAdd]);
-    handleCloseAddDialog();
+    setData((prevData) => [...prevData, blockToAdd]);  
+    setAddDialogOpen(false);  
   };
 
-  // Define the action column with icons
   const actionColumn = [
     {
       field: "action",
       headerName: "ACTION",
       width: 180,
-      headerClassName: "customHeader",
+
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -189,54 +284,36 @@ const BlockList = () => {
               </>
             ) : (
               <>
-               <div
+                <div
                   style={{
                     display: "flex",
                     flexWrap: "wrap",
                     justifyContent: "center",
                     alignItems: "center",
-                    gap: "8px", // Adjust spacing between buttons
+                    gap: "8px",  
                   }}
                 >
-                {/* <Tooltip title="View">
                   <IconButton
-                    color="primary"
-                    onClick={() => handleView(params.row)}
+                    color="error"
+                    onClick={() => handleDelete(params.row.id)}
+                    style={{
+                      padding: "4px",
+                      border: "2px solid red",  
+                      borderRadius: "6px 6px",
+                      backgroundColor: "white",
+                    }}
                   >
-                    <VisibilityIcon />
+                    <Tooltip title="Delete">
+                      <DeleteIcon
+                        style={{
+                          cursor: "pointer",
+                          color: "red",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </Tooltip>
                   </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Edit">
-                  <IconButton
-                    color="info"
-                    onClick={() => handleEdit(params.row.id)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip> */}
-
-<IconButton
-                color="error"
-                onClick={() => handleDelete(params.row.id)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid red", // Border matching icon color
-                  borderRadius: "6px 6px",
-                  backgroundColor: "white",
-                }}
-              >
-                <Tooltip title="Delete">
-                <DeleteIcon
-                  style={{
-                    cursor: "pointer",
-                    color: "red",
-                    fontSize: "12px",
-                  }}
-                />
-                </Tooltip>
-              </IconButton>
-            </div>
+                </div>
               </>
             )}
           </div>
@@ -245,7 +322,12 @@ const BlockList = () => {
     },
   ];
 
-  // Modify columns to allow colored spans for status
+  const filteredData = data.filter((item) => {
+    if (filter === "active" && item.status !== "active") return false;
+    if (!searchQuery) return true;
+    return item.block_no.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   const columns = blockColumns.map((col) => {
     if (col.field === "status") {
       return {
@@ -255,13 +337,21 @@ const BlockList = () => {
         sortable: false,
         filterable: false,
         renderCell: (params) => {
-          const isActive = params.row.status === "active";
+          const blockId = params.row?.id;
+          const currentStatus = params.row?.status;  
+          const isActive = currentStatus === 0;  
           return (
             <button
-              className={`statusButton ${isActive ? "active" : "inactive"}`}
-              onClick={() => handleToggleStatus(params.row.id)}
+              className={`statusButton ${isActive ? "active" : "blocked"}`}
+              onClick={() => {
+                if (blockId !== undefined) {
+                  handleToggleStatus(blockId, currentStatus);
+                } else {
+                  console.error("Block ID is missing!");
+                }
+              }}
             >
-              {isActive ? "Active" : "Inactive"}
+              {isActive ? "Unblocked" : "Blocked"}
             </button>
           );
         },
@@ -271,179 +361,224 @@ const BlockList = () => {
   });
 
   return (
-    <div className="datatable" style={{ height: 600, width: "100%" }}>
-      <div className="datatableTitle" style={styles.datatableTitle}>
-        <Typography variant="h6" style={{ fontWeight: 'bold' }}>BLOCK LIST</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenAddDialog}
-          sx={{
-            background: "linear-gradient(90deg, #283593, #3F51B5)",
-            color: "#fff",
-            "&:hover": {
-              background: "linear-gradient(90deg, #1e276b, #32408f)", // Darker shade on hover
-            },
-          }}
-        >
-          Add Block
-        </Button>
-      </div>
-      <DataGrid
-        className="datagrid"
-        rows={data} // Use state data
-        columns={columns.concat(actionColumn)}
-        pageSize={9}
-        rowsPerPageOptions={[9]}
-        style={{ fontSize: "12px" }}
-      />
+    <div className="datatable">
+      <div
+        className="datatableTitle"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <b style={{ fontSize: "1.2rem" }}>BLOCK LIST</b>
 
-      <ViewDialog
-        open={viewDialogOpen}
-        onClose={handleCloseViewDialog}
-        data={viewData}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <SearchBar
+            onSearch={(value) => setSearchQuery(value)}
+            placeholder="Search block no..."
+          />
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpenAddDialog}
+            sx={{
+              background: "linear-gradient(90deg, #283593, #3F51B5)",
+              color: "#fff",
+              "&:hover": {
+                background: "linear-gradient(90deg, #1e276b, #32408f)",
+              },
+            }}
+          >
+            Add Block
+          </Button>
+        </div>
+      </div>
+
+      <PaginatedGrid
+        rows={filteredData}
+        columns={columns.concat(actionColumn)}
       />
 
       <AddDialog
         open={addDialogOpen}
         onClose={handleCloseAddDialog}
-        onAdd={handleAddBlock}
+        onAdd={handleAddBlock}  
+        refreshData={fetchBlockList}  
       />
+
     </div>
   );
 };
 
-// Styles (optional)
-const styles = {
-  datatableTitle: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-};
 
-// ViewDialog Component
-const ViewDialog = ({ open, onClose, data }) => {
-  if (!data) return null;
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Block Details</DialogTitle>
-      <DialogContent dividers>
-        <Typography variant="body1">
-          <strong>Sr.:</strong> {data.sr}
-        </Typography>
-        <Typography variant="body1">
-          <strong>Block No.:</strong> {data.blockNo}
-        </Typography>
-        <Typography variant="body1">
-          <strong>Status:</strong>{" "}
-          {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
-        </Typography>
-        <Typography variant="body1">
-          <strong>Date:</strong> {data.date}
-        </Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="primary" variant="contained">
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-// AddDialog Component
-const AddDialog = ({ open, onClose, onAdd }) => {
+const AddDialog = ({ open, onClose, onAdd , refreshData }) => {
   const [blockNo, setBlockNo] = useState("");
-  const [status, setStatus] = useState("active"); // Default status
+  const [status, setStatus] = useState("active");
   const [error, setError] = useState("");
 
-  const handleSubmit = () => {
-    if (!blockNo.trim()) {
-      setError("Block No. is required.");
-      return;
-    }
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // Prepare new block data
-    const newBlock = {
-      blockNo: blockNo.trim(),
-      status,
-      date: new Date().toISOString().split("T")[0], // Current date
-    };
+  if (!blockNo.trim()) {
+    setError("Block No. is required.");
+    return;
+  }
 
-    onAdd(newBlock);
+  const ins_date = new Date().toISOString();
 
-    // Reset form fields
-    setBlockNo("");
-    setStatus("active");
-    setError("");
+  const newBlock = {
+    block_no: blockNo.trim(),
+    status,
+    ins_date,
   };
 
+  const token = localStorage.getItem("token");
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
+
+  try {
+    const response = await axios.post(
+      `https://${window.location.hostname}:4000/addBlock`,
+      newBlock,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      Toast.fire({
+        icon: "success",
+        title: response.data.message || "Block added successfully!",
+      });
+
+      if (refreshData) {
+        await refreshData();  
+      }
+
+      handleClose(); 
+    } else {
+      Toast.fire({
+        icon: "error",
+        title: response.data.message || "Failed to add block.",
+      });
+
+      if (response.status === 409) {
+        handleClose();  
+      }
+    }
+  } catch (error) {
+    console.error("Error adding block:", error);
+
+    const errorMessage =
+      error.response?.data?.message ||
+      "Failed to add block. Please try again.";
+
+    Toast.fire({
+      icon: "error",
+      title: errorMessage,
+    });
+
+    if (error.response?.status === 409) {
+      handleClose();  
+    }
+  }
+
+  setBlockNo("");
+  setStatus("active");
+  setError("");
+};
+
   const handleClose = () => {
-    onClose();
     setBlockNo("");
     setStatus("active");
     setError("");
+    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        Add New Block No.
-        {/* Close Icon Button to close the dialog */}
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          p: 1,
+          boxShadow: 6,
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          fontWeight: "bold",
+          fontSize: "1.25rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        Add New Block
         <IconButton
           edge="end"
           color="inherit"
           onClick={handleClose}
-          style={{ position: "absolute", right: 8, top: 8 }}
+          size="small"
         >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <DialogContent dividers>
-        <form noValidate autoComplete="off">
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Block No."
-            type="text"
-            fullWidth
-            value={blockNo}
-            onChange={(e) => setBlockNo(e.target.value)}
-            error={Boolean(error)}
-            helperText={error}
-            
-          />
-        </form>
+
+      <Divider />
+
+      <DialogContent sx={{ mt: 2 }}>
+        <TextField
+          label="Block Number"
+          type="number"
+          fullWidth
+          value={blockNo}
+          onChange={(e) => setBlockNo(e.target.value)}
+          error={!!error}
+          helperText={error}
+          size="medium"
+          sx={{
+            "& .MuiInputBase-input": {
+              fontSize: "1rem",
+            },
+            "& .MuiFormLabel-root": {
+              fontWeight: 500,
+            },
+          }}
+        />
       </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={onClose}
-          style={{
-            backgroundColor: "lightgray",
-            color: "#fff",
-            marginRight: "8px",
-            transition: "background-color 0.3s", // smooth transition
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "darkgray"; // Change color on hover
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "lightgray"; // Revert color when mouse leaves
-          }}
-        >
-          Cancel
-        </Button>
+
+      <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button
           onClick={handleSubmit}
-          style={{
-            backgroundColor: "#1976d2", // Use primary color
-            color: "#fff",
+          color="primary"
+          variant="contained"
+          startIcon={<SaveIcon />}
+          sx={{
+            textTransform: "none",
+            borderRadius: 2,
+            px: 3,
           }}
         >
-          Add
+          Save
         </Button>
       </DialogActions>
     </Dialog>

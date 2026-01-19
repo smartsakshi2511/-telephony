@@ -1,15 +1,96 @@
 .chart {
   flex: 4;
-  -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
-  box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
-  padding: 10px;
-  color: gray;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 1px 0;
+  color: #444;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: 0.3s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  }
 
   .title {
     margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #2e2e2e;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
   }
 
   .chartGrid {
-    stroke: rgb(228, 225, 225);
+    stroke: #e0e0e0;
+  }
+
+  .recharts-legend-wrapper {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+  }
+
+  .recharts-tooltip-wrapper {
+    z-index: 1000;
+  }
+
+  .recharts-tooltip-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .recharts-tooltip-item {
+    font-size: 12px;
+  }
+
+  @media screen and (max-width: 768px) {
+    padding: 15px;
+
+    .title {
+      font-size: 18px;
+    }
   }
 }
+
+
+// .chart {
+//   background-color: #fff;
+//   padding: 20px;
+//   border-radius: 12px;
+//   box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.06);
+//   margin-top: 1px;
+
+//   .chart-header {
+//     font-size: 18px;
+//     font-weight: 600;
+//     margin-bottom: 15px;
+//     color: #333;
+//   }
+
+//   .chartGrid {
+//     stroke: #e0e0e0;
+//   }
+// }
+
+.chart {
+  height: 100%; // 🔥 Add this line
+  display: flex;
+  flex-direction: column;
+
+  .chart-header {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  // Optional: Make space for header + chart
+  .recharts-responsive-container {
+    flex: 1;
+  }
+}
+
+

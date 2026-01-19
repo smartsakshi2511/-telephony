@@ -1,231 +1,206 @@
-
-import React, { useState, useEffect } from "react"; 
-import { DataGrid } from "@mui/x-data-grid";
-import AddIcon from '@mui/icons-material/Add';
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useCallback, useContext  } from "react";
+import AddIcon from "@mui/icons-material/Add";
+import { AuthContext } from "../../context/authContext";  
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import SearchBar from "../../context/searchBar";
+import { Snackbar, Alert, Grid, Paper } from "@mui/material";
+import "./list.scss";
+import Swal from "sweetalert2";
+import PaginatedGrid from '../Pagination/PaginatedGrid';
+
 import {
   IconButton,
-  Switch,
-  Tooltip,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   TextField,
   Typography,
+  MenuItem,
 } from "@mui/material";
-import {
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-} from "@mui/icons-material";
+import ActionColumn from "../../context/Buttons/ActionButtons";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const GroupList = () => {
-  // Define columns for the DataGrid
-  const [columns, setColumns] = useState([
-    { field: "id", headerName: "ID", flex: 1  },
-    {
-      field: "userGroup",
-      headerName: "USER GROUP",
-      flex:1 ,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "groupName",
-      headerName: "GROUP NAME",
-      flex: 2,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "pressKey",
-      headerName: "PRESS KEY",
-      flex:1,
-      headerClassName: "customHeader",
-    },
-    {
-      field: "campaign",
-      headerName: "CAMPAIGN",
-      flex: 1,
-      headerClassName: "customHeader",
-    },
- 
+  const [filter, setFilter] = useState("all"); 
+  const [data, setData] = useState([]);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewData, setViewData] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [gruopOptions, setGroupOptions] = useState([]);
+   const [searchQuery, setSearchQuery] = useState("");
+
+  const [formData, setFormData] = useState({
+    id: "",
+    group_id: "",
+    agent_name: "",
+    press_key: "",
+    campaign_id: "",
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
+  const basePath =
+    user?.user_type === "9"
+      ? "superadmin"
+      : user?.user_type === "8"
+      ? "admin"
+      : user?.user_type === "7"
+      ? "manager"
+      : user?.user_type === "2"
+      ? "team_leader"
+      : "admin"; // default fallback
+
+  const [columns] = useState([
+    { field: "auto_id", headerName: "ID", flex: 1 }, 
+    { field: "group_id", headerName: "GROUP ID", flex: 1 },
+    { field: "agent_name", headerName: "AGENT NAME", flex: 2 },
+    { field: "press_key", headerName: "PRESS KEY", flex: 1 },
+    { field: "campaign_id", headerName: "CAMPAIGN ID", flex: 1 },
     {
       field: "action",
       headerName: "ACTION",
-      flex:1 ,
-      headerClassName: "customHeader",
+      flex: 1,
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <div className="cellAction" style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "8px", // Adjust spacing between buttons
-        }}>
-         <IconButton
-                color="primary"
-                onClick={() => handleView(params.row)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid blue", // Border matching icon color
-                  borderRadius: "6px 6px", // Circular border
-                  backgroundColor: "white", // White background
-                }}
-              >
-                 <Tooltip title="View">
-                <VisibilityIcon
-                  style={{
-                    cursor: "pointer",
-                    color: "blue",
-                    fontSize: "12px", // Adjust icon size
-                  }}
-                />
-                </Tooltip>
-              </IconButton>
-
-              <IconButton
-                color="info"
-                onClick={() => handleEdit(params.row.id)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid green", // Border matching icon color
-                  borderRadius: "6px 6px",
-                  backgroundColor: "white",
-                }}
-              >
-                 <Tooltip title="Edit">
-                <EditIcon
-                  style={{
-                    cursor: "pointer",
-                    color: "green",
-                    fontSize: "12px",
-                  }}
-                />
-                 </Tooltip>
-              </IconButton>
-              <IconButton
-                color="error"
-                onClick={() => handleDelete(params.row.id)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid red", // Border matching icon color
-                  borderRadius: "6px 6px",
-                  backgroundColor: "white",
-                }}
-              >
-                <Tooltip title="Delete">
-                <DeleteIcon
-                  style={{
-                    cursor: "pointer",
-                    color: "red",
-                    fontSize: "12px",
-                  }}
-                />
-                </Tooltip>
-              </IconButton>
-        </div>
+        <ActionColumn
+          onView={() => handleView(params.row)}
+          onEdit={() => handleEdit(params.row)}
+          onDelete={() => handleDelete(params.row.id)}
+        />
       ),
     },
   ]);
+const filteredData = data.filter((item) => {
+  if (filter === "active" && item.status !== "active") return false;
+  if (!searchQuery) return true;
 
-  // State for user group data
-  const [data, setData] = useState([]);
+  const search = searchQuery.toLowerCase();
+  return (
+    item.group_id?.toString().toLowerCase().includes(search) ||
+    item.agent_name?.toLowerCase().includes(search) ||
+    item.press_key?.toString().toLowerCase().includes(search) ||
+    item.campaign_id?.toString().toLowerCase().includes(search) ||
+    item.id?.toString().toLowerCase().includes(search)
+  );
+});
 
-  // State for campaigns
-  const [campaignOptions, setCampaignOptions] = useState([]);
 
-  // State for View Dialog
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [viewData, setViewData] = useState(null);
 
-  // State for Edit Dialog
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editData, setEditData] = useState(null);
-
-  // State for form inputs in Edit Dialog
-  const [formData, setFormData] = useState({
-    id: "",
-    userGroup: "",
-    groupName: "",
-    pressKey: "",
-    campaign: "",
-    status: "inactive",
-  });
-
-  // Fetch user groups from API or use static data
   useEffect(() => {
-    const fetchUserGroups = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/usergroups");
-        setData(response.data.userGroups); // Adjust based on API response structure
-      } catch (error) {
-        console.error("Error fetching user groups:", error);
-        // Fallback to predefined user groups if API fails
-        setData([
-          {
-            id: 1,
-            userGroup: "Admin",
-            groupName: "Administrators",
-            pressKey: "A1",
-            campaign: "Campaign A",
-            status: "active",
-          },
-          {
-            id: 2,
-            userGroup: "User",
-            groupName: "Regular Users",
-            pressKey: "U1",
-            campaign: "Campaign B",
-            status: "inactive",
-          },
-          // Add more rows as needed
+    const token = localStorage.getItem("token");
+
+    axios
+      .get(`https://${window.location.hostname}:4000/campaigns_dropdown`, {
+        headers: { Authorization: `Bearer ${token}` }, // No need for query params
+      })
+      .then((response) => {
+        const options = response.data.map((campaign) => ({
+          id: campaign.compaign_id,
+          label: campaign.compaignname,
+        }));
+        setGroupOptions([
+          { id: "", label: "--- Select Campaign ID ---" },
+          ...options,
         ]);
-      }
-    };
-
-    fetchUserGroups();
-  }, []);
- 
-  useEffect(() => {
-    const fetchCampaigns = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/campaigns");
-        setCampaignOptions(response.data.campaigns); // Adjust based on API response structure
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("Error fetching campaigns:", error);
-        // Fallback to predefined campaigns if API fails
-        setCampaignOptions([
-          { id: 1, name: "Campaign A" },
-          { id: 2, name: "Campaign B" },
-          { id: 3, name: "Campaign C" },
-        ]);
-      }
-    };
-
-    fetchCampaigns();
+      });
   }, []);
 
-  // Handle Delete
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user group?")) {
-      try {
-        // Replace with your actual API endpoint
-        await axios.delete(`https://api.example.com/usergroups/${id}`);
-        setData(data.filter((item) => item.id !== id));
-      } catch (error) {
-        console.error("Error deleting user group:", error);
-        alert("Failed to delete the user group.");
+  useEffect(() => {
+    const fetchGroups = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
       }
-    }
-  };
+      try {
+        const response = await axios.get(
+          `https://${window.location.hostname}:4000/groupList`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-  // Handle View
+        const modifiedData = response.data.map((item, index) => ({
+          ...item,
+          auto_id: index + 1, // Auto-increment the ID (1-based index)
+        }));
+
+        setData(modifiedData);
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      }
+    };
+    fetchGroups();
+  }, [navigate]);
+
+  const handleDelete = useCallback(
+    async (id) => {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+        if (!token) return navigate("/admin");
+
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+
+        try {
+          await axios.delete(
+            `https://${window.location.hostname}:4000/groupList/delete_group/${id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          setData((prev) => prev.filter((item) => item.id !== id));
+
+          Toast.fire({
+            icon: "success",
+            title: "Group deleted successfully!",
+          });
+        } catch (error) {
+          console.error("Error deleting group:", error);
+          Toast.fire({
+            icon: "error",
+            title: "Failed to delete the group.",
+          });
+        }
+      }
+    },
+    [navigate]
+  );
+
   const handleView = (row) => {
     setViewData(row);
     setViewDialogOpen(true);
@@ -236,228 +211,303 @@ const GroupList = () => {
     setViewData(null);
   };
 
-  // Handle Edit
   const handleEdit = (row) => {
-    setEditData(row);
     setFormData({
       id: row.id,
-      userGroup: row.userGroup,
-      groupName: row.groupName,
-      pressKey: row.pressKey,
-      campaign: row.campaign,
-      status: row.status,
+      group_id: row.group_id,
+      agent_name: row.agent_name,
+      press_key: row.press_key,
+      campaign_id: row.campaign_id,
     });
     setEditDialogOpen(true);
   };
 
   const handleCloseEditDialog = () => {
     setEditDialogOpen(false);
-    setEditData(null);
     setFormData({
       id: "",
-      userGroup: "",
-      groupName: "",
-      pressKey: "",
-      campaign: "",
-      status: "inactive",
+      group_id: "",
+      agent_name: "",
+      press_key: "",
+      campaign_id: "",
     });
   };
 
-  // Handle form input changes in Edit Dialog
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle Save in Edit Dialog
   const handleSaveEdit = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+
+    console.log("Request data:", formData);
+
     try {
-      // Replace with your actual API endpoint
-      await axios.put(`https://api.example.com/usergroups/${formData.id}`, formData);
-      setData(
-        data.map((item) => (item.id === formData.id ? { ...formData } : item))
+      const response = await axios.put(
+        `https://${window.location.hostname}:4000/groupList/edit_group/${formData.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      handleCloseEditDialog();
+
+      if (response.status === 200) {
+        setData(
+          data.map((item) => (item.id === formData.id ? { ...formData } : item))
+        );
+
+        Toast.fire({
+          icon: "success",
+          title: "Group updated successfully!",
+        });
+
+        handleCloseEditDialog();
+      }
     } catch (error) {
-      console.error("Error updating user group:", error);
-      alert("Failed to update the user group.");
+      console.error("Error updating group:", error);
+      Toast.fire({
+        icon: "error",
+        title: error.response?.data?.message || "Failed to update the group.",
+      });
     }
   };
 
-  // Handle Status Toggle
-  const handleToggleStatus = async (id) => {
-    try {
-      const updatedGroup = data.find((item) => item.id === id);
-      const newStatus = updatedGroup.status === "active" ? "inactive" : "active";
-      // Replace with your actual API endpoint
-      await axios.put(`https://api.example.com/usergroups/${id}`, { status: newStatus });
-      setData(
-        data.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
-      alert("Failed to update the status.");
-    }
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
     <div className="datatable">
       <div className="datatableTitle">
-       <b> GROUP LIST </b>
-       
+        <b>GROUP LIST</b>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <SearchBar
+      onSearch={(value) => setSearchQuery(value)}
+      placeholder="Search group id, agent name..."
+    />
         <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          component={Link}
-          to="/group/newGroup"
           sx={{
             background: "linear-gradient(90deg, #283593, #3F51B5)",
             color: "#fff",
             "&:hover": {
-              background: "linear-gradient(90deg, #1e276b, #32408f)", // Darker shade on hover
+              background: "linear-gradient(90deg, #1e276b, #32408f)",
             },
           }}
+          startIcon={<AddIcon />}
+          component={Link}
+          to={`/${basePath}/group/newGroup`} // ✅ dynamic path here
         >
           Add Group
         </Button>
-
-
-
       </div>
-      <DataGrid
-        className="datagrid"
-        rows={data}
-        columns={columns}
-        pageSize={9}
-        rowsPerPageOptions={[9]}
-        autoHeight
-        style={{ fontSize: '12px' }}
-      />
+      </div>
 
-      {/* View Dialog */}
+      <PaginatedGrid rows={filteredData} columns={columns}/>
+
       <Dialog
         open={viewDialogOpen}
         onClose={handleCloseViewDialog}
-        fullWidth
         maxWidth="sm"
+        fullWidth
       >
-        <DialogTitle>User Group Details</DialogTitle>
-        <DialogContent dividers>
+        <DialogTitle
+          sx={{ fontWeight: "bold", fontSize: "1.5rem", textAlign: "center" }}
+        >
+          Group Details
+        </DialogTitle>
+        <DialogContent dividers sx={{ padding: "20px" }}>
           {viewData && (
-            <>
-              <Typography variant="h6">USER GROUP</Typography>
-              <Typography gutterBottom>{viewData.userGroup}</Typography>
-
-              <Typography variant="h6">GROUP NAME</Typography>
-              <Typography gutterBottom>{viewData.groupName}</Typography>
-
-              <Typography variant="h6">PRESS KEY</Typography>
-              <Typography gutterBottom>{viewData.pressKey}</Typography>
-
-              <Typography variant="h6">CAMPAIGN</Typography>
-              <Typography gutterBottom>{viewData.campaign}</Typography>
-
-              <Typography variant="h6">STATUS</Typography>
-              <Typography gutterBottom>
-                {viewData.status === "active" ? "Active" : "Inactive"}
-              </Typography>
-            </>
+            <Grid container spacing={2}>
+              {[
+                { label: "Group ID", value: viewData.group_id },
+                { label: "Agent Name", value: viewData.agent_name },
+                { label: "Press Key", value: viewData.press_key },
+                { label: "Campaign ID", value: viewData.campaign_id },
+              ].map((item, index) => (
+                <Grid item xs={12} key={index}>
+                  <Paper
+                    sx={{ padding: "12px", borderRadius: "10px", boxShadow: 2 }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: "bold", color: "#555" }}
+                    >
+                      {item.label}:
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ fontSize: "1rem", color: "#333" }}
+                    >
+                      {item.value}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseViewDialog} color="primary">
+        <DialogActions sx={{ padding: "16px", justifyContent: "center" }}>
+          <Button
+            onClick={handleCloseViewDialog}
+            color="primary"
+            variant="contained"
+            sx={{ fontSize: "1rem", paddingX: "20px" }}
+          >
             Close
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog
         open={editDialogOpen}
         onClose={handleCloseEditDialog}
-        fullWidth
         maxWidth="sm"
+        fullWidth
+        sx={{
+          "& .MuiPaper-root": {
+            borderRadius: 3,
+            boxShadow: 4,
+          },
+        }}
       >
-        <DialogTitle>Edit User Group</DialogTitle>
-        <DialogContent dividers>
-          <TextField
-            margin="dense"
-            label="USER GROUP"
-            name="userGroup"
-            value={formData.userGroup}
-            onChange={handleFormChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="GROUP NAME"
-            name="groupName"
-            value={formData.groupName}
-            onChange={handleFormChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="PRESS KEY"
-            name="pressKey"
-            value={formData.pressKey}
-            onChange={handleFormChange}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="CAMPAIGN"
-            name="campaign"
-            value={formData.campaign}
-            onChange={handleFormChange}
-            select
-            SelectProps={{
-              native: true,
-            }}
-            fullWidth
+        <DialogTitle
+          sx={{
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            pb: 1,
+          }}
+        >
+          Edit Group
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseEditDialog}
+            sx={{ position: "absolute", right: 8, top: 8, color: "grey.500" }}
           >
-            <option value="">Select Campaign</option>
-            {campaignOptions.map((campaign) => (
-              <option key={campaign.id} value={campaign.name}>
-                {campaign.name}
-              </option>
-            ))}
-          </TextField>
-          <div style={{ marginTop: "10px" }}>
-            <Typography variant="subtitle1">STATUS</Typography>
-            <Switch
-              checked={formData.status === "active"}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  status: e.target.checked ? "active" : "inactive",
-                })
-              }
-              color="primary"
-              name="status"
-              inputProps={{ "aria-label": "primary checkbox" }}
-            />
-            <Typography variant="body2">
-              {formData.status === "active" ? "Active" : "Inactive"}
-            </Typography>
-          </div>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent dividers sx={{ px: 3, py: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                name="group_id"
+                label="Group ID"
+                value={formData.group_id}
+                onChange={handleFormChange}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="agent_name"
+                label="Agent Name"
+                value={formData.agent_name}
+                onChange={handleFormChange}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="press_key"
+                label="Press Key"
+                value={formData.press_key}
+                onChange={handleFormChange}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="campaign_id"
+                label="Campaign ID"
+                select
+                value={formData.campaign_id}
+                onChange={handleFormChange}
+                fullWidth
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                  },
+                }}
+              >
+                {gruopOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.id}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseEditDialog} color="secondary">
-            Cancel
-          </Button>
+
+        <DialogActions sx={{ py: 2 }}>
           <Button
             onClick={handleSaveEdit}
-            color="primary"
             variant="contained"
+            color="primary"
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              px: 3,
+            }}
           >
             Save
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

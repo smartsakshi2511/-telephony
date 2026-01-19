@@ -6,38 +6,33 @@
     flex: 6;
     overflow: hidden;
     overflow-x: hidden;
-    
   }
 }
-
 .datatable {
   height: 600px;
   padding: 20px;
-  width: max-content;
+
   margin: auto;
 
-
   .datatable::-webkit-scrollbar {
-  display: none;
-  
-}
- 
-  
-  .datatableTitle{
+    display: none;
+  }
+
+  .datatableTitle {
     width: 100%;
-    font-size: 24px;
+    font-size: 16px;
     color: gray;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    .link{
+    .link {
       text-decoration: none;
       // color: green;
       font-size: 16px;
       font-weight: 400;
-       border: 1px solid green;
+      border: 1px solid green;
       padding: 5px;
       border-radius: 5px;
       cursor: pointer;
@@ -62,11 +57,10 @@
     border-radius: 5px;
 
     &.active {
-    color: green;
+      color: green;
     }
- 
+
     &.deactive {
-    
       color: rgb(155, 62, 81);
     }
   }
@@ -83,7 +77,7 @@
       border: 1px dotted rgba(116, 139, 0, 0.596);
       cursor: pointer;
     }
-    
+
     .deleteButton {
       padding: 2px 5px;
       border-radius: 5px;
@@ -110,16 +104,15 @@
 }
 
 .editButton {
-  // background-color: #1976d2;
-  color:  #1976d2;
+ 
+  color: #1976d2;
   padding: 2px 5px;
   border: 1px dotted blue;
 }
 
 .saveButton {
- color: #4caf50;
+  color: #4caf50;
   color: white;
-
 }
 
 .cancelButton {
@@ -128,15 +121,12 @@
 }
 
 .customHeader {
- 
   font-weight: bold !important;
-  font-family: 'Arial', sans-serif; 
+  font-family: "Arial", sans-serif;
   color: #0a0a0ade; /* Optional: Change header text color */
   font-size: 14px;
   text-align: center;
-  
 }
-
 
 .statusButton {
   padding: 5px 12px;
@@ -158,50 +148,67 @@
   background-color: #fbe9e7; /* Light red background */
   color: #d32f2f; /* Dark red text */
 }
+.statusButton.blocked {
+  background-color: #fbe9e7; /* Light red background */
+  color: #d32f2f; /* Dark red text */
+}
 
-// .customHr {
-//   border: none;
-//   border-top: 1px solid lightgray;
-//   margin: 10px 0; /* optional for spacing */
-// }
-
+.customHr {
+  border: none;
+  border-top: 1px solid lightgray;
+  margin: 10px 0; /* optional for spacing */
+}
 
 .datatable {
- 
+  
 
-  .datatableTitle {
+   .datatableTitle {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
 
     b {
-      font-size: 18px;
       color: #333;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .callFilter {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
 
       @media (max-width: 768px) {
         flex-direction: column;
         align-items: stretch;
+        width: 100%;
+
+        button, .MuiTextField-root {
+          width: 100%;
+        }
       }
 
       button {
+        white-space: nowrap;
+
         &:hover {
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
+      }
+
+      .MuiTextField-root {
+        min-width: 180px;
       }
     }
   }
 
   .MuiDataGrid-root {
-    
     border-radius: 10px;
 
- 
     .MuiDataGrid-cell {
       font-size: 12px;
       text-align: center;
@@ -210,9 +217,6 @@
   }
 }
 
-
-  
- 
 
 
 

@@ -1,167 +1,320 @@
-import React, { useState, useRef, useEffect } from 'react';
-import './navbar.scss';
-import axios from 'axios';
+import { useState, useRef, useEffect, useContext } from "react";
+import "./navbar.scss";
+import axios from "axios";
+import moment from "moment";
+import { IconButton, Tooltip } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faAssistiveListeningSystems,
+  faPhoneSquare,
+  faUser,
+  faPhoneSlash,
+} from "@fortawesome/free-solid-svg-icons";
+import { AuthContext } from "../../context/authContext";
+import { PopupContext } from "../../context/iframeContext";
 
-const PopupIframe = ({ visible, toggleVisibility, iframeSrc, title }) => {
+const PopupIframe = ({ visible, toggleVisibility, title }) => {
+  const { user } = useContext(AuthContext);
+  const { updateIframeSrc, toggleIframe, popupState } =
+    useContext(PopupContext);
   const popupRef = useRef(null);
   const headerRef = useRef(null);
-
-  // State for counters and live call data
+  const [answerTimestamps, setAnswerTimestamps] = useState({});
   const [counters, setCounters] = useState([
-    { label: 'Login', value: 0, className: 'login' },
-    { label: 'Available', value: 0, className: 'available' },
-    { label: 'Pause', value: 0, className: 'pause' },
-    { label: 'In Call', value: 0, className: 'in-call' },
-    { label: 'Call Dialing', value: 0, className: 'call-dialing' },
-    { label: 'Call Queue', value: 0, className: 'call-queue' },
+    { label: "Login", value: 0, className: "login" },
+    { label: "Available", value: 0, className: "available" },
+    { label: "Pause", value: 0, className: "pause" },
+    { label: "In Call", value: 0, className: "in-call" },
+    { label: "Call Dialing", value: 0, className: "call-dialing" },
+    { label: "Call Queue", value: 0, className: "call-queue" },
   ]);
   const [liveCalls, setLiveCalls] = useState([]);
 
+  const updateCounters = (data) => {
+    const keyMapping = {
+      Login: "login",
+      Available: "available",
+      Pause: "pause",
+      "In Call": "in_call",
+      "Call Dialing": "call_dialing",
+      "Call Queue": "call_queue",
+    };
+    setCounters((prev) =>
+      prev.map((counter) => ({
+        ...counter,
+        value: data[keyMapping[counter.label]] || 0,
+      }))
+    );
+  };
+
   useEffect(() => {
-    if (popupRef.current && headerRef.current) {
-      dragElement(popupRef.current, headerRef.current);
-    }
-
-    // Fetch data periodically
-    const intervalId = setInterval(() => {
-      fetchCounters();
-      fetchLiveCalls();
-    }, 2000);
-
-    return () => clearInterval(intervalId); // Clean up the interval on unmount
+    const fetchAgentStatus = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await axios.get(
+          `https://${window.location.hostname}:4000/agent-status`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (res.data) updateCounters(res.data);
+      } catch (error) {
+        console.error("Agent status error:", error);
+      }
+    };
+    fetchAgentStatus();
+    const id = setInterval(fetchAgentStatus, 5000);
+    return () => clearInterval(id);
   }, []);
 
-  const fetchCounters = async () => {
-    try {
-      const response = await axios.post('dash_live_agents.php', { filter_data: 'today' });
-      const { login_agents, idle_agents, pause_agents, in_call_agents, call_queue_agents, call_dial_agents } = response.data;
-      setCounters([
-        { label: 'Login', value: login_agents || 0, className: 'login' },
-        { label: 'Available', value: idle_agents || 0, className: 'available' },
-        { label: 'Pause', value: pause_agents || 0, className: 'pause' },
-        { label: 'In Call', value: in_call_agents || 0, className: 'in-call' },
-        { label: 'Call Dialing', value: call_dial_agents || 0, className: 'call-dialing' },
-        { label: 'Call Queue', value: call_queue_agents || 0, className: 'call-queue' },
-      ]);
-    } catch (error) {
-      console.error('Error fetching counters:', error);
-    }
-  };
+  useEffect(() => {
+    const intervalId = setInterval(() => fetchLiveCalls(), 5000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   const fetchLiveCalls = async () => {
+    const token = localStorage.getItem("token");
     try {
-      const response = await axios.post('liveajaxfie.php');
-      setLiveCalls(response.data || []);
-    } catch (error) {
-      console.error('Error fetching live calls:', error);
+      const res = await axios.get(
+        `https://${window.location.hostname}:4000/live-calls`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (Array.isArray(res.data)) {
+        setLiveCalls((prevCalls) =>
+          res.data.map((call) => {
+            const existing = prevCalls.find(
+              (c) => c.uniqueid === call.uniqueid
+            );
+            const prevStatus = existing?.status?.toLowerCase();
+            const currStatus = call.status?.toLowerCase();
+            if (currStatus === "answer" && prevStatus !== "answer") {
+              setAnswerTimestamps((prev) => ({
+                ...prev,
+                [call.uniqueid]: new Date(),
+              }));
+            }
+            return call;
+          })
+        );
+      } else setLiveCalls([]);
+    } catch (err) {
+      if (err.response?.status === 401) localStorage.removeItem("token");
+      else if (err.response?.status === 404) setLiveCalls([]);
+      else console.error("Live call error:", err);
     }
   };
 
-  // Function to make the popup draggable
-  const dragElement = (element, header) => {
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  const handleCallAction = async (agentNumber, actionType, channel = null) => {
+    if (actionType === "hangup") {
+      if (!channel) return alert("Missing channel.");
+      try {
+        const res = await axios.get(
+          `http://${
+            window.location.hostname
+          }/telephony_api/admin_call_hangup.php?channel=${encodeURIComponent(
+            channel
+          )}`
+        );
+        alert(res.data.status === "success" ? "Hung up." : res.data.message);
+      } catch {
+        alert("Hangup failed.");
+      }
+      return;
+    }
 
-    header.onmousedown = (e) => {
-      e.preventDefault();
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      document.onmouseup = closeDragElement;
-      document.onmousemove = elementDrag;
-    };
-
-    const elementDrag = (e) => {
-      e.preventDefault();
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      element.style.top = (element.offsetTop - pos2) + 'px';
-      element.style.left = (element.offsetLeft - pos1) + 'px';
-    };
-
-    const closeDragElement = () => {
-      document.onmouseup = null;
-      document.onmousemove = null;
-    };
+    const prefix =
+      actionType === "listen" ? "97" : actionType === "barge" ? "98" : "99";
+    const dialNumber = `${prefix}${agentNumber}`;
+    const { user_id, password, full_name } = user;
+    const domain = window.location.hostname;
+    const url = `https://${domain}/softphone/Phone/click-wisper.html?profileName=${full_name}&SipDomain=${domain}&SipUsername=${user_id}&SipPassword=${password}&d=${dialNumber}`;
+    updateIframeSrc(url);
+    toggleIframe("phone");
   };
 
-  const handleCallAction = (agentNumber, actionType) => {
-    const actionCode = actionType === 'spy' ? '99' : actionType === 'barge' ? '98' : '97';
-    document.getElementById('popupIframe').src = `/Telephony/AdminPhone/Phone/click-wisper.php?d=${actionCode}${agentNumber}`;
+  const calculateDuration = (call) => {
+    const status = call.status?.toLowerCase();
+    const id = call.uniqueid;
+    if (status !== "answer" || !answerTimestamps[id]) return "00:00:00";
+    const secs = Math.floor(
+      (new Date() - new Date(answerTimestamps[id])) / 1000
+    );
+    return [Math.floor(secs / 3600), Math.floor((secs % 3600) / 60), secs % 60]
+      .map((n) => String(n).padStart(2, "0"))
+      .join(":");
   };
 
   return (
-    <div
-      ref={popupRef}
-      className="popup-container"
-      style={{ display: visible ? 'block' : 'none' }}
-    >
-      <div ref={headerRef} className="popup-header">
-        <span>{title}</span>
-        <button onClick={toggleVisibility} className="close-button">X</button>
-      </div>
+    <>
+      <div
+        ref={popupRef}
+        className="popup-container"
+        style={{ display: visible ? "block" : "none" }}
+      >
+        <div ref={headerRef} className="popup-header">
+          <span>{title}</span>
+          <button onClick={toggleVisibility} className="close-button">
+            X
+          </button>
+        </div>
 
-      {/* Counters */}
-      <div className="popup-counters">
-        {counters.map((counter, index) => (
-          <span key={index} className={`counter ${counter.className}`}>
-            {counter.label}: {counter.value}
-          </span>
-        ))}
-      </div>
+        <div className="popup-counters">
+          {counters.map((c, i) => (
+            <span key={i} className={`counter ${c.className}`}>
+              {c.label}: {c.value}
+            </span>
+          ))}
+        </div>
 
-      {/* Live Calls Table */}
-      <div className="popup-content">
-        <table className="live-calls-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Start Time</th>
-              <th>Agent Name</th>
-              <th>Agent ID</th>
-              <th>Call From</th>
-              <th>Call To</th>
-              <th>Call Status</th>
-              <th>Duration</th>
-              <th>Direction</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {liveCalls.length > 0 ? (
-              liveCalls.map((call, index) => (
-                <tr key={index} style={{ color: call.status === 'Answer' ? 'green' : 'red' }}>
-                  <td>{index + 1}</td>
-                  <td>{call.time}</td>
-                  <td>{call.Full_name}</td>
-                  <td>{call.Agent}</td>
-                  <td>{call.call_from}</td>
-                  <td>{call.call_to}</td>
-                  <td>{call.status}</td>
-                  <td>{call.time_in_seconds || '00:00:00'}</td>
-                  <td style={{ color: call.direction === 'outbound' ? 'purple' : 'blue' }}>
-                    {call.direction}
-                  </td>
-                  <td>
-                    <button onClick={() => handleCallAction(call.Agent, 'spy')}>Spy</button>
-                    <button onClick={() => handleCallAction(call.Agent, 'barge')}>Barge</button>
-                    <button onClick={() => handleCallAction(call.Agent, 'whisper')}>Whisper</button>
-                  </td>
-                </tr>
-              ))
-            ) : (
+        <div className="popup-content">
+          <table className="live-calls-table">
+            <thead>
               <tr>
-                <td colSpan="10" className="error-row">No data found</td>
+                <th>#</th>
+                <th>Start Time</th>
+                <th>Agent Name</th>
+                <th>Agent ID</th>
+                <th>Call From</th>
+                <th>Call To</th>
+                <th>Call Status</th>
+                <th>Duration</th>
+                <th>Direction</th>
+                <th>Actions</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {liveCalls.length > 0 ? (
+                liveCalls.map((call, index) => {
+                  const statusColor =
+                    call.status?.toLowerCase() === "answer"
+                      ? "green"
+                      : call.Agent?.toUpperCase() === "NOAGENT" ||
+                        call.status?.toLowerCase() === "ringing"
+                      ? "teal"
+                      : "red";
+                  const directionColor =
+                    call.direction === "outbound" ? "purple" : "blue";
+
+                  return (
+                    <tr key={call.uniqueid} style={{ color: statusColor }}>
+                      <td>{index + 1}</td>
+                      <td>{moment(call.time).format("YYYY-MM-DD HH:mm:ss")}</td>
+                      <td>{call.Agent_name}</td>
+                      <td>{call.Agent}</td>
+                      <td>{call.call_from}</td>
+                      <td>{call.call_to}</td>
+                      <td>
+                        <span style={{ marginRight: "6px" }}>
+                          {call.status?.toLowerCase() === "answer" && "🟢"}
+                          {call.status?.toLowerCase() === "ringing" && "🟠"}
+                          {(call.Agent?.toUpperCase() === "NOAGENT" ||
+                            !call.status) &&
+                            "🔴"}
+                        </span>
+                        {call.status || "N/A"}
+                      </td>
+                      <td>{calculateDuration(call)}</td>
+                      <td
+                        style={{
+                          color: directionColor,
+                          backgroundColor: "#f0f0f0",
+                        }}
+                      >
+                        {call.direction}
+                      </td>
+                      <td className="call-action-buttons">
+                        <Tooltip title="Listen">
+                          <IconButton
+                            onClick={() =>
+                              handleCallAction(call.Agent, "listen")
+                            }
+                            style={buttonStyle("blue")}
+                          >
+                            <FontAwesomeIcon
+                              icon={faAssistiveListeningSystems}
+                              style={iconStyle("blue")}
+                            />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Barge">
+                          <IconButton
+                            onClick={() =>
+                              handleCallAction(call.Agent, "barge")
+                            }
+                            style={buttonStyle("purple")}
+                          >
+                            <FontAwesomeIcon
+                              icon={faPhoneSquare}
+                              style={iconStyle("purple")}
+                            />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Whisper">
+                          <IconButton
+                            onClick={() =>
+                              handleCallAction(call.Agent, "whisper")
+                            }
+                            style={buttonStyle("orange")}
+                          >
+                            <FontAwesomeIcon
+                              icon={faUser}
+                              style={iconStyle("orange")}
+                            />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Hangup">
+                          <IconButton
+                            onClick={() =>
+                              handleCallAction(
+                                call.Agent,
+                                "hangup",
+                                call.channel
+                              )
+                            }
+                            style={buttonStyle("red")}
+                          >
+                            <FontAwesomeIcon
+                              icon={faPhoneSlash}
+                              style={iconStyle("red")}
+                            />
+                          </IconButton>
+                        </Tooltip>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="10">No data found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Iframe */}
-      <iframe id="popupIframe" src={iframeSrc} className="popup-iframe" title={title}></iframe>
-    </div>
+      {popupState.phone}
+    </>
   );
 };
+
+const buttonStyle = (color) => ({
+  padding: "4px",
+  margin: "4px",
+  border: `2px solid ${color}`,
+  borderRadius: "4px",
+  backgroundColor: "white",
+});
+
+const iconStyle = (color) => ({
+  color,
+  fontSize: "10px",
+});
 
 export default PopupIframe;

@@ -1,115 +1,162 @@
+
 import "./featured.scss";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import "react-circular-progressbar/dist/styles.css";
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
 
 const Featured = () => {
-  const [chartData, setChartData] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [filter, setFilter] = useState("all");
 
-  const defaultData = [
-    { name: "Answer Call", value: 30 },
-    { name: "Cancel Call", value: 20 },
-    { name: "Other Call", value: 50 },
-  ];
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-  React.useEffect(() => {
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        // Example API endpoint (replace with your real API)
-        const response = await axios.get("/api/piechart-data");
+        const token = localStorage.getItem("token");
 
-        // Assuming the API returns an array of objects with id, value, and label
-        const data = response.data.map((item) => ({
-          name: item.label,
-          value: item.value,
-        }));
+        const response = await axios.get(
+          `https://${window.location.hostname}:4000/feature/${filter}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        setChartData(data); // Set the fetched data
-        setLoading(false); // Set loading to false
+        const data = [
+          { name: "Answer Call", value: response.data.answerCall },
+          { name: "Cancel Call", value: response.data.cancelCall },
+          { name: "Other Call", value: response.data.otherCall },
+        ];
+
+        setChartData(data);
       } catch (err) {
-        // If an error occurs, set the default fallback data
-        setError("Failed to fetch chart data, using default values.");
-        setChartData(defaultData); // Use the default data if API call fails
-        setLoading(false); // Set loading to false
+        console.error("Error fetching chart data:", err);
+        setError("Failed to fetch chart data. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [filter]);
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const handleMenuClick = (filter) => {
+    setFilter(filter);
+    setAnchorEl(null);
+  };
+
+  const COLORS = ["#004085", "#17A2B8", "#28A745", "#FFC107"];
 
   return (
     <div className="featured">
       <div className="top">
         <h1 className="title">Total Status</h1>
-        <MoreVertIcon fontSize="small" />
+        <div>
+          <IconButton onClick={handleClick}>
+            <MoreVertIcon fontSize="small" />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            PaperProps={{ style: { maxHeight: 200 } }}
+          >
+            <MenuItem onClick={() => handleMenuClick("all")}>All</MenuItem>
+            <MenuItem onClick={() => handleMenuClick("today")}>Today</MenuItem>
+            <MenuItem onClick={() => handleMenuClick("weekly")}>Weekly</MenuItem>
+            <MenuItem onClick={() => handleMenuClick("monthly")}>Monthly</MenuItem>
+          </Menu>
+        </div>
       </div>
-
       <div className="bottom">
-        {/* Loading, Error, and PieChart */}
         {loading ? (
           <p>Loading chart...</p>
         ) : error ? (
-          <>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={defaultData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {defaultData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </>
+          <p>{error}</p>
+        ) : chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={150}> 
+  <PieChart>
+    <Pie
+      data={chartData}
+      cx="50%"
+      cy="50%"
+      labelLine={false}
+      innerRadius={50}
+      outerRadius={70} 
+      fill="#8884d8"
+      dataKey="value"
+    >
+      {chartData.map((entry, index) => (
+        <Cell
+          key={`cell-${index}`}
+          fill={COLORS[index % COLORS.length]}
+        />
+      ))}
+    </Pie>
+    <Tooltip />
+  </PieChart>
+</ResponsiveContainer>
+
         ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={chartData} // Use fetched data from API if available
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={120}> {/* ✅ Adjust container height */}
+  <PieChart>
+    <Pie
+      data={chartData}
+      cx="50%"
+      cy="50%"
+      innerRadius={40}      // ✅ Adjusted
+      outerRadius={85}      // ✅ Smaller to fit within 120px height
+      fill="#8884d8"
+      dataKey="value"
+      labelLine={false}
+    >
+      {chartData.map((entry, index) => (
+        <Cell
+          key={`cell-${index}`}
+          fill={COLORS[index % COLORS.length]}
+        />
+      ))}
+    </Pie>
+    <Tooltip />
+  </PieChart>
+</ResponsiveContainer>
+
         )}
         <div className="summary">
           <div className="item">
             <div className="itemTitle">Answer Call</div>
+            <div className="itemValue">
+              {chartData.find((d) => d.name === "Answer Call")?.value || 0}
+            </div>
           </div>
           <div className="item">
             <div className="itemTitle">Cancel Call</div>
+            <div className="itemValue">
+              {chartData.find((d) => d.name === "Cancel Call")?.value || 0}
+            </div>
           </div>
           <div className="item">
-            <div className="itemTitle">Other Call </div>
+            <div className="itemTitle">Other Call</div>
+            <div className="itemValue">
+              {chartData.find((d) => d.name === "Other Call")?.value || 0}
+            </div>
           </div>
         </div>
       </div>

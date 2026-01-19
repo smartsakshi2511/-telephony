@@ -13,16 +13,13 @@
     h1 {
       font-size: 24px;
       font-weight: bold;
-      color: #333; // Darker text color
+      color: #333; 
     }
 
     .filters {
       display: flex;
       align-items: center;
-
-      .MuiFormControl-root {
-        margin-right: 16px; // Spacing between filters
-      }
+ 
 
       button {
         &.MuiButton-containedPrimary {
@@ -69,8 +66,6 @@
       }
     }
   }
-
-  // Dialog Styles
   .MuiDialog-title {
     font-weight: bold;
   }
@@ -82,20 +77,17 @@
   .MuiDialogActions-root {
     padding: 10px 20px;
   }
-
-  // TextField Styles
   .MuiTextField-root {
     margin-bottom: 16px; // Spacing between fields
   }
 }
-
-// @media (max-width: 600px) {
-//   .iconButtonContainer {
-//     flex-direction: column; /* Stack buttons vertically */
-//     gap: 5px; /* Reduce gap for smaller screens */
-//   }
-//   .iconButtonContainer button {
-//     font-size: 16px; /* Reduce icon size further */
-//   }
-// }
+ 
+.phoneIcon , .blockIcon{
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  margin: 0;
+  padding: 0%;
+  background: none;
+} 
 

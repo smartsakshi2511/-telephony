@@ -1,7 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
+   overflow-x: hidden;
+  line-height: 1.5;
+  color: #333;
+  background-color: #f8f9fa;
 }
 
 .icon {
@@ -22,30 +26,28 @@ body {
   grid-template-columns: 260px 1fr 1fr 1fr;
   grid-template-rows: 0.2fr 3fr;
   grid-template-areas:
-    'sidebar navbar navbar navbar'
-    'sidebar main main main';
+    "sidebar navbar navbar navbar"
+    "sidebar main main main";
   height: 100vh;
 }
 .menu-icon {
   display: none;
 }
- 
+
 .sidebar-responsive {
   display: inline !important;
   position: absolute;
- 
+
   z-index: 12 !important;
 }
- 
-/* Medium <= 992px */
-  
+
 @media screen and (max-width: 992px) {
   .grid-container {
     grid-template-columns: 1fr;
     grid-template-rows: 0.2fr 3fr;
     grid-template-areas:
-      'navbar'
-      'outlet';
+      "navbar"
+      "outlet";
   }
 
   #sidebar {
@@ -61,8 +63,6 @@ body {
   }
 }
 
-/* Small <= 768px */
-  
 @media screen and (max-width: 768px) {
   .main-cards {
     grid-template-columns: 1fr;
@@ -74,7 +74,7 @@ body {
     grid-template-columns: 1fr;
     margin-top: 30px;
   }
-} 
+}
 @media screen and (max-width: 576px) {
   .header-left {
     display: none;
@@ -82,7 +82,7 @@ body {
 }
 
 .close-icon-container {
-  display: none; 
+  display: none;
 
   .close_icon {
     font-size: 30px;
@@ -91,25 +91,206 @@ body {
   }
 
   &.active {
-    color: red;  
+    color: red;
   }
 }
 
-/* Sidebar Styles */
 .sidebar {
   display: none;
 }
 
 @media (max-width: 768px) {
- 
   .close-icon-container {
-    display: block;  
+    display: block;
   }
 }
 
 button:hover {
-  filter: brightness(1.1);  
-  transform: scale(1.02);  
+  filter: brightness(1.1);
+  transform: scale(1.02);
   transition: all 0.2s ease-in-out;
 }
 
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+  overflow-y: scroll; /* Ensures content can still scroll */
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; 
+
+}
+
+.sidebar {
+  width: 250px;  
+ /* Background color for Sidebar */
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+}
+
+.mainContent {
+  flex: 6;  
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.mainContent-webkit-scrollbar {
+  display: none;
+}
+
+.navbar {
+  height: 60px; /* Fixed height for Navbar */
+  background-color: #ffffff; /* Background color for Navbar */
+  
+  display: flex;
+  align-items: center;
+  padding: 0 0px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.outlet {
+  flex: 1;  
+padding: 20px;
+  overflow-y: auto;
+  overflow-y: scroll;  
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+  
+}
+
+.customAudio {
+  height: 30px;
+  width: 100%;
+  max-width: 300px; /* You can adjust the width as needed */
+  border-radius: 50px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+ 
+
+}
+.addButton{
+  background: linear-gradient(90deg, #283593, #3F51B5);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-transform: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.speech-button:hover {
+  background: linear-gradient(90deg, #1A237E, #283593);
+}
+
+@media (max-width: 768px) {
+  .addButton{
+    font-size: 14px;
+    padding: 10px 16px;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .addButton{
+    font-size: 12px;
+    padding: 8px 12px;
+    min-width: 100px;
+  }
+}
+.css-1e6y48t-MuiButtonBase-root-MuiButton-root {
+  color: inherit !important;
+}
+
+.app.dark .layout {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.app.dark .sidebar {
+  background-color: #1e1e1e;
+  border-right: 1px solid #333333;
+}
+
+.app.dark .navbar {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333333;
+}
+
+.app.dark .outlet {
+  background-color: #121212;
+}
+
+ 
+.phoneIcon , .blockIcon{
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  margin: 0;
+  padding: 0%;
+  background: none;
+} 
+
+.MuiDataGrid-root {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.MuiDataGrid-cell {
+  border-bottom: 1px solid #ddd !important;
+}
+
+.MuiDataGrid-columnHeaders {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  border-bottom: 2px solid #ccc !important;
+}
+
+.MuiDataGrid-row:nth-of-type(odd) {
+  background-color: #fafafa;
+}
+
+.MuiDataGrid-row:hover {
+  background-color: #e3f2fd !important;
+}
+
+input, textarea {
+  pointer-events: none;
+  user-select: none;
+}
+
+
+.datatable-header {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.admin-link {
+  background-color: #83cbcf;
+  padding: 8px;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+@keyframes vibrate {
+  0% { transform: rotate(0); }
+  20% { transform: rotate(-15deg); }
+  40% { transform: rotate(15deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+  100% { transform: rotate(0); }
+}
+
+.vibrate {
+  animation: vibrate 0.5s ease-in-out;
+  animation-iteration-count: 3; /* Optional: limit vibration times */
+}
+
+ 

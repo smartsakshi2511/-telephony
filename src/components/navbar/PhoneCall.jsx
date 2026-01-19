@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import './navbar.scss';
-
-const PopupIframe = ({ visible, toggleVisibility, iframeSrc, title }) => {
+const PopupIframe = ({ visible, iframeSrc, title }) => {
   const popupRef = useRef(null);
   const headerRef = useRef(null);
 
@@ -11,7 +10,7 @@ const PopupIframe = ({ visible, toggleVisibility, iframeSrc, title }) => {
     }
   }, []);
 
-  // Function to make the popup draggable
+  // Function to handle the dragging of the iframe
   const dragElement = (element, header) => {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
@@ -29,8 +28,8 @@ const PopupIframe = ({ visible, toggleVisibility, iframeSrc, title }) => {
       pos2 = pos4 - e.clientY;
       pos3 = e.clientX;
       pos4 = e.clientY;
-      element.style.top = (element.offsetTop - pos2) + "px";
-      element.style.left = (element.offsetLeft - pos1) + "px";
+      element.style.top = (element.offsetTop - pos2) + 'px';
+      element.style.left = (element.offsetLeft - pos1) + 'px';
     };
 
     const closeDragElement = () => {
@@ -43,13 +42,21 @@ const PopupIframe = ({ visible, toggleVisibility, iframeSrc, title }) => {
     <div
       ref={popupRef}
       className="popup"
-      style={{ display: visible ? 'block' : 'none',  }}
+      style={{
+        visibility: visible ? 'visible' : 'hidden',
+        position: 'absolute',  // To ensure it does not occupy space in the layout when hidden
+        zIndex: visible ? '100' : '-1',  // Make sure it's behind other content when hidden
+      }}
     >
       <div ref={headerRef} className="popup-header">
         <span>{title}</span>
-        <button onClick={toggleVisibility} className="close-button">X</button>
       </div>
-      <iframe src={iframeSrc} className="popup-iframe" title={title}></iframe>
+      <iframe
+        src={iframeSrc}  // Keep the same source for the iframe content
+        className="popup-iframe"
+        title={title}
+        style={{ width: '100%', height: '100%' }}
+      ></iframe>
     </div>
   );
 };

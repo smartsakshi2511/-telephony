@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import "./new.scss"; // Retain if you have additional styles
+import "./new.scss";
+import { useNavigate } from "react-router-dom";
 import DriveFolderUploadOutlinedIcon from "@mui/icons-material/DriveFolderUploadOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import axios from "axios"; // Import Axios for API requests
- 
+import Divider from "@mui/material/Divider";
+import Swal from "sweetalert2";
+import axios from "axios";
 import {
   Box,
   Button,
@@ -13,9 +15,7 @@ import {
   FormControl,
   InputLabel,
   Typography,
- 
   Grid,
- 
   IconButton,
   Dialog,
   DialogTitle,
@@ -24,8 +24,33 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-const NewcCampaign = ({ title }) => {
+const fieldDetails = {
+  campaignId:
+    "Unique identifier for the campaign. It cannot be changed once set.",
+  campaignName: "Name of the campaign. It should be descriptive and unique.",
+  campaignType: "Type of the campaign, e.g., Marketing, Support, Sales.",
+  inboundCID: "Inbound Caller ID (CLI/DID) assigned to the campaign.",
+  outboundCID: "Outbound Caller ID (CLD/DID) assigned to the campaign.",
+  welcomeIVR: "Welcome Interactive Voice Response file for the campaign.",
+  afterOfficeIVR: "After Office IVR file for the campaign.",
+  callOnHoldMusic: "Music to play when calls are on hold.",
+  ringToneMusic: "Ringtone music for incoming calls.",
+  noAgentIVR: "IVR file for scenarios when no agent is available.",
+  weekOffIVR: "IVR file to handle week-off schedules.",
+  active: "Status of the campaign. Determines if the campaign is active.",
+  callTime: "Duration for call timing, e.g., 60 seconds.",
+  ringTime: "Duration for ring time before going to voicemail.",
+  autoDialLevel: "Auto Dial Level setting (0 = off).",
+  autoDialStatus: "Auto Dial Status.",
+  ringType: "Type of ringing, e.g., random, sequential.",
+  callingTime: "Time settings for when calls are allowed.",
+  weekOff: "Days designated as week-offs for the campaign.",
+  leadForm: "Lead form associated with the campaign.",
+};
+
+const NewcCampaign = () => {
   const [file, setFile] = useState(null);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     campaignId: "",
     campaignName: "",
@@ -42,103 +67,19 @@ const NewcCampaign = ({ title }) => {
     callTime: "",
     ringTime: "",
     autoDialLevel: "",
+    autoDialStatus: "",
     ringType: "",
     callingTime: "",
     weekOff: "",
     leadForm: "",
+    admin: "",
+    group_wise: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false); // For loading state
-  const [campaignOptions, setCampaignOptions] = useState([]); // For dynamic campaign names
+  const [admins, setAdmins] = useState([]);
   const [openDialog, setOpenDialog] = useState(false); // State to control Dialog visibility
   const [currentField, setCurrentField] = useState(""); // To track which field's info to display
-  const [campaigns, setCampaigns] = useState([]); // State to store fetched campaigns
-
-  // Mapping of field names to their detailed descriptions
-  const fieldDetails = {
-    campaignId:
-      "Unique identifier for the campaign. It cannot be changed once set.",
-    campaignName: "Name of the campaign. It should be descriptive and unique.",
-    campaignType: "Type of the campaign, e.g., Marketing, Support, Sales.",
-    inboundCID: "Inbound Caller ID (CLI/DID) assigned to the campaign.",
-    outboundCID: "Outbound Caller ID (CLD/DID) assigned to the campaign.",
-    welcomeIVR: "Welcome Interactive Voice Response file for the campaign.",
-    afterOfficeIVR: "After Office IVR file for the campaign.",
-    callOnHoldMusic: "Music to play when calls are on hold.",
-    ringToneMusic: "Ringtone music for incoming calls.",
-    noAgentIVR: "IVR file for scenarios when no agent is available.",
-    weekOffIVR: "IVR file to handle week-off schedules.",
-    active: "Status of the campaign. Determines if the campaign is active.",
-    callTime: "Duration for call timing, e.g., 60 seconds.",
-    ringTime: "Duration for ring time before going to voicemail.",
-    autoDialLevel: "Auto Dial Level setting (0 = off).",
-    ringType: "Type of ringing, e.g., random, sequential.",
-    callingTime: "Time settings for when calls are allowed.",
-    weekOff: "Days designated as week-offs for the campaign.",
-    leadForm: "Lead form associated with the campaign.",
-  };
-
-  useEffect(() => {
-    const fetchCampaigns = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/campaigns");
-        setCampaignOptions(response.data.campaigns); // Adjust based on API response structure
-      } catch (error) {
-        console.error("Error fetching campaigns:", error);
-        // Fallback to predefined campaigns if API fails
-        setCampaignOptions([
-          { id: 1, name: "Sales Team" },
-          { id: 2, name: "HR Team" },
-          { id: 3, name: "Software Team" },
-        ]);
-      }
-    };
-
-    fetchCampaigns();
-  }, []);
-
-  // Fetch campaigns to display in the table
-  useEffect(() => {
-    const getCampaigns = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const response = await axios.get(
-          "https://api.example.com/get-campaigns"
-        );
-        setCampaigns(response.data.campaigns); // Adjust based on API response structure
-      } catch (error) {
-        console.error("Error fetching campaign data:", error);
-        // Fallback to mock data if API fails
-        setCampaigns([
-          {
-            campaignId: "CAMP001",
-            campaignName: "Summer Sale",
-            campaignType: "Marketing",
-            inboundCID: "1234567890",
-            outboundCID: "0987654321",
-            welcomeIVR: null,
-            afterOfficeIVR: null,
-            callOnHoldMusic: null,
-            ringToneMusic: null,
-            noAgentIVR: null,
-            weekOffIVR: null,
-            active: "Yes",
-            callTime: "60 SECONDS",
-            ringTime: "30 SECONDS",
-            autoDialLevel: "0",
-            ringType: "Random",
-            callingTime: "24hours",
-            weekOff: "Sunday",
-            leadForm: "https://example.com/lead-form",
-          },
-          // Add more mock campaigns as needed
-        ]);
-      }
-    };
-
-    getCampaigns();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
@@ -153,130 +94,137 @@ const NewcCampaign = ({ title }) => {
         [name]: value,
       }));
     }
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `https://${window.location.hostname}:4000/telephony/admin`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setAdmins(response.data);
+      } catch (error) {
+        console.error("Error fetching admins:", error);
+      }
+    };
 
-  // Validate form data
+    fetchAdmins();
+  }, []);
   const validate = () => {
     let newErrors = {};
- 
+
     if (!formData.campaignId.trim()) {
       newErrors.campaignId = "Campaign ID is required";
+    } else if (!/^[A-Za-z0-9]+$/.test(formData.campaignId)) {
+      newErrors.campaignId =
+        "Campaign ID must contain only letters and numbers (no spaces or special characters)";
     }
- 
     if (!formData.campaignName.trim()) {
       newErrors.campaignName = "Campaign Name is required";
     }
- 
     if (!formData.campaignType.trim()) {
       newErrors.campaignType = "Campaign Type is required";
     }
- 
-    if (!formData.inboundCID.trim()) {
+
+    if (!formData.inboundCID) {
       newErrors.inboundCID = "Inbound CID is required";
+    } else if (!/^\d{6,15}$/.test(formData.inboundCID)) {
+      newErrors.inboundCID = "Must be between 6 and 15 digits";
     }
- 
-    if (!formData.outboundCID.trim()) {
+
+    if (!formData.outboundCID) {
       newErrors.outboundCID = "Outbound CID is required";
-    }
-
-    // active Validation
-    if (!formData.active) {
-      newErrors.active = "Please select active status";
-    }
-
-    // callTime Validation
-    if (!formData.callTime.trim()) {
-      newErrors.callTime = "Call Time is required";
-    }
-
-    // ringTime Validation
-    if (!formData.ringTime.trim()) {
-      newErrors.ringTime = "Ring Time is required";
-    }
-
-    if (!formData.autoDialLevel.trim()) {
-      newErrors.autoDialLevel = "Auto Dial Level is required";
-    }
-
-    if (!formData.ringType.trim()) {
-      newErrors.ringType = "Ring Type is required";
-    }
-
-    if (!formData.callingTime.trim()) {
-      newErrors.callingTime = "Calling Time is required";
-    }
-
-    if (!formData.weekOff.trim()) {
-      newErrors.weekOff = "Week Off is required";
-    }
-    if (!formData.leadForm.trim()) {
-      newErrors.leadForm = "Lead Form URL is required";
-    } else if (!/^(ftp|http|https):\/\/[^ "]+$/.test(formData.leadForm)) {
-      newErrors.leadForm = "Lead Form URL is invalid";
+    } else if (!/^\d{6,15}$/.test(formData.outboundCID)) {
+      newErrors.outboundCID = "Must be between 6 and 15 digits";
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validate()) {
-      setIsSubmitting(true); // Set loading state
-
+      setIsSubmitting(true);
       try {
-        const formDataToSubmit = new FormData(); // Use FormData for file uploads
-        formDataToSubmit.append("campaignId", formData.campaignId);
-        formDataToSubmit.append("campaignName", formData.campaignName);
-        formDataToSubmit.append("campaignType", formData.campaignType);
-        formDataToSubmit.append("inboundCID", formData.inboundCID);
-        formDataToSubmit.append("outboundCID", formData.outboundCID);
-        formDataToSubmit.append("active", formData.active);
-        formDataToSubmit.append("callTime", formData.callTime);
-        formDataToSubmit.append("ringTime", formData.ringTime);
-        formDataToSubmit.append("autoDialLevel", formData.autoDialLevel);
-        formDataToSubmit.append("ringType", formData.ringType);
-        formDataToSubmit.append("callingTime", formData.callingTime);
-        formDataToSubmit.append("weekOff", formData.weekOff);
-        formDataToSubmit.append("leadForm", formData.leadForm);
+        const formDataToSubmit = new FormData();
+        formDataToSubmit.append("compaign_id", formData.campaignId);
+        formDataToSubmit.append("compaignname", formData.campaignName);
+        formDataToSubmit.append("status", formData.active);
+        formDataToSubmit.append("campaign_number", formData.inboundCID);
+        formDataToSubmit.append("outbond_cli", formData.outboundCID);
+        formDataToSubmit.append("week_off", formData.weekOff);
+        formDataToSubmit.append("admin", formData.admin);
+        if (formData.campaignType)
+          formDataToSubmit.append("campaign_dis", formData.campaignType);
+        if (formData.ringTime)
+          formDataToSubmit.append("ring_time", formData.ringTime);
+        if (formData.autoDialLevel)
+          formDataToSubmit.append("auto_dial_level", formData.autoDialLevel);
+        if (formData.autoDialStatus)
+          formDataToSubmit.append("auto_dial_status", formData.autoDialStatus);
+        if (formData.ringType)
+          formDataToSubmit.append("type", formData.ringType);
+        if (formData.callingTime)
+          formDataToSubmit.append("local_call_time", formData.callingTime);
+        if (formData.leadForm)
+          formDataToSubmit.append("script_notes", formData.leadForm);
+        if (formData.welcomeIVR)
+          formDataToSubmit.append("welcome_ivr", formData.welcomeIVR);
+        if (formData.afterOfficeIVR)
+          formDataToSubmit.append("after_office_ivr", formData.afterOfficeIVR);
+        if (formData.callOnHoldMusic)
+          formDataToSubmit.append("music_on_hold", formData.callOnHoldMusic);
+        if (formData.ringToneMusic)
+          formDataToSubmit.append("ring_tone_music", formData.ringToneMusic);
+        if (formData.noAgentIVR)
+          formDataToSubmit.append("no_agent_ivr", formData.noAgentIVR);
+        if (formData.weekOffIVR)
+          formDataToSubmit.append("week_off_ivr", formData.weekOffIVR);
+        if (formData.group_wise)
+          formDataToSubmit.append("ivr", formData.group_wise); // ✅ maps dropdown to ivr column
 
-        // Append files if they exist
-        if (formData.welcomeIVR) {
-          formDataToSubmit.append("welcomeIVR", formData.welcomeIVR);
-        }
-        if (formData.afterOfficeIVR) {
-          formDataToSubmit.append("afterOfficeIVR", formData.afterOfficeIVR);
-        }
-        if (formData.callOnHoldMusic) {
-          formDataToSubmit.append("callOnHoldMusic", formData.callOnHoldMusic);
-        }
-        if (formData.ringToneMusic) {
-          formDataToSubmit.append("ringToneMusic", formData.ringToneMusic);
-        }
-        if (formData.noAgentIVR) {
-          formDataToSubmit.append("noAgentIVR", formData.noAgentIVR);
-        }
-        if (formData.weekOffIVR) {
-          formDataToSubmit.append("weekOffIVR", formData.weekOffIVR);
-        }
+        const token = localStorage.getItem("token");
 
-        // Example API URL - Replace with your actual API endpoint
         const response = await axios.post(
-          "https://api.example.com/create-campaign",
+          `https://${window.location.hostname}:4000/campaigns/addCampaign`,
           formDataToSubmit,
           {
             headers: {
-              "Content-Type": "multipart/form-data", // For file uploads
+              Authorization: `Bearer ${token}`,
             },
           }
         );
+        setIsSubmitting(false);
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
 
-        console.log("Campaign created successfully:", response.data);
-        setIsSubmitting(false); // Reset loading state
+        Toast.fire({
+          icon: "success",
+          title: "Campaign added successfully!",
+        });
 
-        // Optional: Reset form fields after successful submission
         setFormData({
           campaignId: "",
           campaignName: "",
@@ -293,76 +241,73 @@ const NewcCampaign = ({ title }) => {
           callTime: "",
           ringTime: "",
           autoDialLevel: "",
+          autoDialStatus: "",
           ringType: "",
           callingTime: "",
           weekOff: "",
           leadForm: "",
+          admin: "",
+          group_wise: "",
         });
-        setFile(null);
 
-        // Refresh campaign list
-        const updatedCampaigns = await axios.get(
-          "https://api.example.com/get-campaigns"
-        );
-        setCampaigns(updatedCampaigns.data.campaigns);
+        setFile(null);
+        navigate("/admin/campaign");
       } catch (error) {
         console.error("Error submitting the form:", error);
-        setIsSubmitting(false); // Reset loading state
-        // Optional: Handle error (e.g., show a notification)
+        setIsSubmitting(false);
+
+        Swal.fire({
+          icon: "error",
+          title: "Failed to add campaign",
+          text: error?.response?.data?.message || "Something went wrong",
+        });
       }
     } else {
       console.log("Form has errors");
     }
   };
 
-  // Handle opening the Dialog with specific field details
   const handleOpenDialog = (field) => {
     setCurrentField(field);
     setOpenDialog(true);
   };
 
-  // Handle closing the Dialog
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setCurrentField("");
   };
-
-  // Handle Edit Campaign
-  const handleEditCampaign = (campaign) => {
-    // Implement edit functionality, e.g., open a form with campaign data
-    console.log("Edit Campaign:", campaign);
-  };
-
-  // Handle Delete Campaign
-  const handleDeleteCampaign = async (campaignId) => {
+  const checkDuplicateId = async () => {
+    if (!formData.campaignId) return;
     try {
-      // Replace with your actual API endpoint
-      await axios.delete(
-        `https://api.example.com/delete-campaign/${campaignId}`
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        `https://${window.location.hostname}:4000/campaigns/checkDuplicateId/${formData.campaignId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log(`Campaign ${campaignId} deleted successfully.`);
-      // Refresh campaign list
-      const updatedCampaigns = await axios.get(
-        "https://api.example.com/get-campaigns"
-      );
-      setCampaigns(updatedCampaigns.data.campaigns);
-    } catch (error) {
-      console.error("Error deleting campaign:", error);
-      // Optional: Handle error (e.g., show a notification)
+
+      if (res.data.exists) {
+        setErrors((prev) => ({
+          ...prev,
+          campaignId: "Campaign ID already exists",
+        }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          campaignId: "", // ✅ message hata do if new valid ID
+        }));
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
-
   return (
     <Box display="flex" className="newContainer">
       <Box flex={6} p={2}>
-        {/* Top Section */}
         <Box mb={4}>
           <Typography variant="h4" component="h1">
             Add New Campaign
           </Typography>
         </Box>
-
-        {/* Form Section */}
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -375,8 +320,7 @@ const NewcCampaign = ({ title }) => {
           }}
         >
           <Grid container spacing={3}>
-            {/* Campaign ID */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
                   <Typography
@@ -397,9 +341,11 @@ const NewcCampaign = ({ title }) => {
                 <TextField
                   id="campaignId"
                   name="campaignId"
+                  type="text"
                   placeholder="Enter Campaign ID"
                   value={formData.campaignId}
                   onChange={handleInputChange}
+                  onBlur={checkDuplicateId} // ✅ add this
                   error={Boolean(errors.campaignId)}
                   helperText={errors.campaignId}
                   fullWidth
@@ -409,8 +355,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Campaign Name */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
                   <Typography
@@ -443,8 +388,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Inbound CID */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
                   <Typography
@@ -465,6 +409,7 @@ const NewcCampaign = ({ title }) => {
                 <TextField
                   id="inboundCID"
                   name="inboundCID"
+                  type="number"
                   placeholder="Enter Inbound CID"
                   value={formData.inboundCID}
                   onChange={handleInputChange}
@@ -477,8 +422,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Outbound CID */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box display="flex" alignItems="center">
                   <Typography
@@ -500,6 +444,7 @@ const NewcCampaign = ({ title }) => {
                   id="outboundCID"
                   name="outboundCID"
                   placeholder="Enter Outbound CID"
+                  type="number"
                   value={formData.outboundCID}
                   onChange={handleInputChange}
                   error={Boolean(errors.outboundCID)}
@@ -511,8 +456,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Campaign Type */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl
                 fullWidth
                 variant="outlined"
@@ -546,9 +490,9 @@ const NewcCampaign = ({ title }) => {
                   <MenuItem value="">
                     <em>Select Campaign Type</em>
                   </MenuItem>
-                  <MenuItem value="Marketing">Both</MenuItem>
-                  <MenuItem value="Support">Inbound</MenuItem>
-                  <MenuItem value="Sales">Outbou</MenuItem>
+                  <MenuItem value="both">Both</MenuItem>
+                  <MenuItem value="inbound">Inbound</MenuItem>
+                  <MenuItem value="outbound">Outbound</MenuItem>
                   {/* Add more options as needed */}
                 </Select>
                 {errors.campaignType && (
@@ -559,348 +503,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Active Status */}
-            <Grid item xs={12} sm={6}>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                required
-                error={Boolean(errors.active)}
-              >
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="active"
-                  >
-                    Active
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("active")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Select
-                  id="active"
-                  name="active"
-                  value={formData.active}
-                  onChange={handleInputChange}
-                  displayEmpty
-                  label="Active"
-                >
-                  <MenuItem value="">
-                    <em>Select</em>
-                  </MenuItem>
-                  <MenuItem value="Yes">Yes</MenuItem>
-                  <MenuItem value="No">No</MenuItem>
-                </Select>
-                {errors.active && (
-                  <Typography variant="caption" color="error">
-                    {errors.active}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* Welcome IVR File Upload */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="welcomeIVR"
-                  >
-                    Welcome IVR
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("welcomeIVR")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<DriveFolderUploadOutlinedIcon />}
-                >
-                  {formData.welcomeIVR
-                    ? formData.welcomeIVR.name
-                    : "Choose File"}
-                  <input
-                    type="file"
-                    id="welcomeIVR"
-                    name="welcomeIVR"
-                    accept=".mp3,.wav"
-                    hidden
-                    onChange={handleInputChange}
-                  />
-                </Button>
-                {errors.welcomeIVR && (
-                  <Typography variant="caption" color="error">
-                    {errors.welcomeIVR}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* After Office IVR File Upload */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="afterOfficeIVR"
-                  >
-                    After Office IVR
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("afterOfficeIVR")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<DriveFolderUploadOutlinedIcon />}
-                >
-                  {formData.afterOfficeIVR
-                    ? formData.afterOfficeIVR.name
-                    : "Choose File"}
-                  <input
-                    type="file"
-                    id="afterOfficeIVR"
-                    name="afterOfficeIVR"
-                    accept=".mp3,.wav"
-                    hidden
-                    onChange={handleInputChange}
-                  />
-                </Button>
-                {errors.afterOfficeIVR && (
-                  <Typography variant="caption" color="error">
-                    {errors.afterOfficeIVR}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* Call on Hold Music File Upload */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="callOnHoldMusic"
-                  >
-                    Call on hold music
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("callOnHoldMusic")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<DriveFolderUploadOutlinedIcon />}
-                >
-                  {formData.callOnHoldMusic
-                    ? formData.callOnHoldMusic.name
-                    : "Choose File"}
-                  <input
-                    type="file"
-                    id="callOnHoldMusic"
-                    name="callOnHoldMusic"
-                    accept=".mp3,.wav"
-                    hidden
-                    onChange={handleInputChange}
-                  />
-                </Button>
-                {errors.callOnHoldMusic && (
-                  <Typography variant="caption" color="error">
-                    {errors.callOnHoldMusic}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* Ring Tone Music File Upload */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="ringToneMusic"
-                  >
-                    Ring Tone Music
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("ringToneMusic")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<DriveFolderUploadOutlinedIcon />}
-                >
-                  {formData.ringToneMusic
-                    ? formData.ringToneMusic.name
-                    : "Choose File"}
-                  <input
-                    type="file"
-                    id="ringToneMusic"
-                    name="ringToneMusic"
-                    accept=".mp3,.wav"
-                    hidden
-                    onChange={handleInputChange}
-                  />
-                </Button>
-                {errors.ringToneMusic && (
-                  <Typography variant="caption" color="error">
-                    {errors.ringToneMusic}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* No Agent IVR File Upload */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="noAgentIVR"
-                  >
-                    No Agent IVR
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("noAgentIVR")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<DriveFolderUploadOutlinedIcon />}
-                >
-                  {formData.noAgentIVR
-                    ? formData.noAgentIVR.name
-                    : "Choose File"}
-                  <input
-                    type="file"
-                    id="noAgentIVR"
-                    name="noAgentIVR"
-                    accept=".mp3,.wav"
-                    hidden
-                    onChange={handleInputChange}
-                  />
-                </Button>
-                {errors.noAgentIVR && (
-                  <Typography variant="caption" color="error">
-                    {errors.noAgentIVR}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* Week Off IVR File Upload */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="weekOffIVR"
-                  >
-                    Week off IVR
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("weekOffIVR")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<DriveFolderUploadOutlinedIcon />}
-                >
-                  {formData.weekOffIVR
-                    ? formData.weekOffIVR.name
-                    : "Choose File"}
-                  <input
-                    type="file"
-                    id="weekOffIVR"
-                    name="weekOffIVR"
-                    accept=".mp3,.wav"
-                    hidden
-                    onChange={handleInputChange}
-                  />
-                </Button>
-                {errors.weekOffIVR && (
-                  <Typography variant="caption" color="error">
-                    {errors.weekOffIVR}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            {/* Call Time */}
-            {/* <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1" component="label" htmlFor="callTime">
-                    Call Time
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("callTime")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <TextField
-                  id="callTime"
-                  name="callTime"
-                  placeholder="e.g., 60 SECONDS"
-                  value={formData.callTime}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.callTime)}
-                  helperText={errors.callTime}
-                  fullWidth
-                  variant="outlined"
-                  required
-                />
-              </FormControl>
-            </Grid> */}
-
-            {/* Ring Time */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box
                   display="flex"
@@ -927,10 +530,12 @@ const NewcCampaign = ({ title }) => {
                   <FormControl fullWidth variant="outlined">
                     <InputLabel htmlFor="ringTime">Select Ring Time</InputLabel>
                     <Select
-                      name="ring_time"
-                      id="ring_time"
+                      name="ringTime"
+                      id="ringTime"
                       label="Select Ring Time"
                       defaultValue="60"
+                      value={formData.ringTime}
+                      onChange={handleInputChange}
                     >
                       <MenuItem value="60">60 SECONDS</MenuItem>
                       <MenuItem value="45">45 SECONDS</MenuItem>
@@ -940,58 +545,7 @@ const NewcCampaign = ({ title }) => {
                 </Box>
               </FormControl>
             </Grid>
-
-            {/* Auto Dial Level */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="flex-start"
-                  width="100%"
-                >
-                  <Box display="flex" alignItems="center" mb={1}>
-                    <Typography
-                      variant="subtitle1"
-                      component="label"
-                      htmlFor="autoDialLevel"
-                    >
-                      Auto Dial Level (0 = off)
-                    </Typography>
-                    <IconButton
-                      aria-label="info"
-                      size="small"
-                      onClick={() => handleOpenDialog("autoDialLevel")}
-                    >
-                      <InfoOutlinedIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel htmlFor="autoDialLevel">
-                      Select Auto Dial Level
-                    </InputLabel>
-                    <Select
-                      name="auto_dial_level"
-                      id="auto_dial_level"
-                      label="Select Auto Dial Level"
-                      defaultValue=""
-                    >
-                      <MenuItem value="">
-                        <em>None</em>
-                      </MenuItem>
-                      {[...Array(11).keys()].map((num) => (
-                        <MenuItem key={num} value={num}>
-                          {num}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
-              </FormControl>
-            </Grid>
-
-            {/* Ring Type */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl
                 fullWidth
                 variant="outlined"
@@ -1023,13 +577,14 @@ const NewcCampaign = ({ title }) => {
                   <FormControl fullWidth variant="outlined">
                     <InputLabel htmlFor="ringType">Select Ring Type</InputLabel>
                     <Select
-                      name="next_agent_call"
-                      id="next_agent_call"
+                      name="ringType"
+                      id="ringType"
                       label="Select Ring Type"
-                      defaultValue="random"
+                      value={formData.ringType}
+                      onChange={handleInputChange}
                     >
                       <MenuItem value="random">Random</MenuItem>
-                      <MenuItem value="campaign_rank">Rank</MenuItem>
+                      <MenuItem value="rank">Rank</MenuItem>
                       <MenuItem value="ring_all">Ring All</MenuItem>
                       <MenuItem value="longest_wait_time">
                         Longest Wait Time
@@ -1039,9 +594,50 @@ const NewcCampaign = ({ title }) => {
                 </Box>
               </FormControl>
             </Grid>
-
-            {/* Calling Time */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
+              <FormControl fullWidth>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="callRoute"
+                    >
+                      Call Route
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("callRoute")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="callRoute">
+                      Select Call Route
+                    </InputLabel>
+                    <Select
+                      name="group_wise"
+                      id="group_wise"
+                      label="Select Call Route"
+                      value={formData.group_wise || ""}
+                      onChange={handleInputChange}
+                    >
+                      <MenuItem value="0">NONE</MenuItem>
+                      <MenuItem value="1">Extension Wise</MenuItem>
+                      {/* <MenuItem value="2">Call Menu</MenuItem> */}
+                    </Select>
+                  </FormControl>
+                </Box>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box
                   display="flex"
@@ -1070,10 +666,11 @@ const NewcCampaign = ({ title }) => {
                       Select Calling Time
                     </InputLabel>
                     <Select
-                      name="local_call_time"
-                      id="local_call_time"
+                      name="callingTime"
+                      id="callingTime"
                       label="Select Calling Time"
-                      defaultValue="12am-11pm"
+                      value={formData.callingTime}
+                      onChange={handleInputChange}
                     >
                       <MenuItem value="12am-11pm">
                         24 hours - default 24 hours calling
@@ -1102,8 +699,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Week Off */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box
                   display="flex"
@@ -1130,10 +726,11 @@ const NewcCampaign = ({ title }) => {
                   <FormControl fullWidth variant="outlined">
                     <InputLabel htmlFor="weekOff">Select Week Off</InputLabel>
                     <Select
-                      name="week_off"
-                      id="week_off"
+                      name="weekOff"
+                      id="weekOff"
                       label="Select Week Off"
-                      defaultValue=""
+                      value={formData.weekOff}
+                      onChange={handleInputChange}
                     >
                       <MenuItem value="">None</MenuItem>
                       <MenuItem value="Sunday">Sunday</MenuItem>
@@ -1152,8 +749,7 @@ const NewcCampaign = ({ title }) => {
               </FormControl>
             </Grid>
 
-            {/* Lead Form */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
                 <Box
                   display="flex"
@@ -1161,7 +757,6 @@ const NewcCampaign = ({ title }) => {
                   alignItems="flex-start"
                   width="100%"
                 >
-                  {/* Label and Info Icon */}
                   <Box display="flex" alignItems="center" mb={1}>
                     <Typography
                       variant="subtitle1"
@@ -1178,75 +773,414 @@ const NewcCampaign = ({ title }) => {
                       <InfoOutlinedIcon fontSize="small" />
                     </IconButton>
                   </Box>
-
-                  {/* Dropdown for Lead Form */}
                   <FormControl fullWidth variant="outlined">
                     <InputLabel htmlFor="leadForm">Select Lead Form</InputLabel>
                     <Select
-                      name="get_call_launch"
-                      id="get_call_launch"
+                      name="leadForm"
+                      id="leadForm"
                       label="Select Lead Form"
-                      defaultValue=""
+                      value={formData.leadForm}
+                      onChange={handleInputChange}
                     >
                       <MenuItem value="">None</MenuItem>
-                      <MenuItem value="NONE">Inactive</MenuItem>
-                      <MenuItem value="WEBFORM">Active</MenuItem>
+                      <MenuItem value="inactive">Inactive</MenuItem>
+                      <MenuItem value="active">Active</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
-                {/* Wrapper Box for Label and Dropdown */}
+                <Box display="flex" alignItems="center">
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="admin"
+                  >
+                    Select Admin
+                  </Typography>
+
+                  <IconButton aria-label="info" size="small">
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Select
+                  name="admin"
+                  value={formData.admin}
+                  onChange={handleChange}
+                  displayEmpty
+                  fullWidth
+                  variant="outlined"
+                >
+                  <MenuItem value="">Select Admin</MenuItem>
+                  {admins.map((admin) => (
+                    <MenuItem key={admin.user_id} value={admin.user_id}>
+                      {admin.full_name || admin.user_id}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="welcomeIVR"
+                  >
+                    Welcome IVR
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("welcomeIVR")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<DriveFolderUploadOutlinedIcon />}
+                >
+                  {formData.welcomeIVR
+                    ? formData.welcomeIVR.name
+                    : "Choose File"}
+                  <input
+                    type="file"
+                    id="welcomeIVR"
+                    name="welcomeIVR"
+                    accept=".wav"
+                    hidden
+                    onChange={handleInputChange}
+                  />
+                </Button>
+                {errors.welcomeIVR && (
+                  <Typography variant="caption" color="error">
+                    {errors.welcomeIVR}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="afterOfficeIVR"
+                  >
+                    After Office IVR
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("afterOfficeIVR")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<DriveFolderUploadOutlinedIcon />}
+                >
+                  {formData.afterOfficeIVR
+                    ? formData.afterOfficeIVR.name
+                    : "Choose File"}
+                  <input
+                    type="file"
+                    id="afterOfficeIVR"
+                    name="afterOfficeIVR"
+                    accept=".wav"
+                    hidden
+                    onChange={handleInputChange}
+                  />
+                </Button>
+                {errors.afterOfficeIVR && (
+                  <Typography variant="caption" color="error">
+                    {errors.afterOfficeIVR}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="callOnHoldMusic"
+                  >
+                    Call on hold music
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("callOnHoldMusic")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<DriveFolderUploadOutlinedIcon />}
+                >
+                  {formData.callOnHoldMusic
+                    ? formData.callOnHoldMusic.name
+                    : "Choose File"}
+                  <input
+                    type="file"
+                    id="callOnHoldMusic"
+                    name="callOnHoldMusic"
+                    accept=".wav"
+                    hidden
+                    onChange={handleInputChange}
+                  />
+                </Button>
+                {errors.callOnHoldMusic && (
+                  <Typography variant="caption" color="error">
+                    {errors.callOnHoldMusic}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="ringToneMusic"
+                  >
+                    Ring Tone Music
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("ringToneMusic")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<DriveFolderUploadOutlinedIcon />}
+                >
+                  {formData.ringToneMusic
+                    ? formData.ringToneMusic.name
+                    : "Choose File"}
+                  <input
+                    type="file"
+                    id="ringToneMusic"
+                    name="ringToneMusic"
+                    accept=".wav"
+                    hidden
+                    onChange={handleInputChange}
+                  />
+                </Button>
+                {errors.ringToneMusic && (
+                  <Typography variant="caption" color="error">
+                    {errors.ringToneMusic}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="noAgentIVR"
+                  >
+                    No Agent IVR
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("noAgentIVR")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<DriveFolderUploadOutlinedIcon />}
+                >
+                  {formData.noAgentIVR
+                    ? formData.noAgentIVR.name
+                    : "Choose File"}
+                  <input
+                    type="file"
+                    id="noAgentIVR"
+                    name="noAgentIVR"
+                    accept=".wav"
+                    hidden
+                    onChange={handleInputChange}
+                  />
+                </Button>
+                {errors.noAgentIVR && (
+                  <Typography variant="caption" color="error">
+                    {errors.noAgentIVR}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    component="label"
+                    htmlFor="weekOffIVR"
+                  >
+                    Week off IVR
+                  </Typography>
+                  <IconButton
+                    aria-label="info"
+                    size="small"
+                    onClick={() => handleOpenDialog("weekOffIVR")}
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<DriveFolderUploadOutlinedIcon />}
+                >
+                  {formData.weekOffIVR
+                    ? formData.weekOffIVR.name
+                    : "Choose File"}
+                  <input
+                    type="file"
+                    id="weekOffIVR"
+                    name="weekOffIVR"
+                    accept=".wav"
+                    hidden
+                    onChange={handleInputChange}
+                  />
+                </Button>
+                {errors.weekOffIVR && (
+                  <Typography variant="caption" color="error">
+                    {errors.weekOffIVR}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }} />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
                 <Box
                   display="flex"
                   flexDirection="column"
                   alignItems="flex-start"
                   width="100%"
                 >
-                  {/* Label and Info Icon */}
                   <Box display="flex" alignItems="center" mb={1}>
                     <Typography
                       variant="subtitle1"
                       component="label"
-                      htmlFor="callRoute"
+                      htmlFor="autoDialLevel"
                     >
-                      Call Route
+                      Auto Dial Level (0 = off)
                     </Typography>
                     <IconButton
                       aria-label="info"
                       size="small"
-                      onClick={() => handleOpenDialog("callRoute")}
+                      onClick={() => handleOpenDialog("autoDialLevel")}
                     >
                       <InfoOutlinedIcon fontSize="small" />
                     </IconButton>
                   </Box>
-
-                  {/* Dropdown for Call Route */}
                   <FormControl fullWidth variant="outlined">
-                    <InputLabel htmlFor="callRoute">
-                      Select Call Route
+                    <InputLabel htmlFor="autoDialLevel">
+                      Select Auto Dial Level
                     </InputLabel>
                     <Select
-                      name="group_wise"
-                      id="group_wise"
-                      label="Select Call Route"
-                      defaultValue=""
+                      name="autoDialLevel"
+                      id="autoDialLevel"
+                      label="Select Auto Dial Level"
+                      value={formData.autoDialLevel}
+                      onChange={handleInputChange}
                     >
-                      <MenuItem value="">None</MenuItem>
-                      <MenuItem value="0">NONE</MenuItem>
-                      {/* <MenuItem value="SCRIPT">SCRIPT</MenuItem> */}
-                      <MenuItem value="1">GROUP</MenuItem>
-                      <MenuItem value="2">Call Menu</MenuItem>
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      {[...Array(11).keys()].map((num) => (
+                        <MenuItem key={num} value={num}>
+                          {num}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Box>
               </FormControl>
             </Grid>
 
-            {/* Submit Button */}
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  width="100%"
+                >
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <Typography
+                      variant="subtitle1"
+                      component="label"
+                      htmlFor="autoDialStatus"
+                    >
+                      Auto Dial Status
+                    </Typography>
+                    <IconButton
+                      aria-label="info"
+                      size="small"
+                      onClick={() => handleOpenDialog("autoDialStatus")}
+                    >
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel htmlFor="autoDialStatus">
+                      Select Auto Dial Status
+                    </InputLabel>
+                    <Select
+                      name="autoDialStatus"
+                      id="autoDialStatus"
+                      label="Select Auto Dial Status"
+                      value={formData.autoDialStatus}
+                      onChange={handleInputChange}
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value="1">Active</MenuItem>
+                      <MenuItem value="0">Inactive</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </FormControl>
+            </Grid>
+
             <Grid item xs={12}>
               <Button
                 type="submit"
@@ -1261,7 +1195,7 @@ const NewcCampaign = ({ title }) => {
             </Grid>
           </Grid>
         </Box>
- 
+
         <Dialog open={openDialog} onClose={handleCloseDialog}>
           <DialogTitle>Field Details</DialogTitle>
           <DialogContent>

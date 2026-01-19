@@ -1,11 +1,11 @@
-export const userColumns = [
-  
-  { field: "priority", headerName: "PRIOPRITY", width: 100, headerClassName: "customHeader" },
+ import AudioPlayer from "./pages/Compaign/AudioPlayer";
+
+export const userColumns = [ 
+  { field: "priority", headerName: "PRIOPRITY", width: 100},
   {
     field: "user",
     headerName: "USER ID",
     width: 100,
-    headerClassName: "customHeader",
     renderCell: (params) => {
       return (
         <div className="cellWithImg">
@@ -15,10 +15,10 @@ export const userColumns = [
       );
     },
   },
-  { field: "password", headerName: "PASSWORD", width: 120, headerClassName: "customHeader" },
+  { field: "password", headerName: "PASSWORD", width: 100},
   {
     field: "Phonenumber",
-    headerName: "PHONE NUMBER",
+    headerName: "PHONE NUMBERr",
     width: 150, headerClassName: "customHeader",
     renderCell: (params) => {
       return (
@@ -33,13 +33,13 @@ export const userColumns = [
   {
     field: "Extn",
     headerName: "EXTN NUMBER",
-    width: 150, headerClassName: "customHeader" 
+    width: 150
   },
 
   {
     field: "clidid",
     headerName: "CLI/DID",
-    width: 160,
+    width: 120,
     headerClassName: "customHeader",
     required : true
   },
@@ -47,7 +47,7 @@ export const userColumns = [
     field: "status",
     headerName: "STATUS",
     width: 100,
-    headerClassName: "customHeader",
+    // headerClassName: "customHeader",
     renderCell: (params) => {
       return (
         <div className={`cellWithStatus ${params.row.status}`}>
@@ -58,234 +58,87 @@ export const userColumns = [
   },
 ];
 
-//temporary data
-export const userRows = [
-  {
-    id: 1,
-    username: "Snow",
-    priority:"1",
-    user:"8080",
-    password:"hdj464",
-    Phonenumber:"0123654789",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    status: "active",
-    Extn: "1snow@gmail.com",
-   clidid: 35,
-    num:1344443332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
+const backendBaseUrl = `https://${window.location.hostname}:4000/`;
 
+export const CompaignColumn = [
+  { field: "compaign_id", headerName: "COMP ID", width: 80  },
+  { 
+    field: "compaignname", 
+    headerName: "NAME", 
+    width:100, 
+    renderCell: (params) => <div className="cellWithImg">{params.row.compaignname}</div>,
   },
-  {
-    id: 2,
-    priority:"2",
-    user:"8081",
-    password:"hdyj464",
-    Phonenumber:"0856374789",
-    username: "Jamie Lannister",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "2snow@gmail.com",
-    status: "deactive",
-   clidid: 42,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
+  { field: "status", headerName: "STATUS", width: 60   },
+  { field: "campaign_number", headerName: "INBOUND CID.", width:150  },
+  { field: "outbond_cli", headerName: "OUTBOUND CID.",width: 150  },
+  { field: "local_call_time", headerName: "CALL TIME", width:100  },
 
-  },
-  {
-    id: 3,
-    priority:"3",
-    user:"8082",
-    password:"847yfy",
-    Phonenumber:"8974654789",
-    username: "Lannister",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "3snow@gmail.com",
-    status: "deactive",
-   clidid: 45,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
+  { field: "week_off", headerName: "WEEK OFF", width:100  },
 
-  },
-  {
-    id: 4,
-    priority:"4",
-    user:"8083",
-    password:"hdjduejfnvi",
-    Phonenumber:"3473654789",
-    username: "Stark",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "4snow@gmail.com",
-    status: "active",
-   clidid: 16,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
-
-  },
-  {
-    id: 5,
-    priority:"5",
-    user:"8084",
-    password:"464fdhbdh",
-    Phonenumber:"987456789",
-    username: "Targaryen",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "5snow@gmail.com",
-    status: "passive",
-   clidid: 22,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
-
-    
-  },
-  {
-    id: 6,
-    priority:"6",
-    user:"8085",
-    password:"37439egd",
-    Phonenumber:"943854789",
-    username: "Melisandre",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "6snow@gmail.com",
-    status: "active",
-   clidid: 15,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
-
-  },
-  {
-    id: 7,
-    priority:"7",
-    user:"8086",
-    password:"hdj46jr",
-    Phonenumber:"89840054789",
-    username: "Clifford",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "7snow@gmail.com",
-    status: "passive",
-   clidid: 44,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
-
-  },
-  {
-    id: 8,
-    priority:"8",
-    user:"8087",
-    password:"eiryew",
-    Phonenumber:" 9827224789",
-    username: "Frances",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "8snow@gmail.com",
-    status: "active",
-   clidid: 36,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
-
-  },
-  {
-    id: 9,
-    priority:"9",
-    user:"8088",
-    password:"jghfjir",
-    Phonenumber:"ijg5654789",
-    username: "Roxie",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "snow@gmail.com",
-    status: "pending",
-   clidid: 65,
-    num:133332
-  },
-  {
-    id: 10,
-    priority:"10",
-    user:"8089",
-    password:"hdjkrtnjrtk",
-    Phonenumber:"0989380578",
-    username: "Roxie",
-    img: "https://images.pexels.com/photos/1820770/pexels-photo-1820770.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500",
-    Extn: "snow@gmail.com",
-    status: "active",
-   clidid: 65,
-    num:133332,
-    numIcon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrTCJJkw2mHkYNstUdr3ai-vPSU5CjtI39cg&s"
-
-  },
+  // {
+  //   field: "welcome_ivr",
+  //   headerName: "WELCOME IVR",
+  //   width: 60,
+  //   headerClassName: "customHeader",
+  //   renderCell: (params) => {
+  //     let audioUrl = params.row.welcome_ivr ? params.row.welcome_ivr : '';
+  //     if (audioUrl && !audioUrl.startsWith('http')) {
+  //       audioUrl = `${backendBaseUrl}${audioUrl}`;
+  //     }
+  //     return <AudioPlayer audioUrl={audioUrl} />;
+  //   },
+  // },
+  // {
+  //   field: "after_office_ivr",
+  //   headerName: "AFTER IVR",
+  //   width: 80,
+  //   renderCell: (params) => {
+  //     let audioUrl = params.row.after_office_ivr ? params.row.after_office_ivr : '';
+  //     if (audioUrl && !audioUrl.startsWith('http')) {
+  //       audioUrl = `${backendBaseUrl}${audioUrl}`;
+  //     }
+  //     return <AudioPlayer audioUrl={audioUrl} />;
+  //   },
+  // },
+  // {
+  //   field: "ivr",
+  //   headerName: "PARK MUSIC",
+  //   width: 80,
+  //   renderCell: (params) => {
+  //     let audioUrl = params.row.ivr ? params.row.ivr : '';
+  //     if (audioUrl && !audioUrl.startsWith('http')) {
+  //       audioUrl = `${backendBaseUrl}${audioUrl}`;
+  //     }
+  //     return <AudioPlayer audioUrl={audioUrl} />;
+  //   },
+  // },
+  // {
+  //   field: "no_agent_ivr",
+  //   headerName: "NO AGENT",
+  //   width: 80,
+  //   renderCell: (params) => {
+  //     let audioUrl = params.row.no_agent_ivr ? params.row.no_agent_ivr : '';
+  //     if (audioUrl && !audioUrl.startsWith('http')) {
+  //       audioUrl = `${backendBaseUrl}${audioUrl}`;
+  //     }
+  //     return <AudioPlayer audioUrl={audioUrl} />;
+  //   },
+  // },
+  // {
+  //   field: "ring_tone_music",
+  //   headerName: "RINGTONE",
+  //   flex: 1,
+  //   renderCell: (params) => {
+  //     let audioUrl = params.row.ring_tone_music ? params.row.ring_tone_music : '';
+  //     if (audioUrl && !audioUrl.startsWith('http')) {
+  //       audioUrl = `${backendBaseUrl}${audioUrl}`;
+  //     }
+  //     return <AudioPlayer audioUrl={audioUrl} />;
+  //   },
+  // },
 ];
 
-export const CompaignColumn =[
-  { field: "com_id", headerName: " COMP ID", width: 100, headerClassName: "customHeader" },
-  {
-    field: "userName",
-    headerName: "NAME",
-    width: 100,
-    renderCell: (params) => {
-      return (
-        <div className="cellWithImg">
-          {params.row.username}
-        </div>
-      );
-    },
-  },
-  { field: "status", headerName: "STATUS", width: 10, headerClassName: "customHeader" },
-  { field: "inbound_cid", headerName: "INBOUND CID.", width: 120, headerClassName: "customHeader" },
-  { field: "outbound_cid", headerName: "OUTBOUND CID.", width: 120, headerClassName: "customHeader" },
-  { field: "calltime", headerName: "CALL TIME", width: 120, headerClassName: "customHeader" },
-  { field: "weekoff", headerName: "WEEK OFF", width: 80, headerClassName: "customHeader" },
-  { field: "after_ivr", headerName: "AFTER IVR", width: 80, headerClassName: "customHeader" },
-  { field: "ivr", headerName: "PARK MUSIC", width: 100, headerClassName: "customHeader" },
-
-
-  { field: "no_agent", headerName: "IVR MUSIC", width: 80, headerClassName: "customHeader" },
-  { field: "agent", headerName: "RingTone", width: 80, headerClassName: "customHeader" },
-
-];
-
-export const compaignRows = [
-  {
-    id: 1,
-    com_id: 1,
-    inbound_cid: 8004030958,
-    outbound_cid: 8004030958,
-    calltime: "12am-11pm",
-    weekoff: "Sunday",
-    after_ivr:  "record",
-    ivr: "abc",
-    no_agent: "Empty",
-    agent:"play",
-    username: "Snow",     
-    status: "active",
-  
-  },
-  {
-    id: 2,
-    username: "Jamie Lannister",
-    status: "inactive",
-    com_id: 2,
-    inbound_cid: 9889030958,
-    outbound_cid: 9874563210,
-    calltime: "2am-4pm",
-    weekoff: "Monday",
-    after_ivr:  "record",
-    ivr: "abc",
-    no_agent: "Empty",
-    agent:"play",
-  },
-  {
-    id: 3,
-    username: "Lannister",  
-    status: "inactive",
-    com_id: 3,
-    inbound_cid: 8469730958,
-    outbound_cid: 6359863210,
-    calltime: "6pm-8pm",
-    weekoff: "Friday",
-    after_ivr:  "record",
-    ivr: "def",
-    no_agent: "Empty",
-    agent:"play",
-
-  },
-];
-// src/datatablesource/userGroupData.js
+ 
 
 export const userGroupColumns = [
   { field: "id", headerName: "ID", width: 70 },
@@ -331,6 +184,116 @@ export const userGroupRows = [
     pressKey: "U1",
     campaign: "Campaign B",
   },
-  // Add more rows as needed
+ 
 ];
 
+
+export const dataUploadColumns = (navigate, handleToggleStatus, handleEdit, handleDelete) => [
+  {
+    field: "ID",
+    headerName: "ID",
+    flex: 0.5,
+    renderCell: (params) => (
+      <button
+        className="listIdButton"
+        onClick={() => navigate(`/showlist/${params.value}`)}
+        style={{
+          background: "none",
+          border: "none",
+          color: "blue",
+          textDecoration: "underline",
+          cursor: "pointer",
+        }}
+      >
+        {params.value}
+      </button>
+    ),
+  },
+  { field: "LIST_ID", headerName: "LIST ID", flex: 1   },
+  { field: "NAME", headerName: "NAME", flex: 1},
+  { field: "DESCRIPTION", headerName: "DESCRIPTION", flex: 1},
+  { field: "CAMPAIGN", headerName: "CAMPAIGN", flex: 1},
+  {
+    field: "ACTIVE",
+    headerName: "Status",
+    width: 180,
+    renderCell: (params) => {
+      const isActive = params.row.ACTIVE === "active";
+      return (
+        <button
+          className={`statusButton ${isActive ? "active" : "inactive"}`}
+          onClick={() => handleToggleStatus(params.row.ID)}
+        >
+          {isActive ? "Active" : "Inactive"}
+        </button>
+      );
+    },
+  },
+  {
+    field: "RTIME",
+    headerName: "CREATE TIME",
+    flex: 1.5,
+  },
+  {
+    field: "action",
+    headerName: "ACTION",
+    flex: 1,
+    renderCell: (params) => (
+      <div className="cellAction" style={{ display: "flex", gap: "8px" }}>
+        <button onClick={() => handleEdit(params.row)}>Edit</button>
+        <button onClick={() => handleDelete(params.row)}>Delete</button>
+      </div>
+    ),
+  },
+];
+
+export const userInputs = [
+  {
+    id: 1,
+    label: "User ID",
+    type: "number",
+    placeholder: "john_doe",
+    required: true
+  },
+  {
+    id: 2,
+    label: "Name and surname",
+    type: "text",
+    placeholder: "John Doe",
+  },
+  {
+    id: 3,
+    label: "Compaign Name",
+    type: "mail",
+    placeholder: "Admin",
+  },
+  {
+    id: 4,
+    label: "Phone",
+    type: "number",
+    placeholder: "+1 234 567 89",
+  },
+  {
+    id: 5,
+    label: "Password",
+    type: "password",
+  },
+  {
+    id: 6,
+    label: "Selected User",
+    type: "text",
+    placeholder: "Agent",
+  },
+  {
+    id: 7,
+    label: "External Number",
+    type: "number",
+    placeholder: "+12 1111 111111",
+  },
+  {
+    id: 8,
+    label: "Use DID",
+    type: "number",
+    placeholder: "+12 1111 111111",
+  },
+]

@@ -1,84 +1,260 @@
 import "./datatable.scss";
-import React from "react";
-import { DataGrid } from "@mui/x-data-grid";
-import { userColumns, userRows } from "../../datatablesource";
+import { Suspense } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate, Link as RouterLink } from "react-router-dom";
+import axios from "axios";
+import { AuthContext } from "../../context/authContext";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Tooltip } from "@mui/material";
+import { Tooltip, CircularProgress, Typography } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import PaginatedGrid from "../../pages/Pagination/PaginatedGrid";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SearchBar from "../../context/searchBar";
+import { Button } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
+const EditAgent = React.lazy(() => import("./EditAgent"));
 const Datatable = () => {
-  const [data, setData] = useState(userRows);
+  const [data, setData] = useState([]);
+   const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [editRowId, setEditRowId] = useState(null);
-  const [tempData, setTempData] = useState({});
+  const [formData, setFormData] = useState({
+    user_id: "",
+    password: "",
+    full_name: "",
+    campaigns_id: [],
+    status: "",
+    user_type: "",
+    agent_priorty: "",
+    loginStatus: "",
+  });
+  const [openDialog, setOpenDialog] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Toggle status
-  const handleToggleStatus = (id) => {
-    const updatedData = data.map((item) =>
-      item.id === id
-        ? { ...item, status: item.status === "active" ? "inactive" : "active" }
-        : item
-    );
-    setData(updatedData);
+  const basePath =
+    user?.user_type === "9"
+      ? "superadmin"
+      : user?.user_type === "8"
+        ? "admin"
+        : user?.user_type === "7"
+          ? "manager"
+          : user?.user_type === "2"
+            ? "team_leader"
+            : "admin";
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      try {
+        const response = await axios.get(
+          `https://${window.location.hostname}:4000/telephony/agents`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setData(response.data);
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          setError("No users found.");
+        } else {
+          setError("Error fetching user data.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAgents();
+  }, [navigate]);
+
+  const handleDialogOpen = (id) => {
+    setEditRowId(id);
+    const row = data.find((item) => item.user_id === id);
+    if (row) {
+      setFormData(row);
+      setOpenDialog(true);
+    }
   };
-  const handleDelete = (id) => {
+  const handleToggleStatus = async (user_id) => {
+    try {
+      const response = await axios.put(
+        `https://${window.location.hostname}:4000/telephony/status/${user_id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.user_id === user_id
+              ? {
+                ...item,
+                status: item.status === "active" ? "inactive" : "active",
+              }
+              : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    }
+  };
+
+  const handleLogout = async (user_id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.post(
+        `https://${window.location.hostname}:4000/log/adminLogoutUser`,
+        { admin_id: user.user_id, user_id },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.user_id === user_id
+            ? { ...item, loginStatus: "Logged Out" }
+            : item
+        )
+      );
+      Swal.fire(
+        "Logged out!",
+        "The user has been logged out successfully.",
+        "success"
+      );
+    } catch (error) {
+      console.error(
+        "Error logging out user:",
+        error.response?.data || error.message
+      );
+      Swal.fire(
+        "Error",
+        "Failed to log out the user. Please try again.",
+        "error"
+      );
+    }
+  };
+
+  const handleLogoutAll = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const response = await axios.post(
+        `https://${window.location.hostname}:4000/log/logoutAllAgents`,
+        { admin_id: user.user_id, admin_username: user.user_id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setData((prevData) =>
+        prevData.map((item) => ({ ...item, loginStatus: "Log Out" }))
+      );
+
+      Swal.fire("Success!", "All agents have been logged out.", "success");
+    } catch (error) {
+      console.error(
+        "Error logging out all agents:",
+        error.response?.data || error.message
+      );
+      Swal.fire(
+        "Error",
+        "Failed to log out all agents. Please try again.",
+        "error"
+      );
+    }
+  };
+
+  const handleDelete = (user_id) => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+
     Swal.fire({
       title: "Are you sure?",
-      text: "This will permanently delete the block.",
+      text: "This will permanently delete the user.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setData(data.filter((item) => item.id !== id));
-        Swal.fire("Deleted!", "The block has been deleted.", "success");
+        try {
+          const token = localStorage.getItem("token");
+          const response = await axios.delete(
+            `https://${window.location.hostname}:4000/telephony/agents/${user_id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          setData((prevData) =>
+            prevData.filter((item) => item.user_id !== user_id)
+          );
+
+          Toast.fire({
+            icon: "success",
+            title: "User deleted successfully",
+          });
+        } catch (error) {
+          console.error(
+            "Error deleting user:",
+            error.response?.data || error.message
+          );
+          Toast.fire({
+            icon: "error",
+            title: "Failed to delete the user. Please try again.",
+          });
+        }
       }
     });
   };
-  // Start Editing a Row
-  const handleEdit = (id) => {
-    setEditRowId(id);
-    const row = data.find((item) => item.id === id);
-    setTempData({ ...row });
-  };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setTempData({ ...tempData, [name]: value });
-  };
-
-  const handleUpdate = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This will save the changes you made.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#4CAF50",
-      cancelButtonColor: "#f44336",
-      confirmButtonText: "Yes, update it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setData(data.map((item) => (item.id === id ? tempData : item))); // Save the updated row
-        setEditRowId(null); // Exit edit mode
-        setTempData({});
-        Swal.fire("Updated!", "The record has been updated.", "success");
-      }
-    });
-  };
-
-  // Cancel Edit
-  const handleCancel = () => {
-    setEditRowId(null);
-    setTempData({});
-  };
-
-  // Define the action column with icons for view, edit, and delete actions
   const actionColumn = [
     {
       field: "action",
@@ -86,330 +262,300 @@ const Datatable = () => {
       width: 150,
       headerClassName: "customHeader",
       renderCell: (params) => {
-        const isEditing = params.row.id === editRowId;
-
         return (
           <div className="cellAction">
-            {isEditing ? (
-              <>
-                <button
-                  className="saveButton"
-                  onClick={() => handleUpdate(params.row.id)}
-                  style={{
-                    backgroundColor: "#4CAF50", // Green background
-                    color: "white", // White text
-                    padding: "8px 16px",
-                    borderRadius: "5px",
-                    border: "none",
-                    cursor: "pointer",
-                    marginRight: "10px", // Add space between buttons
-                  }}
-                >
-                  Update
-                </button>
-                <button
-                  className="cancelButton"
-                  onClick={handleCancel}
-                  style={{
-                    backgroundColor: "#f44336", // Red background
-                    color: "white", // White text
-                    padding: "8px 16px",
-                    borderRadius: "5px",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "8px", // Adjust spacing between buttons
-                  }}
-                >
-                  <IconButton
-                    color="primary"
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <IconButton
+                color="primary"
+                style={{
+                  padding: "4px",
+                  border: "2px solid blue",
+                  borderRadius: "6px",
+                  backgroundColor: "white",
+                  height: "24px",
+                }}
+              >
+                <Tooltip title="User info & access">
+                  <Link
+                    to={`${params.row.user_id}`}
                     style={{
-                      padding: "4px",
-                      border: "2px solid blue", // Border matching icon color
-                      borderRadius: "6px 6px", // Rounded corners
-                      backgroundColor: "white", // White background
-                      height: "24px",
+                      textDecoration: "none",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
-                    <Tooltip title="View">
-                      <Link to="/agent/test" style={{ textDecoration: "none", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <VisibilityIcon
-                          style={{
-                            cursor: "pointer",
-                            color: "blue",
-                            fontSize: "12px", // Adjust icon size
-                          }}
-                        />
-                      </Link>
-                    </Tooltip>
-                  </IconButton>
+                    <VisibilityIcon
+                      style={{
+                        cursor: "pointer",
+                        color: "blue",
+                        fontSize: "12px",
+                      }}
+                    />
+                  </Link>
+                </Tooltip>
+              </IconButton>
 
-                  <IconButton
-                    color="info"
+              <IconButton
+                color="info"
+                style={{
+                  padding: "4px",
+                  border: "2px solid green",
+                  borderRadius: "6px",
+                  backgroundColor: "white",
+                }}
+              >
+                <Tooltip title="Edit">
+                  <EditIcon
                     style={{
-                      padding: "4px",
-                      border: "2px solid green", // Border matching icon color
-                      borderRadius: "6px 6px",
-                      backgroundColor: "white",
-                     
+                      cursor: "pointer",
+                      color: "green",
+                      fontSize: "12px",
                     }}
-                  >
-                    <Tooltip title="Edit">
-                      <EditIcon
-                        style={{
-                          cursor: "pointer",
-                          color: "green",
-                          fontSize: "12px",
-                        }}
-                        onClick={() => handleEdit(params.row.id)}
-                      />
-                    </Tooltip>
-                  </IconButton>
+                    onClick={() => handleDialogOpen(params.row.user_id)}
+                  />
+                </Tooltip>
+              </IconButton>
+              <IconButton
+                color="error"
+                style={{
+                  padding: "4px",
+                  border: "2px solid red",
+                  borderRadius: "6px",
+                }}
+              >
+                <Tooltip title="Delete">
+                  <DeleteIcon
+                    style={{
+                      cursor: "pointer",
+                      color: "red",
+                      fontSize: "12px",
+                    }}
+                    onClick={() => handleDelete(params.row.user_id)}
+                  />
+                </Tooltip>
+              </IconButton>
 
-                  <IconButton
-                    color="error"
+              <IconButton
+                style={{
+                  padding: "4px",
+                  color: "#ec942c",
+                  border: "2px solid  #ec942c ",
+                  borderRadius: "6px",
+                }}
+                onClick={() => {
+                  handleLogout(params.row.user_id);
+                }}
+              >
+                <Tooltip title="Logout">
+                  <ExitToAppIcon
                     style={{
-                      padding: "4px",
-                      border: "2px solid red", // Border matching icon color
-                      borderRadius: "6px 6px",
-                      backgroundColor: "white",
+                      cursor: "pointer",
+                      color: "red",
+                      fontSize: "12px",
                     }}
-                  >
-                    <Tooltip title="Delete">
-                      <DeleteIcon
-                        style={{
-                          cursor: "pointer",
-                          color: "red",
-                          fontSize: "12px",
-                        }}
-                        onClick={() => handleDelete(params.row.id)}
-                      />
-                    </Tooltip>
-                  </IconButton>
-                </div>
-              </>
-            )}
+                  />
+                </Tooltip>
+              </IconButton>
+            </div>
           </div>
         );
       },
     },
   ];
+  const userTypeMapping = {
+    1: { label: "Agent", color: "#4CAF50" }, // Green
+    2: { label: "Team Leader", color: "#40a6ce" }, // Teal Blue
+    7: { label: "Manager", color: "#9C27B0" },
+    5: { label: "IT", color: "#607D8B" }, // Purple
+    6: { label: "Quality Analyst", color: "#FF9800" }, // Orange
+    8: { label: "Admin", color: "#2196F3" }, // Blue
+  };
 
-  // Modify columns to allow editable cells
-  const editableColumns = userColumns.map((col) => ({
-    ...col,
-    renderCell: (params) => {
-      const isEditing = params.row.id === editRowId;
-
-      if (isEditing) {
-        return (
-          <input
-            type="text"
-            name={col.field}
-            value={tempData[col.field] || ""}
-            onChange={handleInputChange}
-          />
-        );
-      }
-      return params.value;
+  const dataField = [
+    {
+      field: "sr",
+      headerName: "SR",
+      flex: 0.2,
+      valueGetter: (params) => params.api.getRowIndex(params.id) + 1,
     },
-  }));
-  const dataColumns = editableColumns.map((col) => {
-    if (col.field === "status") {
-      return {
-        ...col,
-        renderCell: (params) => {
-          const isActive = params.row.status === "active";
-          return (
-            <button
-              className={`statusButton ${isActive ? "active" : "inactive"}`}
-              onClick={() => handleToggleStatus(params.row.id)}
-            >
-              {isActive ? "Active" : "Inactive"}
-            </button>
-          );
-        },
-      };
-    }
-    return col;
-  });
+
+    { field: "user_id", headerName: "USER ID", flex: 0.5 },
+    { field: "password", headerName: "PASSWORD", flex: 1 },
+    { field: "full_name", headerName: "NAME", flex: 0.5 },
+    { field: "campaigns_id", headerName: "AVAIL. CAMPAIGN", flex: 1 },
+    {
+      field: "user_type",
+      headerName: "LEVEL",
+      flex: 0.5,
+      renderCell: (params) => {
+        const userType = userTypeMapping[params.row.user_type] || {
+          label: "Unknown",
+          color: "#9E9E9E",
+        };
+        return (
+          <span style={{ color: userType.color, fontWeight: "bold" }}>
+            {userType.label}
+          </span>
+        );
+      },
+    },
+    { field: "agent_priorty", headerName: "PRIORITY", flex: 0.5 },
+    {
+      field: "loginStatus",
+      headerName: "LOGIN STATUS",
+      flex: 1,
+      renderCell: (params) => (
+        <span
+          style={{
+            color: params.row.loginStatus === "Login" ? "#4CAF50" : "#F44336", // Green for Login, Red for Logout
+            fontWeight: "bold",
+          }}
+        >
+          {params.row.loginStatus}
+        </span>
+      ),
+    },
+    {
+      field: "status",
+      headerName: "STATUS",
+      flex: 1,
+      renderCell: (params) => (
+        <button
+          className={`statusButton ${params.row.status === "active" ? "active" : "inactive"
+            }`}
+          onClick={() => handleToggleStatus(params.row.user_id)}
+        >
+          {params.row.status === "active" ? "Active" : "Inactive"}
+        </button>
+      ),
+    },
+    ...actionColumn,
+  ];
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <CircularProgress />
+        <Typography>Loading agents...</Typography>
+      </div>
+    );
+  }
+
+  const filteredData = data
+  .filter((item) => {
+    if (!searchQuery) return true;
+
+    const search = searchQuery.toLowerCase();
+
+    return (
+      item.user_id?.toString().toLowerCase().includes(search) ||
+      item.password?.toLowerCase().includes(search) ||
+      item.full_name?.toLowerCase().includes(search) ||
+      item.campaigns_id?.toString().toLowerCase().includes(search) ||
+      item.status?.toLowerCase().includes(search) ||
+      item.loginStatus?.toLowerCase().includes(search) ||
+      item.agent_priorty?.toString().toLowerCase().includes(search) ||
+      userTypeMapping[item.user_type]?.label.toLowerCase().includes(search)
+    );
+  })
+  .sort((a, b) => Number(a.user_id) - Number(b.user_id)); // <-- ascending numeric sort
+
+  
 
   return (
     <div className="datatable">
-      <h2
-        className="title"
-        style={{ color: "#5e6266", fontSize: "25px", fontWeight: "bold" }}
+      <div
+        className="datatableTitle"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+          color: "black",
+        }}
       >
-        AGENT LIST
-      </h2>
-      <div className="datatableTitle">
+        <b>USERS LIST</b>
         <div
-          className="datatableTitle"
-          style={{ textAlign: "center", margin: "20px 0" }} // Center align and margin for the div
+          style={{
+            display: "flex",
+            gap: "10px",
+            justifyContent: "flex-end",
+            marginBottom: "20px",
+          }}
         >
-          <Link
-            to="/agent/new"
-            style={{
-              display: "inline-block",
-              padding: "10px 20px",
-              backgroundColor: "#83cbcf",
-              color: "white",
-              borderRadius: "10px",
-              textDecoration: "none",
-              fontSize: "16px",
-              fontWeight: "bold",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              transition: "transform 0.3s, background-color 0.3s",
-              cursor: "pointer",
+          <SearchBar
+            onSearch={(value) => setSearchQuery(value)}
+            placeholder="Search by User ID, Name, Campaign, Level, Status..."
+          />
+          <Button
+            component={RouterLink}
+            to={`/${basePath}/new`}
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{
+              background: "linear-gradient(90deg, #283593, #3F51B5)",
+              color: "#fff",
+              "&:hover": {
+                background: "linear-gradient(90deg, #1e276b, #32408f)", // Darker shade on hover
+              },
             }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#57c7cd")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#83cbcf")
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "translateY(0)")
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.transform = "translateY(-3px)")
-            }
           >
-            Add Agent
-          </Link>
-        </div>
+            Add User
+          </Button>
 
-        <div
-          className="datatableTitle"
-          style={{ textAlign: "center", margin: "20px 0" }} // Center align and margin for the div
-        >
-          <Link
-            to="/agent/agentBreak"
-            style={{
-              display: "inline-block",
-              padding: "10px 20px",
-              backgroundColor: "#c2aacf",
-              color: "white",
-              borderRadius: "10px",
-              textDecoration: "none",
-              fontSize: "16px",
-              fontWeight: "bold",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              transition: "transform 0.3s, background-color 0.3s",
-              cursor: "pointer",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#ad8ac1")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#c2aacf")
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "translateY(0)")
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.transform = "translateY(-3px)")
-            }
-          >
-            View Agent Break
-          </Link>
-        </div>
-        <div
-          className="datatableTitle"
-          style={{ textAlign: "center", margin: "20px 0" }} // Center align and margin for the div
-        >
-          <Link
-            to="/agent/loginReport"
-            style={{
-              display: "inline-block",
-              padding: "10px 20px",
-              backgroundColor: "#f3b282",
-              color: "white",
-              borderRadius: "10px",
-              textDecoration: "none",
-              fontSize: "16px",
-              fontWeight: "bold",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              transition: "transform 0.3s, background-color 0.3s",
-              cursor: "pointer",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#e3965e")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f3b282")
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "translateY(0)")
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.transform = "translateY(-3px)")
-            }
-          >
-            Login Report
-          </Link>
-        </div>
-
-        <div
-          className="datatableTitle"
-          style={{ textAlign: "center", margin: "20px 0" }} // Center align and margin for the div
-        >
-          <Link
-            to="/agent/agentReport"
-            style={{
-              display: "inline-block",
-              padding: "10px 20px",
-              backgroundColor: "#c2aacf",
-              color: "white",
-              borderRadius: "10px",
-              textDecoration: "none",
-              fontSize: "16px",
-              fontWeight: "bold",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              transition: "transform 0.3s, background-color 0.1s",
-              cursor: "pointer",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#ad8ac1")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#c2aacf")
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.transform = "translateY(0)")
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.transform = "translateY(-3px)")
-            }
-          >
-            All Agent Report
-          </Link>
+          <Tooltip title="Logout All Agents" arrow>
+            <IconButton
+              onClick={handleLogoutAll}
+              sx={{
+                backgroundColor: "#ff4d4d",
+                color: "#fff",
+                "&:hover": {
+                  backgroundColor: "#e63946",
+                },
+                padding: "8px",
+                borderRadius: "8px",
+              }}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         </div>
       </div>
-      <DataGrid
-        className="datagrid"
-        rows={data}
-        columns={dataColumns.concat(actionColumn)}
-        pageSize={9}
-        disableColumnVirtualization
-        disableExtendRowFullWidth
-        rowsPerPageOptions={[9]}
-        style={{ fontSize: "12px" }}
-      />
+     <PaginatedGrid
+      rows={filteredData}
+      columns={dataField}
+      paginationModel={paginationModel}
+      onPaginationModelChange={(model) => setPaginationModel(model)}
+      rowsPerPageOptions={[5, 10, 25, 50]}
+      getRowId={(row) => row.user_id}
+      autoHeight
+    />
+
+
+      <Suspense fallback={<CircularProgress />}>
+        {openDialog && (
+          <EditAgent
+            key={editRowId}
+            openDialog={openDialog}
+            setOpenDialog={setOpenDialog}
+            formData={formData}
+            setFormData={setFormData}
+            setData={setData}
+            editRowId={editRowId}
+          />
+        )}
+      </Suspense>
     </div>
   );
 };
 
-export default React.memo(Datatable);
+export default Datatable;

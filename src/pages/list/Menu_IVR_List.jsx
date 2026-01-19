@@ -1,255 +1,126 @@
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import Swal from "sweetalert2";  
-import AddIcon from '@mui/icons-material/Add';
-import { Link } from "react-router-dom";
+import AddIcon from "@mui/icons-material/Add";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Snackbar, Alert } from "@mui/material";
+import "./list.scss";
 import {
-  IconButton,
-  Switch,
-  Tooltip,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-} from "@mui/icons-material";
+import ActionColumn from "../../context/Buttons/ActionButtons";
 
-const MenuList = () => {
-  // Define columns for the DataGrid
-  const [columns, setColumns] = useState([
-  
-      {
-        field: "userGroup",
-        headerName: "USER GROUP",
-        flex: 1,
-        headerClassName: "customHeader",
-      },
-      {
-        field: "groupName",
-        headerName: "GROUP NAME",
-        flex: 2,
-        headerClassName: "customHeader",
-      },
-      {
-        field: "pressKey",
-        headerName: "PRESS KEY",
-        flex: 1,
-        headerClassName: "customHeader",
-      },
-      {
-        field: "campaign",
-        headerName: "CAMPAIGN",
-        flex: 2,
-        headerClassName: "customHeader",
-      },
-      {
-        field: "action",
-        headerName: "ACTION",
-        flex: 1,
-        headerClassName: "customHeader",
-        sortable: false,
-        filterable: false,
-        renderCell: (params) => (
-          <div
-            className="cellAction"
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "8px", // Adjust spacing between buttons
-            }}
-          >
-    
-    
-          <IconButton
-                color="primary"
-                onClick={() => handleView(params.row)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid blue", // Border matching icon color
-                  borderRadius: "6px 6px", // Circular border
-                  backgroundColor: "white", // White background
-                }}
-              >
-                 <Tooltip title="View">
-                <VisibilityIcon
-                  style={{
-                    cursor: "pointer",
-                    color: "blue",
-                    fontSize: "12px", // Adjust icon size
-                  }}
-                />
-                </Tooltip>
-              </IconButton>
-
-              <IconButton
-                color="info"
-                onClick={() => handleEdit(params.row.id)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid green", // Border matching icon color
-                  borderRadius: "6px 6px",
-                  backgroundColor: "white",
-                }}
-              >
-                 <Tooltip title="Edit">
-                <EditIcon
-                  style={{
-                    cursor: "pointer",
-                    color: "green",
-                    fontSize: "12px",
-                  }}
-                />
-                 </Tooltip>
-              </IconButton>
-              <IconButton
-                color="error"
-                onClick={() => handleDelete(params.row.id)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid red", // Border matching icon color
-                  borderRadius: "6px 6px",
-                  backgroundColor: "white",
-                }}
-              >
-                <Tooltip title="Delete">
-                <DeleteIcon
-                  style={{
-                    cursor: "pointer",
-                    color: "red",
-                    fontSize: "12px",
-                  }}
-                />
-                </Tooltip>
-              </IconButton>
-        </div>
+const GroupList = () => {
+  const [columns] = useState([
+    { field: "id", headerName: "ID", flex: 1 },
+    { field: "group_id", headerName: "GROUP ID", flex: 1 },
+    { field: "agent_name", headerName: "AGENT NAME", flex: 2 },
+    { field: "press_key", headerName: "PRESS KEY", flex: 1 },
+    { field: "campaign_id", headerName: "CAMPAIGN ID", flex: 1 },
+    {
+      field: "action",
+      headerName: "ACTION",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <ActionColumn
+          onView={() => handleView(params.row)}
+          onEdit={() => handleEdit(params.row)}
+          onDelete={() => handleDelete(params.row.id)}
+        />
       ),
     },
   ]);
 
- 
-  const [data, setData] = useState([]); 
-  const [campaignOptions, setCampaignOptions] = useState([]);
-
-  // State for View Dialog
+  const [data, setData] = useState([]);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
-
-  // State for Edit Dialog
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editData, setEditData] = useState(null);
-
-  // State for form inputs in Edit Dialog
   const [formData, setFormData] = useState({
     id: "",
-    userGroup: "",
-    groupName: "",
-    pressKey: "",
-    campaign: "",
-    status: "inactive",
+    group_id: "",
+    agent_name: "",
+    press_key: "",
+    campaign_id: "",
   });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const navigate = useNavigate();
 
-  // Fetch user groups from API or use static data
   useEffect(() => {
-    const fetchUserGroups = async () => {
+    const fetchGroups = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
       try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/usergroups");
-        setData(response.data.userGroups); // Adjust based on API response structure
+        const response = await axios.get("https://${window.location.hostname}:4000/groups", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setData(response.data);
       } catch (error) {
-        console.error("Error fetching user groups:", error);
-        // Fallback to predefined user groups if API fails
-        setData([
-          {
-            id: 1,
-            userGroup: "Admin",
-            groupName: "Administrators",
-            pressKey: "A1",
-            campaign: "Campaign A",
-            status: "active",
-          },
-          {
-            id: 2,
-            userGroup: "User",
-            groupName: "Regular Users",
-            pressKey: "U1",
-            campaign: "Campaign B",
-            status: "inactive",
-          },
-          // Add more rows as needed
-        ]);
+        console.error("Error fetching groups:", error);
       }
     };
+    fetchGroups();
+  }, [navigate]);
 
-    fetchUserGroups();
-  }, []);
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-  // Fetch campaign names from an API
-  useEffect(() => {
-    const fetchCampaigns = async () => {
+    // Confirm with the user
+    if (window.confirm("Are you sure you want to delete this group?")) {
       try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/campaigns");
-        setCampaignOptions(response.data.campaigns); // Adjust based on API response structure
+        // Call backend to delete the group
+        const response = await axios.delete(
+          `https://${window.location.hostname}:4000/groups/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Check if the response was successful
+        if (response.status === 200) {
+          // Update frontend data by removing the deleted group
+          setData((prevData) => prevData.filter((item) => item.id !== id));
+          setSnackbar({
+            open: true,
+            message: "Group deleted successfully!",
+            severity: "success",
+          });
+        }
       } catch (error) {
-        console.error("Error fetching campaigns:", error);
-        // Fallback to predefined campaigns if API fails
-        setCampaignOptions([
-          { id: 1, name: "Campaign A" },
-          { id: 2, name: "Campaign B" },
-          { id: 3, name: "Campaign C" },
-        ]);
+        console.error("Error deleting group:", error);
+        setSnackbar({
+          open: true,
+          message: error.response
+            ? error.response.data.message
+            : "Failed to delete the group.",
+          severity: "error",
+        });
       }
-    };
-
-    fetchCampaigns();
-  }, []);
-
-  // Handle Delete
-  // const handleDelete = async (id) => {
-  //   if (window.confirm("Are you sure you want to delete this user group?")) {
-  //     try {
-  //       // Replace with your actual API endpoint
-  //       await axios.delete(`https://api.example.com/usergroups/${id}`);
-  //       setData(data.filter((item) => item.id !== id));
-  //     } catch (error) {
-  //       console.error("Error deleting user group:", error);
-  //       alert("Failed to delete the user group.");
-  //     }
-  //   }
-  // };
-
-
-
-  // Handle Delete with SweetAlert confirmation
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This will permanently delete the block.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setData(data.filter((item) => item.id !== id));
-        Swal.fire("Deleted!", "The block has been deleted.", "success");
-      }
-    });
+    }
   };
 
-
-  // Handle View
   const handleView = (row) => {
     setViewData(row);
     setViewDialogOpen(true);
@@ -260,262 +131,166 @@ const MenuList = () => {
     setViewData(null);
   };
 
-  // Handle Edit
   const handleEdit = (row) => {
-    setEditData(row);
     setFormData({
       id: row.id,
-      userGroup: row.userGroup,
-      groupName: row.groupName,
-      pressKey: row.pressKey,
-      campaign: row.campaign,
-      status: row.status,
+      group_id: row.group_id,
+      agent_name: row.agent_name,
+      press_key: row.press_key,
+      campaign_id: row.campaign_id,
     });
     setEditDialogOpen(true);
   };
 
   const handleCloseEditDialog = () => {
     setEditDialogOpen(false);
-    setEditData(null);
     setFormData({
       id: "",
-      userGroup: "",
-      groupName: "",
-      pressKey: "",
-      campaign: "",
-      status: "inactive",
+      group_id: "",
+      agent_name: "",
+      press_key: "",
+      campaign_id: "",
     });
   };
 
-  // Handle form input changes in Edit Dialog
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-
-  // Handle Save in Edit Dialog with Confirmation
   const handleSaveEdit = async () => {
-    // Close the edit dialog before showing SweetAlert
-    handleCloseEditDialog();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    console.log("Request data:", formData);
 
-    // Ask for confirmation with SweetAlert
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This will save the changes you made.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#4CAF50",
-      cancelButtonColor: "#f44336",
-      confirmButtonText: "Yes, save it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          // Replace with your actual API endpoint
-          await axios.put(`https://api.example.com/usergroups/${formData.id}`, formData);
-
-          // Update local data state
-          setData(
-            data.map((item) => (item.id === formData.id ? { ...formData } : item))
-          );
-
-          // Show SweetAlert success notification
-          Swal.fire({
-            icon: 'success',
-            title: 'Saved!',
-            text: 'User group details have been updated successfully.',
-            confirmButtonColor: '#3085d6',
-          });
-
-        } catch (error) {
-          console.error("Error updating user group:", error);
-
-          // Show SweetAlert error notification
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to update the user group.',
-            confirmButtonColor: '#d33',
-
-          });
+    try {
+      // Send the PUT request to update the group
+      const response = await axios.put(
+        `https://${window.location.hostname}:4000/groupList/edit_group/${formData.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+      if (response.status === 200) {
+        setData(
+          data.map((item) => (item.id === formData.id ? { ...formData } : item))
+        );
+        setSnackbar({
+          open: true,
+          message: "Group updated successfully!",
+          severity: "success",
+        });
+        handleCloseEditDialog(); // Close the dialog
       }
-    });
+    } catch (error) {
+      console.error("Error updating group:", error);
+      setSnackbar({
+        open: true,
+        message: error.response
+          ? error.response.data.message
+          : "Failed to update the group.",
+        severity: "error",
+      });
+    }
   };
 
-
-  // Handle Status Toggle
-  const handleToggleStatus = async (id) => {
-    try {
-      const updatedGroup = data.find((item) => item.id === id);
-      const newStatus = updatedGroup.status === "active" ? "inactive" : "active";
-      // Replace with your actual API endpoint
-      await axios.put(`https://api.example.com/usergroups/${id}`, { status: newStatus });
-      setData(
-        data.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
-      alert("Failed to update the status.");
-    }
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        <b> USER MENU GROUPS </b>
+        <b> USER MENU GROUP</b>
         <Button
+        className="addButton"
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
           component={Link}
           to="/group/newGroup"
-          sx={{
-            background: 'linear-gradient(90deg, #283593, #3F51B5)',
-            color: '#fff',
-            '&:hover': {
-              background: 'linear-gradient(90deg, #1e276b, #32408f)', // Darker shade on hover
-            },
-          }}
         >
           Add Group
         </Button>
       </div>
-      <DataGrid
-        className="datagrid"
-        rows={data}
-        columns={columns}
-        pageSize={9}
-        rowsPerPageOptions={[9]}
-        autoHeight
-        style={{ fontSize: '12px' }}
-      />
-
+      <DataGrid rows={data} columns={columns} pageSize={9} autoHeight />
       {/* View Dialog */}
-      <Dialog
-        open={viewDialogOpen}
-        onClose={handleCloseViewDialog}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>User Group Details</DialogTitle>
-        <DialogContent dividers>
+      <Dialog open={viewDialogOpen} onClose={handleCloseViewDialog}>
+        <DialogTitle>Group Details</DialogTitle>
+        <DialogContent>
           {viewData && (
             <>
-              <Typography variant="h6">USER GROUP</Typography>
-              <Typography gutterBottom>{viewData.userGroup}</Typography>
-
-              <Typography variant="h6">GROUP NAME</Typography>
-              <Typography gutterBottom>{viewData.groupName}</Typography>
-
-              <Typography variant="h6">PRESS KEY</Typography>
-              <Typography gutterBottom>{viewData.pressKey}</Typography>
-
-              <Typography variant="h6">CAMPAIGN</Typography>
-              <Typography gutterBottom>{viewData.campaign}</Typography>
-
-              <Typography variant="h6">STATUS</Typography>
-              <Typography gutterBottom>
-                {viewData.status === "active" ? "Active" : "Inactive"}
-              </Typography>
+              <Typography>GROUP ID: {viewData.group_id}</Typography>
+              <Typography>AGENT NAME: {viewData.agent_name}</Typography>
+              <Typography>PRESS KEY: {viewData.press_key}</Typography>
+              <Typography>CAMPAIGN ID: {viewData.campaign_id}</Typography>
             </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseViewDialog} color="primary">
-            Close
-          </Button>
+          <Button onClick={handleCloseViewDialog}>Close</Button>
         </DialogActions>
       </Dialog>
-
       {/* Edit Dialog */}
-      <Dialog
-        open={editDialogOpen}
-        onClose={handleCloseEditDialog}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Edit User Group</DialogTitle>
-        <DialogContent dividers>
+      <Dialog open={editDialogOpen} onClose={handleCloseEditDialog}>
+        <DialogTitle>Edit Group</DialogTitle>
+        <DialogContent>
           <TextField
-            margin="dense"
-            label="USER GROUP"
-            name="userGroup"
-            value={formData.userGroup}
+            name="group_id"
+            label="Group ID"
+            value={formData.group_id}
             onChange={handleFormChange}
             fullWidth
           />
           <TextField
-            margin="dense"
-            label="GROUP NAME"
-            name="groupName"
-            value={formData.groupName}
+            name="agent_name"
+            label="Agent Name"
+            value={formData.agent_name}
             onChange={handleFormChange}
             fullWidth
           />
           <TextField
-            margin="dense"
-            label="PRESS KEY"
-            name="pressKey"
-            value={formData.pressKey}
+            name="press_key"
+            label="Press Key"
+            value={formData.press_key}
             onChange={handleFormChange}
             fullWidth
           />
           <TextField
-            margin="dense"
-            label="CAMPAIGN"
-            name="campaign"
-            value={formData.campaign}
+            name="campaign_id"
+            label="Campaign ID"
+            value={formData.campaign_id}
             onChange={handleFormChange}
-            select
-            SelectProps={{
-              native: true,
-            }}
             fullWidth
-          >
-            <option value="">Select Campaign</option>
-            {campaignOptions.map((campaign) => (
-              <option key={campaign.id} value={campaign.name}>
-                {campaign.name}
-              </option>
-            ))}
-          </TextField>
-          <div style={{ marginTop: "10px" }}>
-            <Typography variant="subtitle1">STATUS</Typography>
-            <Switch
-              checked={formData.status === "active"}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  status: e.target.checked ? "active" : "inactive",
-                })
-              }
-              color="primary"
-              name="status"
-              inputProps={{ "aria-label": "primary checkbox" }}
-            />
-            <Typography variant="body2">
-              {formData.status === "active" ? "Active" : "Inactive"}
-            </Typography>
-          </div>
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseEditDialog} color="secondary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSaveEdit}
-            color="primary"
-            variant="contained"
-          >
-            Save
-          </Button>
+          <Button onClick={handleCloseEditDialog}>Cancel</Button>
+          <Button onClick={handleSaveEdit}>Save</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
 
-export default MenuList;
+export default GroupList;

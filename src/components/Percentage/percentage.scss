@@ -1,0 +1,40 @@
+.traffic-sources-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 350px;
+
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+  }
+
+  .source-item {
+    margin-bottom: 14px;
+
+    .label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      overflow: hidden;
+
+      .filled {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+    }
+  }
+}

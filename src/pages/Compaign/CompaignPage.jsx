@@ -1,13 +1,16 @@
-import React, { useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import React, { useState, useEffect, useContext } from "react";
 import Swal from "sweetalert2";
-import { CompaignColumn, compaignRows } from "../../datatablesource";
+import { CompaignColumn } from "../../datatablesource";
 import AddIcon from "@mui/icons-material/Add";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { Button, IconButton, Menu, MenuItem } from "@mui/material";
-import { Link } from "react-router-dom";
+import SearchBar from "../../context/searchBar";
+import { Link, useNavigate } from "react-router-dom";
 import { Tooltip } from "@mui/material";
 import axios from "axios";
+import GroupIcon from "@mui/icons-material/Group";
+import { AuthContext } from "../../context/authContext";
+import PaginatedGrid from "../Pagination/PaginatedGrid";
 import {
   Visibility as VisibilityIcon,
   Edit as EditIcon,
@@ -15,32 +18,122 @@ import {
   Save as SaveIcon,
   Cancel as CancelIcon,
 } from "@mui/icons-material";
-import DeleteAction from "../../components/CampaignComp/DeleteCampaign";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+
 import ViewDialog from "../../components/CampaignComp/ViewCampaign";
-import EditDialog from "../../components/CampaignComp/EditCampaign";
-import "./Compaignpage.scss";
+import IVRDialog from "../../components/CampaignComp/IVRDialog";
+const EditDialog = React.lazy(() =>
+  import("../../components/CampaignComp/EditCampaign")
+);
 
 const CompaignPage = () => {
-  const [data, setData] = useState(compaignRows);
+  const [data, setData] = useState([]);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const [editRowId, setEditRowId] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
-  const [filter, setFilter] = useState("all"); // For filtering data
-  const [anchorEl, setAnchorEl] = useState(null); // For the filter menu
+  const [filter, setFilter] = useState("all");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [ivrDialogOpen, setIvrDialogOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
 
-  const handleDelete = (id) => {
+  const basePath =
+    user?.user_type === "9"
+      ? "superadmin"
+      : user?.user_type === "8"
+      ? "admin"
+      : user?.user_type === "7"
+      ? "manager"
+      : "admin";
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("No authentication token found. Please log in.");
+          return;
+        }
+        const response = await axios.get(
+          `https://${window.location.hostname}:4000/campaigns`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setData(response.data);
+        setError("");
+      } catch (err) {
+        console.error("Error fetching campaigns:", err);
+      }
+    };
+
+    fetchCampaigns();
+  }, []);
+  const handleDelete = async (id) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "This will permanently delete the block.",
+      text: "This will permanently delete the campaign.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setData(data.filter((item) => item.id !== id));
-        Swal.fire("Deleted!", "The block has been deleted.", "success");
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "error",
+              title: "No authentication token found. Please log in.",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+            });
+            return;
+          }
+
+          await axios.delete(
+            `https://${window.location.hostname}:4000/campaigns/deleteCampaign/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setData((prevData) => {
+            const updated = prevData.filter((item) => item.id !== id);
+            return updated;
+          });
+
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "The campaign has been deleted.",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+          });
+        } catch (error) {
+          console.error("Error deleting campaign:", error);
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "error",
+            title: "Failed to delete the campaign.",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+          });
+        }
       }
     });
   };
@@ -49,55 +142,42 @@ const CompaignPage = () => {
     setEditRowId(id);
   };
 
-  const handleUpdateEdit = (updatedRow) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to save the changes?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, update it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setData((prevData) =>
-          prevData.map((item) =>
-            item.id === updatedRow.id ? updatedRow : item
-          )
-        );
-        setEditRowId(null);
-        Swal.fire("Updated!", "The campaign has been updated.", "success");
-      }
-    });
-  };
-
   const handleView = (row) => {
     setViewData(row);
     setViewDialogOpen(true);
   };
-
   const handleCloseViewDialog = () => {
     setViewDialogOpen(false);
     setViewData(null);
   };
-
   const handleToggleStatus = async (id) => {
+    const currentItem = data.find((item) => item.id === id);
+    const currentStatus = currentItem.status;
+
+    const newStatus = currentStatus === "Y" ? "inactive" : "active";
+
+    setData((prevData) =>
+      prevData.map((item) =>
+        item.id === id
+          ? { ...item, status: newStatus === "active" ? "Y" : "N" }
+          : item
+      )
+    );
+
     try {
-      const updatedCampaign = data.find((item) => item.id === id);
-      const newStatus =
-        updatedCampaign.status === "active" ? "inactive" : "active";
+      const token = localStorage.getItem("token");
 
-      await axios.put(`https://api.example.com/campaigns/${id}`, {
-        status: newStatus,
-      });
-
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
-        )
+      await axios.put(
+        `https://${window.location.hostname}:4000/campaigns/statusCompaign/${id}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error("Failed to update status", error);
     }
   };
 
@@ -110,21 +190,33 @@ const CompaignPage = () => {
     setAnchorEl(null);
   };
 
-  const filteredData =
-    filter === "active"
-      ? data.filter((item) => item.status === "active")
-      : data;
+  const filteredData = data.filter((item) => {
+    if (filter === "active" && item.status !== "active") return false;
+    if (!searchQuery) return true;
+
+    const search = searchQuery.toLowerCase();
+
+    return (
+      item.compaign_id?.toString().toLowerCase().includes(search) ||
+      item.compaignname?.toLowerCase().includes(search) ||
+      item.status?.toLowerCase().includes(search) ||
+      item.campaign_number?.toString().toLowerCase().includes(search) ||
+      item.outbond_cli?.toString().toLowerCase().includes(search) ||
+      item.local_call_time?.toLowerCase().includes(search) ||
+      item.week_off?.toLowerCase().includes(search)
+    );
+  });
 
   const columns = CompaignColumn.map((col) => {
     if (col.field === "status") {
       return {
         ...col,
         headerName: "STATUS",
-        width: 100,
+        width: 80,
         sortable: false,
         filterable: false,
         renderCell: (params) => {
-          const isActive = params.row.status === "active";
+          const isActive = params.row.status === "Y"; // ← compare to 'Y'
           return (
             <button
               className={`statusButton ${isActive ? "active" : "inactive"}`}
@@ -143,12 +235,12 @@ const CompaignPage = () => {
     {
       field: "action",
       headerName: "ACTION",
-      width: 180,
-      headerClassName: "customHeader",
+      width: 220,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
         const isEditing = params.row.id === editRowId;
+        const ivrValue = params.row.ivr;
 
         return (
           <div className="cellAction">
@@ -156,7 +248,7 @@ const CompaignPage = () => {
               <>
                 <IconButton
                   color="primary"
-                  onClick={() => handleUpdateEdit(params.row)}
+                  onClick={() => setEditRowId(params.row.id)}
                 >
                   <SaveIcon />
                 </IconButton>
@@ -166,77 +258,119 @@ const CompaignPage = () => {
               </>
             ) : (
               <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "8px", // Adjust spacing between buttons
-              }}
-            >
-              <IconButton
-                color="primary"
-                onClick={() => handleView(params.row)}
                 style={{
-                  padding: "4px",
-                  border: "2px solid blue", // Border matching icon color
-                  borderRadius: "6px 6px", // Circular border
-                  backgroundColor: "white", // White background
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "8px",
                 }}
               >
-                 <Tooltip title="View">
-                <VisibilityIcon
+                <IconButton
+                  color="primary"
+                  onClick={() => handleView(params.row)}
                   style={{
-                    cursor: "pointer",
-                    color: "blue",
-                    fontSize: "12px", // Adjust icon size
+                    padding: "4px",
+                    border: "2px solid blue",
+                    borderRadius: "6px",
+                    backgroundColor: "white",
                   }}
-                />
-                </Tooltip>
-              </IconButton>
-
-              <IconButton
-                color="info"
-                onClick={() => handleEdit(params.row.id)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid green", // Border matching icon color
-                  borderRadius: "6px 6px",
-                  backgroundColor: "white",
-                }}
-              >
-                 <Tooltip title="Edit">
-                <EditIcon
+                >
+                  <Tooltip title="View">
+                    <VisibilityIcon
+                      style={{
+                        cursor: "pointer",
+                        color: "blue",
+                        fontSize: "12px",
+                      }}
+                    />
+                  </Tooltip>
+                </IconButton>
+                <IconButton
+                  color="info"
+                  onClick={() => handleEdit(params.row.id)}
                   style={{
-                    cursor: "pointer",
-                    color: "green",
-                    fontSize: "12px",
+                    padding: "4px",
+                    border: "2px solid green",
+                    borderRadius: "6px",
+                    backgroundColor: "white",
                   }}
-                />
-                 </Tooltip>
-              </IconButton>
-              <IconButton
-                color="error"
-                onClick={() => handleDelete(params.row.id)}
-                style={{
-                  padding: "4px",
-                  border: "2px solid red", // Border matching icon color
-                  borderRadius: "6px 6px",
-                  backgroundColor: "white",
-                }}
-              >
-                <Tooltip title="Delete">
-                <DeleteIcon
+                >
+                  <Tooltip title="Edit">
+                    <EditIcon
+                      style={{
+                        cursor: "pointer",
+                        color: "green",
+                        fontSize: "12px",
+                      }}
+                    />
+                  </Tooltip>
+                </IconButton>
+                <IconButton
+                  color="error"
+                  onClick={() => handleDelete(params.row.compaign_id)}
                   style={{
-                    cursor: "pointer",
-                    color: "red",
-                    fontSize: "12px",
+                    padding: "4px",
+                    border: "2px solid red",
+                    borderRadius: "6px",
+                    backgroundColor: "white",
                   }}
-                />
-                </Tooltip>
-              </IconButton>
-            </div>
-            
+                >
+                  <Tooltip title="Delete">
+                    <DeleteIcon
+                      style={{
+                        cursor: "pointer",
+                        color: "red",
+                        fontSize: "12px",
+                      }}
+                    />
+                  </Tooltip>
+                </IconButton>
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    setSelectedCampaign(params.row);
+                    setIvrDialogOpen(true);
+                  }}
+                  style={{
+                    padding: "4px",
+                    border: "2px solid #1976d2",
+                    borderRadius: "6px",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Tooltip title="Manage IVRs">
+                    <VolumeOffIcon
+                      style={{
+                        cursor: "pointer",
+                        color: "#1976d2",
+                        fontSize: "12px",
+                      }}
+                    />
+                  </Tooltip>
+                </IconButton>{" "}
+                {ivrValue === 1 || ivrValue === "1" ? (
+                  <Tooltip title="IVR Group">
+                    <IconButton
+                      onClick={() => navigate(`/${basePath}/extension`)}
+                      style={{
+                        padding: "4px",
+                        border: "2px solid orange",
+                        borderRadius: "6px",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <GroupIcon
+                        style={{
+                          color: "orange",
+                          fontSize: "12px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                ) : null}
+              </div>
             )}
           </div>
         );
@@ -246,72 +380,100 @@ const CompaignPage = () => {
 
   return (
     <div className="datatable">
-      
-      <div className="datatableTitle">
+      <div
+        className="datatableTitle"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <b>CAMPAIGN LIST</b>
-        <Button
-  variant="contained"
-  color="primary"
-  startIcon={<AddIcon />}
-  component={Link}
-  to="/campaign/newCampaign"
-  sx={{
-    background: "linear-gradient(90deg, #283593, #3F51B5)",
-    color: "#fff",
-    marginLeft: "600px",
-    "&:hover": {
-      background: "linear-gradient(90deg, #1e276b, #32408f)",
-    },
-    // Media query for responsiveness
-    "@media (max-width: 600px)": {
-      fontSize: "12px", // Adjust font size
-      padding: "6px 12px", // Adjust padding
-      marginLeft: "0", // Center or reposition the button
-      width: "100%", // Full width for small screens
-    },
-    "@media (max-width: 960px)": {
-      marginLeft: "auto", // Center the button on medium screens
-      marginRight: "auto",
-    },
-  }}
->
-  Add CAMPAIGN
-</Button>
 
-        <IconButton onClick={handleFilterClick}>
-          <FilterListIcon />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={() => setAnchorEl(null)}
-        >
-          <MenuItem onClick={() => handleFilterChange("all")}>All</MenuItem>
-          <MenuItem onClick={() => handleFilterChange("active")}>
-            Active
-          </MenuItem>
-        </Menu>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <SearchBar
+              onSearch={(value) => setSearchQuery(value)}
+              placeholder="Search Campaign ID, Name, Status, CID, Week Off etc."
+            />
+            <IconButton onClick={handleFilterClick}>
+              <FilterListIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={() => setAnchorEl(null)}
+            >
+              <MenuItem onClick={() => handleFilterChange("all")}>All</MenuItem>
+              <MenuItem onClick={() => handleFilterChange("active")}>
+                Active
+              </MenuItem>
+            </Menu>
+
+            <Button
+              className="addButton"
+              startIcon={<AddIcon />}
+              component={Link}
+              to={`/${basePath}/newCampaign`}
+              sx={{
+                background: "linear-gradient(90deg, #283593, #3F51B5)",
+                color: "#fff",
+                "&:hover": {
+                  background: "linear-gradient(90deg, #1e276b, #32408f)",
+                },
+              }}
+            >
+              Add CAMPAIGN
+            </Button>
+          </div>
+        </div>
       </div>
-      <DataGrid
-        className="datagrid"
+
+      <PaginatedGrid
         rows={filteredData}
         columns={columns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
         style={{ fontSize: "12px" }}
+        getRowId={(row) => row.compaign_id}
+        autoHeight
       />
       {editRowId && (
         <EditDialog
           open={Boolean(editRowId)}
-          onClose={() => setEditRowId(null)}
+          onClose={(updatedData) => {
+            if (updatedData) {
+              setData((prevData) =>
+                prevData.map((item) =>
+                  item.id === updatedData.id ? updatedData : item
+                )
+              );
+            }
+            setEditRowId(null);
+          }}
+          onSave={(updatedData) => {
+            setData((prevData) =>
+              prevData.map((item) =>
+                item.id === updatedData.id ? updatedData : item
+              )
+            );
+          }}
           data={data.find((item) => item.id === editRowId)}
-          onSave={handleUpdateEdit}
         />
       )}
       <ViewDialog
         open={viewDialogOpen}
         onClose={handleCloseViewDialog}
         data={viewData}
+      />
+      <IVRDialog
+        open={ivrDialogOpen}
+        onClose={(refresh) => {
+          setIvrDialogOpen(false);
+          setSelectedCampaign(null);
+          // if (refresh) window.location.reload();  
+        }}
+        campaign={selectedCampaign}
       />
     </div>
   );

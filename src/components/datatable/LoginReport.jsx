@@ -1,79 +1,116 @@
-import React, { useState, useEffect } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { TextField, Button, Grid, Typography } from '@mui/material';
-import './datatable.scss';
+import React, { useState, useEffect } from "react";
+import {
+  TextField,
+  Button,
+  Grid,
+  Typography,
+  Pagination,
+} from "@mui/material";
+import axios from "axios";
+import dayjs from "dayjs";
 
 const LoginReport = () => {
   const [loginData, setLoginData] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterDate, setFilterDate] = useState({ fromDate: '', toDate: '' });
-  const [pageSize, setPageSize] = useState(10); 
-
-  // Example data
-  const exampleData = [
-    { userId: 8081, userName: '8081', loginTime: '2024-06-25 03:54:50', logoutTime: '2024-06-25 18:20:45', totalTime: '18:20:45', status: 'Logout' },
-    { userId: 8082, userName: '8082', loginTime: '2024-06-25 04:59:07', logoutTime: '2024-06-25 18:23:14', totalTime: '18:23:14', status: 'Logout' },
-    { userId: 8083, userName: '8083', loginTime: '2024-06-25 05:09:40', logoutTime: '2024-06-25 18:45:07', totalTime: '18:45:07', status: 'Logout' },
-    // Add more data...
-  ];
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDate, setFilterDate] = useState({ fromDate: "", toDate: "" });
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
 
   useEffect(() => {
-    setLoginData(exampleData);
+    fetchLoginData();
   }, []);
 
-  // Filter by Date Range
+  const fetchLoginData = () => {
+    setLoading(true);
+    axios
+      .get(
+        `https://${window.location.hostname}:4000/telephony/agent-login-report`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+      .then((response) => {
+        const formattedData = response.data.map((item, index) => ({
+          id: index + 1,
+          userId: item.user_name,
+          userName: item.user_name,
+          loginTime: item.log_in_time
+            ? dayjs(item.log_in_time).format("DD-MM-YYYY HH:mm:ss")
+            : "",
+          logoutTime: item.log_out_time
+            ? dayjs(item.log_out_time).format("DD-MM-YYYY HH:mm:ss")
+            : "",
+          status: item.status,
+        }));
+        setLoginData(formattedData);
+        setFilteredData(formattedData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching login data:", error);
+        setLoading(false);
+      });
+  };
+
   const handleFilter = () => {
     const { fromDate, toDate } = filterDate;
-
-    if (new Date(fromDate) > new Date(toDate)) {
-      alert("Invalid date range");
+    if (!fromDate || !toDate || new Date(fromDate) > new Date(toDate)) {
+      alert("Please select a valid date range");
       return;
     }
 
-    const filtered = exampleData.filter(item => {
-      const loginDate = new Date(item.loginTime);
-      return loginDate >= new Date(fromDate) && loginDate <= new Date(toDate);
+    const filtered = loginData.filter((item) => {
+      const loginDate = new Date(item.loginTime.split(" ")[0].split("-").reverse().join("-"));
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+      return loginDate >= from && loginDate <= to;
     });
-
-    setLoginData(filtered);
+    setFilteredData(filtered);
+    setPage(1);
   };
 
-  // Search by User Name
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filteredData = exampleData.filter(item =>
+    const filtered = loginData.filter((item) =>
       item.userName.toLowerCase().includes(term)
     );
-    setLoginData(filteredData);
+    setFilteredData(filtered);
+    setPage(1);
   };
 
-  // Define columns for DataGrid
-  const columns = [
-    { field: 'id', headerName: 'Sr.', width: 90, renderCell: (params) => params.api.getRowIndex(params.row.userId) + 1 },
-    { field: 'userId', headerName: 'USER ID', width: 150 },
-    { field: 'userName', headerName: 'USER NAME', width: 150 },
-    { field: 'loginTime', headerName: 'LOGIN TIME', width: 180 },
-    { field: 'logoutTime', headerName: 'LOGOUT TIME', width: 180 },
-    { field: 'totalTime', headerName: '	TOTAL TIME', width: 150 },
-    { field: 'status', headerName: 'STATUS', width: 150 },
-  ];
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  const indexOfLastRow = page * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
   return (
-    <div className="login-report">
-      <Typography variant="h4" gutterBottom style={{ color: '#5e6266', fontWeight: 'bold', fontSize: '24px' }}>
-        USER LOGIN AND LOGOUT STATUS
+    <div style={{ padding: "20px" }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        style={{ fontWeight: "bold", color: "#5e6266" }}
+      >
+        USER LOGIN REPORTS
       </Typography>
 
       {/* Filter Section */}
-      <Grid container spacing={2} className="filter-section">
+      <Grid container spacing={2} style={{ marginBottom: "20px" }}>
         <Grid item xs={12} md={4}>
           <TextField
             fullWidth
             label="Search by User Name"
             variant="outlined"
-            onChange={handleSearch}
             value={searchTerm}
+            onChange={handleSearch}
           />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -82,8 +119,10 @@ const LoginReport = () => {
             type="date"
             label="From Date"
             InputLabelProps={{ shrink: true }}
-            onChange={e => setFilterDate({ ...filterDate, fromDate: e.target.value })}
             value={filterDate.fromDate}
+            onChange={(e) =>
+              setFilterDate({ ...filterDate, fromDate: e.target.value })
+            }
           />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -92,8 +131,10 @@ const LoginReport = () => {
             type="date"
             label="To Date"
             InputLabelProps={{ shrink: true }}
-            onChange={e => setFilterDate({ ...filterDate, toDate: e.target.value })}
             value={filterDate.toDate}
+            onChange={(e) =>
+              setFilterDate({ ...filterDate, toDate: e.target.value })
+            }
           />
         </Grid>
         <Grid item xs={12} md={2}>
@@ -108,20 +149,99 @@ const LoginReport = () => {
         </Grid>
       </Grid>
 
-      {/* DataGrid Section */}
-      <div style={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={loginData.map((item, index) => ({ ...item, id: item.userId }))}
-          columns={columns}
-          pageSize={pageSize}
-          rowsPerPageOptions={[5, 10, 20]}
-          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-          pagination
-          disableSelectionOnClick
-        />
+      {/* Table */}
+      <div style={{ overflowX: "auto" }}>
+        <table
+          style={{
+            width: "100%",
+            fontSize: "0.85rem",
+            borderCollapse: "collapse",
+            minWidth: "700px",
+          }}
+        >
+          <thead>
+            <tr style={{ backgroundColor: "#f5f5f5" }}>
+              <th style={thStyle}>Sr.</th>
+              <th style={thStyle}>USER ID</th>
+              <th style={thStyle}>USER NAME</th>
+              <th style={thStyle}>LOGIN TIME</th>
+              <th style={thStyle}>LOGOUT TIME</th>
+              <th style={thStyle}>STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "20px" }}>
+                  Loading...
+                </td>
+              </tr>
+            ) : currentRows.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "20px" }}>
+                  No data found.
+                </td>
+              </tr>
+            ) : (
+              currentRows.map((row, index) => (
+                <tr key={row.id}>
+                  <td style={tdStyle}>{indexOfFirstRow + index + 1}</td>
+                  <td style={tdStyle}>{row.userId}</td>
+                  <td style={tdStyle}>{row.userName}</td>
+                  <td style={tdStyle}>{row.loginTime}</td>
+                  <td style={tdStyle}>{row.logoutTime}</td>
+                  <td style={tdStyle}>
+                    <div
+                      style={{
+                        backgroundColor:
+                          row.status === 1 ? "#FFF9C4" : "#FFCDD2",
+                        color: row.status === 1 ? "#FBC02D" : "#D32F2F",
+                        padding: "6px 12px",
+                        borderRadius: "4px",
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        display: "inline-block",
+                        minWidth: "80px",
+                      }}
+                    >
+                      {row.status === 1 ? "Login" : "Logout"}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
+
+      {/* Pagination */}
+      {filteredData.length > 0 && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            showFirstButton
+            showLastButton
+          />
+        </div>
+      )}
     </div>
   );
+};
+
+const thStyle = {
+  border: "1px solid #ccc",
+  padding: "10px",
+  textAlign: "left",
+  fontWeight: "bold",
+};
+
+const tdStyle = {
+  border: "1px solid #ddd",
+  padding: "8px",
+  textAlign: "left",
 };
 
 export default LoginReport;

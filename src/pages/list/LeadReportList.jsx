@@ -1,197 +1,273 @@
-import React, { useState, useEffect } from "react";
-import "./list.scss";
-import { DataGrid, GridFilterListIcon } from "@mui/x-data-grid";
- 
+import { useEffect, useState, useContext, useMemo, useCallback } from "react";
 import axios from "axios";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
- 
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
   TextField,
   Tooltip,
-  MenuItem,
-  Select,
+  IconButton,
 } from "@mui/material";
-import {
+import PaginatedGrid from "../Pagination/PaginatedGrid";
+import DownloadIcon from "@mui/icons-material/Download";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import PhoneIcon from "@mui/icons-material/Phone";
+import Swal from "sweetalert2";
+import dayjs from "dayjs";
+import { maskNumber, clickToCall } from "../../context/Phoneutils";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
+
+import { AuthContext } from "../../context/authContext";
+import { PopupContext } from "../../context/iframeContext";
  
-  Download as DownloadIcon,
-  
-} from "@mui/icons-material";
+const createColumns = (user, updateIframeSrc, toggleIframe) => [
+  { field: "id", headerName: "SR", flex: 0.5 },
+  { field: "upload_user", headerName: "AGENT ID", flex: 0.7 },
+  { field: "name", headerName: "CALLER NAME", flex: 1 },
+  {
+    field: "phone_number",
+    headerName: "CALLER NUMBER",
+    flex: 1.5,
+    renderCell: (params) => (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <span style={{ marginRight: "6px" }}>{maskNumber(params.value)}</span>
+        {params.value && (
+          <Tooltip title="Click to Call">
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() =>
+                clickToCall({
+                  number: params.value,
+                  user,
+                  updateIframeSrc,
+                  toggleIframe,
+                })
+              }
+            >
+              <PhoneIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </div>
+    ),
+  },
+  { field: "email", headerName: "EMAIL", flex: 1.5 },
+  { field: "dialstatus", headerName: "DIAL STATUS", flex: 1 },
+  { field: "remark", headerName: "REMARK", flex: 2 },
+  { field: "date", headerName: "DATE", flex: 1.5 },
+];
 
 const LeadReportList = () => {
-  const columns = [
-    { field: "sr", headerName: "SR", flex: 0.5 },
-  
-    { field: "agentId", headerName: "AGENT ID", flex: 1.5, headerClassName: "customHeader" },
-    { field: "agentName", headerName: "CALLER NAME", flex: 1.5, headerClassName: "customHeader" },
-    { field: "callFrom", headerName: "CALLER NUMBER", flex: 1.5, headerClassName: "customHeader" },
-    { field: "callTo", headerName: "EMAIL", flex: 1.5, headerClassName: "customHeader" },
-    { field: "campaignName", headerName: "DIAL STATUS", flex: 1.5, headerClassName: "customHeader" },
-    { field: "startTime", headerName: "DATE", flex: 2, headerClassName: "customHeader" },
-  ];
-  
+  const { user } = useContext(AuthContext);
+  const { toggleIframe, updateIframeSrc } = useContext(PopupContext);
   const [data, setData] = useState([]);
-  const [formData, setFormData] = useState({
-    sr: "",
-    agentName: "",
-    agentId: "",
-    callFrom: "",
-    callTo: "",
-    campaignName: "",
-    startTime: "",
-    duration: "",
-    direction: "",
-    status: "",
-    hangup: "",
-    recording: "",
-  });
-  
-  // New states for filter dialog
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [agents, setAgents] = useState([]);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
-  const [agents, setAgents] = useState([]);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
+  // ✅ Memoize columns so they don’t rebuild every render
+  const columns = useMemo(
+    () => createColumns(user, updateIframeSrc, toggleIframe),
+    [user, updateIframeSrc, toggleIframe]
+  );
+
+  // ✅ Fetch Leads and Agents in parallel
+const fetchLeadsAndAgents = useCallback(async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const leadsRes = await axios.get(
+      `https://${window.location.hostname}:4000/viewLeadReport`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const formatted = leadsRes.data.map((item) => ({
+      ...item,
+      date: item.date
+        ? dayjs(item.date).format("DD-MM-YYYY HH:mm:ss")
+        : "",
+    }));
+
+    setData(formatted);
+
+    // 👇 agent dropdown sirf admin / manager ke liye
+    if (user?.userType !== 1) {
+      const agentsRes = await axios.get(
+        `https://${window.location.hostname}:4000/call_report_agent_dropdown`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAgents(agentsRes.data);
+    }
+
+    setLoading(false);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    setLoading(false);
+  }
+}, [user]);
+
 
   useEffect(() => {
-    const fetchCalls = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/calls");
-        setData(response.data.calls); // Adjust based on API response structure
-      } catch (error) {
-        console.error("Error fetching calls:", error);
-        // Fallback to predefined calls if API fails
-        setData([
-          {
-            sr: 1,
-            agentName: "John Doe",
-            agentId: "A001",
-            callFrom: "+1234567890",
-            callTo: "+0987654321",
-            campaignName: "Campaign X",
-            startTime: "2023-08-01 10:00 AM",
-            duration: "00:05:30",
-   
-          },
-          {
-            sr: 2,
-            agentName: "Jane Smith",
-            agentId: "A002",
-            callFrom: "+1234567891",
-            callTo: "+0987654322",
-            campaignName: "Campaign Y",
- 
-          },
-          // Add more rows as needed
-        ]);
-      }
-    };
+    fetchLeadsAndAgents();
+  }, [fetchLeadsAndAgents]);
 
-    fetchCalls();
-  }, []);
+  // ✅ useMemo for filtering (search + filter)
+  const filteredData = useMemo(() => {
+    const lower = searchQuery.toLowerCase();
+    return data.filter((call) => {
+      const matchSearch = Object.values(call).some(
+        (value) => value && value.toString().toLowerCase().includes(lower)
+      );
 
-  // Function to download the data as an Excel file
-  const handleDownload = () => {
-    if (data.length === 0) {
-      alert("No data available to download.");
+      const [day, month, year, hour, min, sec] =
+        call.date?.match(/(\d+)/g) || [];
+      if (!day) return false;
+
+      const callDateObj = new Date(
+        `${year}-${month}-${day}T${hour}:${min}:${sec}`
+      );
+      const from = fromDate ? new Date(fromDate + "T00:00:00") : null;
+      const to = toDate ? new Date(toDate + "T23:59:59") : null;
+
+      const matchDate =
+        (!from || callDateObj >= from) && (!to || callDateObj <= to);
+      const matchAgent =
+        !selectedAgent ||
+        call.upload_user?.toString() === selectedAgent.toString();
+
+      return matchSearch && matchDate && matchAgent;
+    });
+  }, [data, searchQuery, fromDate, toDate, selectedAgent]);
+
+  // ✅ useMemo for paginated rows (reduces recalculations)
+  const paginatedRows = useMemo(() => {
+    const startIndex = page * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredData
+      .slice(startIndex, endIndex)
+      .map((row, i) => ({ ...row, id: startIndex + i + 1 }));
+  }, [filteredData, page, pageSize]); 
+
+  const handleDownload = useCallback(async () => {
+    if (filteredData.length === 0) {
+      Swal.fire("No Data", "No data available to export.", "warning");
       return;
     }
-    const excelData = data.map((item) => ({
-      "SR": item.sr,
-      "Agent Name": item.agentName,
-      "Agent ID": item.agentId,
-      "Call From": item.callFrom,
-      "Call To": item.callTo,
-      "Campaign Name": item.campaignName,
-      "Start Time": item.startTime,
-      "Duration": item.duration,
-      "Direction": item.direction,
-      "Status": item.status,
-      "Hangup": item.hangup,
-      "Recording": item.recording,
+
+    const startIndex = page * pageSize;
+    const endIndex = startIndex + pageSize;
+    const currentPageData = filteredData.slice(startIndex, endIndex);
+
+    const excelData = currentPageData.map((item, index) => ({
+      SR: startIndex + index + 1,
+      "AGENT ID": item.upload_user,
+      "CALLER NAME": item.name,
+      "CALLER NUMBER": item.phone_number,
+      EMAIL: item.email,
+      REMARK: item.remark,
+      "DIAL STATUS": item.dialstatus,
+      DATE: item.date,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Calls");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
 
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
-    saveAs(blob, "call_data.xlsx");
-  };
 
-  const handleFilterDialogOpen = () => {
-    setFilterDialogOpen(true);
-  };
+    saveAs(blob, `lead_data_page_${page + 1}.xlsx`);
 
-  const handleFilterDialogClose = () => {
-    setFilterDialogOpen(false);
-  };
-
-  const handleFilterSubmit = () => {
-    // You can implement the filtering logic here based on fromDate, toDate, and selectedAgent
-    // For example, if your data has a startTime field, you can filter like this:
-    const filteredData = data.filter((call) => {
-      const callDate = new Date(call.startTime);
-      const from = new Date(fromDate);
-      const to = new Date(toDate);
-      return (
-        (!fromDate || callDate >= from) &&
-        (!toDate || callDate <= to) &&
-        (!selectedAgent || call.agentId === selectedAgent)
-      );
+    Swal.fire({
+      icon: "success",
+      title: `${currentPageData.length} records exported`,
+      timer: 2000,
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
     });
-    setData(filteredData);
-    handleFilterDialogClose();
-  };
- 
- 
+  }, [filteredData, page, pageSize]);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="datatable">
       <div className="datatableTitle">
-      <b>TOTAL LEAD REPORTS</b>
+        <b>TOTAL LEAD REPORTS</b>
         <div className="callFilter">
-   <Tooltip title="Filter the data by date and Agent">
-   <Button variant="outlined" onClick={handleFilterDialogOpen}  endIcon={<GridFilterListIcon/>} style={{
-                marginRight: '20px'
-              }}>
-          Filter
-        </Button>
-   </Tooltip>
-        <Tooltip title="Download Data">
-          <Button variant="outlined" onClick={handleDownload}  style={{
-                background: "linear-gradient(90deg, #4caf50, #2e7d32)", // Green gradient
-                color: "white",
-                borderColor: "#4caf50",
-              }}>
-            Export<DownloadIcon />
-          </Button>
-        </Tooltip>
+          <Tooltip title="Search">
+            <IconButton
+              onClick={() => setShowSearch((prev) => !prev)}
+              sx={{ mr: 1 }}
+            >
+              <SearchIcon />
+            </IconButton>
+          </Tooltip>
+
+          {showSearch && (
+            <TextField
+              variant="outlined"
+              size="small"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{ mr: 1 }}
+            />
+          )}
+
+          <Tooltip title="Filter by Date">
+            <IconButton
+              onClick={() => setFilterDialogOpen(true)}
+              sx={{ mr: 1 }}
+            >
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Download Data">
+            <Button
+              variant="outlined"
+              onClick={handleDownload}
+              sx={{ background: "#4caf50", color: "white" }}
+            >
+              Export
+              <DownloadIcon />
+            </Button>
+          </Tooltip>
         </div>
       </div>
-      <DataGrid
-        rows={data}
+
+      <PaginatedGrid
+        rows={paginatedRows}
         columns={columns}
-        pageSize={5}
-        rowsPerPageOptions={[5]}
-        autoHeight
-        getRowId={(row) => row.sr}
-        disableSelectionOnClick
-        style={{ fontSize: '12px' }}
-      />
-      
-      
-      <Dialog open={filterDialogOpen} onClose={handleFilterDialogClose}>
-        <DialogTitle>Filter Call Records</DialogTitle>
+        page={page}
+        setPage={setPage}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+      /> 
+      <Dialog
+        open={filterDialogOpen}
+        onClose={() => setFilterDialogOpen(false)}
+      >
+        <DialogTitle>Filter Lead Records</DialogTitle>
         <DialogContent>
           <TextField
             label="From Date"
@@ -202,6 +278,7 @@ const LeadReportList = () => {
             margin="normal"
             InputLabelProps={{ shrink: true }}
           />
+
           <TextField
             label="To Date"
             type="date"
@@ -211,26 +288,35 @@ const LeadReportList = () => {
             margin="normal"
             InputLabelProps={{ shrink: true }}
           />
-          <Select
+
+          <TextField
+            select
             label="Select Agent"
             value={selectedAgent}
             onChange={(e) => setSelectedAgent(e.target.value)}
             fullWidth
             margin="normal"
           >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
+            <MenuItem value="">All Agents</MenuItem>
             {agents.map((agent) => (
-              <MenuItem key={agent.id} value={agent.id}>
-                {agent.name}
+              <MenuItem key={agent.user_id} value={agent.user_id}>
+                {agent.user_id}
               </MenuItem>
             ))}
-          </Select>
+          </TextField>
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={handleFilterDialogClose} color="primary">Cancel</Button>
-          <Button onClick={handleFilterSubmit} color="primary">Filter</Button>
+          <Button onClick={() => setFilterDialogOpen(false)} color="error">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => setFilterDialogOpen(false)}
+            color="primary"
+            variant="contained"
+          >
+            Apply
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

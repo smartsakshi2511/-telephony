@@ -1,0 +1,68 @@
+
+.singleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.left2,
+.right2 {
+  flex: 2;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-right: 20px;
+  .item {
+    .details {
+      .itemTitle {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .detailItem {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #ddd;
+        .itemKey {
+          font-size: 16px;
+          font-weight: 500;
+          color: #666;
+        }
+        .itemValue {
+          font-size: 16px;
+          font-weight: 400;
+          color: #333;
+        }
+      }
+    }
+  }
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+// .right {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 20px; /* Add space between the Chart and Featured components */
+// }
+
+.bottom {
+  margin-top: 20px;
+}
+
+
+

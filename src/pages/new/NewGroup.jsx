@@ -4,487 +4,297 @@ import {
   Box,
   Button,
   TextField,
-  Select,
-  MenuItem,
-  FormControl,
   Typography,
   Grid,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  CircularProgress,
-  Paper,
-  Snackbar,
-  Alert,
+  Tooltip,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import axios from "axios"; // Import Axios for API requests
+import axios from "axios";
+import Swal from "sweetalert2";
+import { jwtDecode } from "jwt-decode"; // To decode JWT token
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const NewGroup = () => {
-  const [file, setFile] = useState(null);
   const [formData, setFormData] = useState({
-    groupId: "",
-    groupName: "",
-    campaignName: "",
-    enterPressKey: "",
+    group_id: "",
+    agent_id: "",
+    agent_name: "",
+    admin: "",
+    campaign_id: "",
+    press_key: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [campaignOptions, setCampaignOptions] = useState([]); // For dynamic campaign names
-  const [openDialog, setOpenDialog] = useState(false); // State to control Dialog visibility
-  const [currentField, setCurrentField] = useState(""); // To track which field's info to display
-  const [groups, setGroups] = useState([]); // State to store fetched groups
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  }); // For notifications
-
-  // Mapping of field names to their detailed descriptions
-  const fieldDetails = {
-    groupId: "Unique identifier for the group. It cannot be changed once set.",
-    groupName: "Name of the group. It should be descriptive and unique.",
-    campaignName: "Name of your Campaign.",
-    enterPressKey:
-      "Enter the key to be pressed for specific actions within the group.",
-  };
+  const [selectedAgent, setSelectedAgent] = useState("");
+  const [agents, setAgents] = useState([]); // If you have agent data
+  const navigate = useNavigate();
+  const [groupOptions, setgroupOptions] = useState([]);
 
   useEffect(() => {
-    const fetchCampaigns = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/campaigns");
-        setCampaignOptions(response.data.campaigns); // Adjust based on API response structure
-      } catch (error) {
+    const token = localStorage.getItem("token");
+
+    axios
+      .get(`https://${window.location.hostname}:4000/campaigns_dropdown`, {
+        headers: { Authorization: `Bearer ${token}` }, // No need for query params
+      })
+      .then((response) => {
+        const options = response.data.map((campaign) => ({
+          id: campaign.compaign_id,
+          label: campaign.compaignname,
+        }));
+        setgroupOptions([
+          { id: "", label: "--- Select Campaign ID ---" },
+          ...options,
+        ]);
+      })
+      .catch((error) => {
         console.error("Error fetching campaigns:", error);
-        // Fallback to predefined campaigns if API fails
-        setCampaignOptions([
-          { id: 1, name: "Sales Team" },
-          { id: 2, name: "HR Team" },
-          { id: 3, name: "Software Team" },
-        ]);
-      }
-    };
-
-    fetchCampaigns();
+      });
   }, []);
 
-  // Fetch groups to display in the table
   useEffect(() => {
-    const getGroups = async () => {
+    const fetchAgents = async () => {
       try {
-        // Replace with your actual API endpoint
-        const response = await axios.get("https://api.example.com/get-groups");
-        setGroups(response.data.groups); // Adjust based on API response structure
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-        // Fallback to mock data if API fails
-        setGroups([
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `https://${window.location.hostname}:4000/call_report_agent_dropdown`,
           {
-            groupId: "GRP001",
-            groupName: "Marketing Group",
-            campaignName: "Summer Sale",
-            enterPressKey: "1",
-          },
-          // Add more mock groups as needed
-        ]);
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setAgents(response.data);
+      } catch (error) {
+        console.error("Error fetching agents:", error);
       }
     };
-
-    getGroups();
+    fetchAgents();
   }, []);
 
-  // Handle input change
   const handleInputChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files) {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: files[0],
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Validate form data
   const validate = () => {
-    let newErrors = {};
+    const newErrors = {};
 
-    // groupId Validation
-    if (!formData.groupId.trim()) {
-      newErrors.groupId = "Group ID is required";
-    }
-
-    // groupName Validation
-    if (!formData.groupName.trim()) {
-      newErrors.groupName = "Group Name is required";
-    }
-
-    // campaignName Validation
-    if (!formData.campaignName.trim()) {
-      newErrors.campaignName = "Campaign Name is required";
-    }
-
-    // enterPressKey Validation
-    if (!formData.enterPressKey.trim()) {
-      newErrors.enterPressKey = "Enter Press Key is required";
-    }
+    if (!formData.group_id) newErrors.group_id = "Group ID is required";
+    if (!formData.agent_name) newErrors.agent_name = "Agent name is required";
+    if (!formData.campaign_id)
+      newErrors.campaign_id = "Campaign ID is required";
+    if (!formData.agent_id) newErrors.agent_id = "Agent ID is required"; // <-- This would fail if you don't update formData
+    if (!formData.press_key) newErrors.press_key = "Press Key is required";
 
     setErrors(newErrors);
-
-    // Return true if no errors
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // ✅ Define Toast SweetAlert inside handleSubmit
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+  
     if (validate()) {
-      setIsSubmitting(true); // Set loading state
-
+      setIsSubmitting(true);
+  
       try {
-        const formDataToSubmit = new FormData(); // Use FormData for file uploads
-        formDataToSubmit.append("groupId", formData.groupId);
-        formDataToSubmit.append("groupName", formData.groupName);
-        formDataToSubmit.append("campaignName", formData.campaignName);
-        formDataToSubmit.append("enterPressKey", formData.enterPressKey);
-
-        if (formData.file) {
-          formDataToSubmit.append("file", formData.file);
+        const token = localStorage.getItem("token");
+  
+        if (!token) {
+          throw new Error("Token not found. Please log in again.");
         }
-
-        // Example API URL - Replace with your actual API endpoint
+  
         const response = await axios.post(
-          "https://api.example.com/create-group",
-          formDataToSubmit,
+          `https://${window.location.hostname}:4000/groupList/add_group`,
+          formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data", // For file uploads
+              Authorization: `Bearer ${token}`,
             },
           }
         );
-
-        console.log("Group created successfully:", response.data);
-        setIsSubmitting(false); // Reset loading state
-
-        // Optional: Reset form fields after successful submission
-        setFormData({
-          groupId: "",
-          groupName: "",
-          campaignName: "",
-          enterPressKey: "",
-        });
-        setFile(null);
-
-        // Refresh group list
-        const updatedGroups = await axios.get(
-          "https://api.example.com/get-groups"
-        );
-        setGroups(updatedGroups.data.groups);
-
-        // Show success snackbar
-        setSnackbar({
-          open: true,
-          message: "Group created successfully!",
-          severity: "success",
-        });
+  
+        if (response.status === 200) {
+          Toast.fire({
+            icon: "success",
+            title: response.data.message || "Group added successfully!",
+          });
+  
+          setTimeout(() => {
+            navigate("/admin/group");
+          }, 2000);
+        }
       } catch (error) {
-        console.error("Error submitting the form:", error);
-        setIsSubmitting(false); // Reset loading state
-        // Show error snackbar
-        setSnackbar({
-          open: true,
-          message: "Failed to create group.",
-          severity: "error",
+        console.error("Error creating group:", error);
+        Toast.fire({
+          icon: "error",
+          title: error.response?.data?.message || "Failed to create group.",
         });
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
-      console.log("Form has errors");
-      setSnackbar({
-        open: true,
-        message: "Please fix the errors in the form.",
-        severity: "warning",
+      Toast.fire({
+        icon: "warning",
+        title: "Please fix the errors in the form.",
       });
     }
   };
-
-  // Handle opening the Dialog with specific field details
-  const handleOpenDialog = (field) => {
-    setCurrentField(field);
-    setOpenDialog(true);
-  };
-
-  // Handle closing the Dialog
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setCurrentField("");
-  };
-
-  // Handle closing the Snackbar
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  // Handle Edit Group
-  const handleEditGroup = (group) => {
-    // Implement edit functionality, e.g., open a form with group data
-    console.log("Edit Group:", group);
-    // You can set the formData to the selected group's data to allow editing
-  };
-
-  // Handle Delete Group
-  const handleDeleteGroup = async (groupId) => {
-    try {
-      await axios.delete(`https://api.example.com/delete-group/${groupId}`);
-      console.log(`Group ${groupId} deleted successfully.`);
-
-      const updatedGroups = await axios.get(
-        "https://api.example.com/get-groups"
-      );
-      setGroups(updatedGroups.data.groups);
-
-      setSnackbar({
-        open: true,
-        message: "Group deleted successfully!",
-        severity: "success",
-      });
-    } catch (error) {
-      console.error("Error deleting group:", error);
-
-      setSnackbar({
-        open: true,
-        message: "Failed to delete group.",
-        severity: "error",
-      });
-    }
-  };
+  
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* Heading */}
       <Typography variant="h4" gutterBottom>
         Add New Group
       </Typography>
 
-      {/* Form */}
-      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
-            {/* Group ID */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  mb={1}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="groupId"
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Group ID
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("groupId")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <TextField
-                  id="groupId"
-                  name="groupId"
-                  placeholder="Enter Group ID"
-                  value={formData.groupId}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.groupId)}
-                  helperText={errors.groupId}
-                  fullWidth
-                />
-              </FormControl>
-            </Grid>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Group ID
+            </Typography>
+            <Tooltip title="Enter the group ID." arrow>
+              <TextField
+                id="group_id"
+                name="group_id"
+                placeholder="Enter Group ID"
+                type="number"
+                value={formData.group_id}
+                onChange={handleInputChange}
+                error={Boolean(errors.group_id)}
+                helperText={errors.group_id}
+                fullWidth
+              />
+            </Tooltip>
+          </Grid>
 
-            {/* Group Name */}
-            <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Agent ID
+            </Typography>
+            <Tooltip title="Enter the agent ID." arrow>
               <FormControl fullWidth>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  mb={1}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="groupName"
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Group Name
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("groupName")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <TextField
-                  id="groupName"
-                  name="groupName"
-                  placeholder="Enter Group Name"
-                  value={formData.groupName}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.groupName)}
-                  helperText={errors.groupName}
-                  fullWidth
-                />
-              </FormControl>
-            </Grid>
-
-            {/* Campaign Name */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth error={Boolean(errors.campaignName)}>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  mb={1}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    id="campaign-name-label"
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Campaign Name
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("campaignName")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
+                <InputLabel>Select Agent ID</InputLabel>{" "}
+                {/* <-- Title for Select Box */}
                 <Select
-                  labelId="campaign-name-label"
-                  id="campaignName"
-                  name="campaignName"
-                  value={formData.campaignName}
-                  onChange={handleInputChange}
+                  value={selectedAgent}
+                  onChange={(e) => {
+                    setSelectedAgent(e.target.value);
+                    setFormData((prev) => ({
+                      ...prev,
+                      agent_id: e.target.value, // <-- ADD THIS LINE
+                    }));
+                  }}
                   displayEmpty
                 >
-                  <MenuItem value="">
-                    <em>Select Campaign</em>
-                  </MenuItem>
-                  {campaignOptions.map((campaign) => (
-                    <MenuItem key={campaign.id} value={campaign.name}>
-                      {campaign.name}
+                  {agents.map((agent) => (
+                    <MenuItem key={agent.user_id} value={agent.user_id}>
+                      {agent.user_id}
                     </MenuItem>
                   ))}
                 </Select>
-                {errors.campaignName && (
-                  <Typography variant="caption" color="error">
-                    {errors.campaignName}
-                  </Typography>
-                )}
               </FormControl>
-            </Grid>
-
-            {/* Enter Press Key */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  mb={1}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    component="label"
-                    htmlFor="enterPressKey"
-                    sx={{ fontWeight: 500 }}
-                  >
-                    Enter Press Key
-                  </Typography>
-                  <IconButton
-                    aria-label="info"
-                    size="small"
-                    onClick={() => handleOpenDialog("enterPressKey")}
-                  >
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-                <TextField
-                  id="enterPressKey"
-                  name="enterPressKey"
-                  placeholder="Enter Press Key"
-                  value={formData.enterPressKey}
-                  onChange={handleInputChange}
-                  error={Boolean(errors.enterPressKey)}
-                  helperText={errors.enterPressKey}
-                  fullWidth
-                />
-              </FormControl>
-            </Grid>
-
-            {/* Submit Button */}
-            <Grid item xs={12}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                disabled={isSubmitting}
-                startIcon={isSubmitting && <CircularProgress size={20} />}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </Grid>
+            </Tooltip>
           </Grid>
-        </form>
-      </Paper>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Field Details</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1">{fieldDetails[currentField]}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Agent Name
+            </Typography>
+            <Tooltip title="Enter the agent name." arrow>
+              <TextField
+                id="agent_name"
+                name="agent_name"
+                placeholder="Enter Agent Name"
+                value={formData.agent_name}
+                onChange={handleInputChange}
+                error={Boolean(errors.agent_name)}
+                helperText={errors.agent_name}
+                fullWidth
+              />
+            </Tooltip>
+          </Grid>
 
-      {/* Snackbar for Notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Campaign ID
+            </Typography>
+            <Tooltip title="Enter the campaign ID manually." arrow>
+              <TextField
+                margin="dense"
+                name="campaign_id"
+                label="Select Campaign ID"
+                fullWidth
+                variant="outlined"
+                select
+                value={formData.campaign_id} // Bind to newDisposition state
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    campaign_id: e.target.value,
+                  }))
+                }
+              >
+                {groupOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.id}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Tooltip>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Press Key
+            </Typography>
+            <Tooltip title="Enter the press key." arrow>
+              <TextField
+                id="press_key"
+                name="press_key"
+                placeholder="Enter Press Key"
+                type="number"
+                value={formData.press_key}
+                onChange={handleInputChange}
+                error={Boolean(errors.press_key)}
+                helperText={errors.press_key}
+                fullWidth
+              />
+            </Tooltip>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+
+  
     </Box>
   );
 };

@@ -1,225 +1,373 @@
-/* src/pages/campaign/CompaignPage.scss */
 
 .datatable {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px;
-  overflow: hidden;
-
-  .datatableTitle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 24px;
-    font-weight: bold;
-    font-weight: 600;
-    margin-bottom: 20px;
-    
-
-    .link {
-      text-decoration: none;
-      background-color: #7451f8;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-      font-size: 16px;
-
-      &:hover {
-        background-color: #5e3dc4;
+    flex: 6;
+    padding: 10px;
+  
+    .datatableTitle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: bold;
+  
+      .link {
+        text-decoration: none;
+        background-color: #3f51b5;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+  
+        &:hover {
+          background-color: #303f9f;
+        }
+      }
+  
+      /* Style for the Download button */
+      .MuiIconButton-root {
+        margin-left: 1000px;
       }
     }
-  }
-
- 
-  .datagrid {
-    flex: 1;
-    height: 70vh;
-    width: 100%;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    overflow-x: hidden;
-
-    .MuiDataGrid-root {
-      border: none;
-      font-family: 'Roboto', sans-serif;
-      font-size: 14px;
+  
+    .datagrid {
+      height: 600px;
+      width: 100%;
+  
+      .MuiDataGrid-columnHeaders {
+        background-color: #f5f5f5;
+        font-size: 16px;
+        font-weight: bold;
+      }
+  
+      .MuiDataGrid-cell {
+        font-size: 14px;
+      }
+  
+      .cellAction {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+  
+      .statusButton {
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: capitalize;
+        border: none;
+        outline: none;
+      }
+      
+      .statusButton.active {
+        background-color: #e0f7fa; /* Light blue background */
+        color: #00796b; /* Dark green text */
+      }
+      
+      .statusButton.inactive {
+        background-color: #fbe9e7; /* Light red background */
+        color: #d32f2f; /* Dark red text */
+      }
+      
     }
-
-    .MuiDataGrid-cell {
-      outline: none;
-    }
-
-    .MuiDataGrid-columnHeaders {
-      background-color: #f5f5f5;
-      border-bottom: none;
+  
+    /* Dialog Styling */
+    .MuiDialogTitle-root {
+      font-size: 20px;
       font-weight: bold;
     }
-
-    .MuiDataGrid-footerContainer {
-      border-top: none;
-      background-color: #f5f5f5;
+  
+    .MuiDialogContent-root {
+      padding: 20px;
     }
-
-    .MuiCheckbox-root {
+  
+    .MuiDialogActions-root {
+      padding: 10px 20px;
+    }
+  
+    /* Form Styling within Dialog */
+    .formInput {
+      margin-bottom: 15px;
+  
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+  
+      input[type="text"],
+      input[type="number"],
+      input[type="file"],
+      select,
+      .MuiSwitch-root {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+  
+      input[disabled],
+      .MuiTextField-root .MuiInputBase-input.Mui-disabled {
+        background-color: #f5f5f5;
+      }
+  
+      .error {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+      }
+    }
+  
+    /* Responsive Styles */
+    @media (max-width: 1024px) {
+      .datatable {
+        padding: 10px;
+  
+        .datagrid {
+          height: 500px;
+        }
+      }
+    }
+  
+    @media (max-width: 768px) {
+      .datatableTitle {
+        flex-direction: column;
+        align-items: normal;
+  
+        .link {
+          margin-top: 10px;
+          width: 100%;
+          text-align: center;
+        }
+      }
+  
+      .datagrid {
+        height: 400px;
+      }
+    }
+  
+    .datatableTitle {
+      h1 {
+        color: #333;
+      }
+    }
+  
+    /* Style the cellAction buttons */
+    .cellAction .MuiIconButton-root {
+      padding: 6px;
       color: #555;
-    }
-
-    .MuiDataGrid-toolbarContainer {
-      display: flex;
-      justify-content: flex-end;
-      padding: 8px;
-    }
-  }
-
-  .cellAction {
-    display: flex;
-    align-items: center;
-    gap: 0px;
-
-    .MuiIconButton-root {
-      color: #555;
+  
       &:hover {
         background-color: transparent;
       }
     }
-
-    .saveButton {
-      background-color: #4caf50;
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-size: 14px;
-
-      &:hover {
-        background-color: #45a049;
+  }
+  
+  
+  
+  
+  .container {
+    margin-top: 20px;
+  
+    .total-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+  
+      h3 {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+  
+      .select {
+        display: flex;
+        gap: 10px;
+  
+        .btn {
+          padding: 10px 15px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          border-radius: 5px;
+          cursor: pointer;
+  
+          &.btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+  
+            &:hover {
+              background-color: #0056b3;
+            }
+          }
+  
+          &.btn-success {
+            background-color: #28a745;
+            color: white;
+            border: none;
+  
+            &:hover {
+              background-color: #218838;
+            }
+          }
+  
+          &.btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+  
+            &:hover {
+              background-color: #c82333;
+            }
+          }
+        }
       }
     }
-
-    .cancelButton {
-      background-color: #f44336;
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-size: 14px;
-
-      &:hover {
-        background-color: #da190b;
+  
+    .table-responsive {
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #dee2e6;
+        text-align: left;
+  
+        thead {
+          background-color: #f8f9fa;
+  
+          th {
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid #dee2e6;
+          }
+        }
+  
+        tbody {
+          tr {
+            &:nth-child(even) {
+              background-color: #f2f2f2;
+            }
+          }
+  
+          td {
+            padding: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+            border: 1px solid #dee2e6;
+          }
+  
+          .no-data {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #999;
+          }
+        }
+      }
+    }
+  
+    .modal {
+      &.show {
+        background-color: rgba(0, 0, 0, 0.5);
+  
+        .modal-dialog {
+          .modal-content {
+            .modal-header {
+              background-color: #f8f9fa;
+              border-bottom: 1px solid #dee2e6;
+  
+              .modal-title {
+                font-size: 1.2rem;
+                font-weight: bold;
+              }
+  
+              .close {
+                font-size: 1.5rem;
+                border: none;
+                background: none;
+                cursor: pointer;
+  
+                &:hover {
+                  color: #dc3545;
+                }
+              }
+            }
+  
+            .modal-body {
+              .form-group {
+                margin-bottom: 20px;
+  
+                label {
+                  display: block;
+                  font-size: 0.9rem;
+                  font-weight: 500;
+                }
+  
+                select,
+                input {
+                  width: 100%;
+                  padding: 8px;
+                  font-size: 0.9rem;
+                  border: 1px solid #ced4da;
+                  border-radius: 4px;
+  
+                  &:focus {
+                    border-color: #80bdff;
+                    outline: none;
+                  }
+                }
+              }
+            }
+  
+            .modal-footer {
+              display: flex;
+              justify-content: space-between;
+  
+              .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                border-radius: 5px;
+  
+                &.btn-primary {
+                  background-color: #007bff;
+                  color: white;
+  
+                  &:hover {
+                    background-color: #0056b3;
+                  }
+                }
+  
+                &.btn-secondary {
+                  background-color: #6c757d;
+                  color: white;
+  
+                  &:hover {
+                    background-color: #5a6268;
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
-
-  /* Dialog Styles */
-  .MuiDialog-paper {
-    padding: 20px;
-    border-radius: 8px;
-  }
-
-  .MuiDialogTitle-root {
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  .MuiDialogContent-root {
-    padding-top: 10px;
-  }
-
-  .MuiDialogActions-root {
-    padding: 10px 20px;
-  }
-
-  /* Form Elements in Edit Dialog */
-  .MuiFormControlLabel-root {
-    display: flex;
-    align-items: center;
-  }
-
-  /* Styling for File Upload Buttons */
-  .uploadButton {
-    background-color: #2196f3;
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 8px;
-    font-size: 14px;
-
-    &:hover {
-      background-color: #1976d2;
-    }
-  }
-
-  /* Responsive Styles */
-  @media (max-width: 1024px) {
-    .datatableTitle {
-      flex-direction: column;
-      align-items: normal;
-
-      .link {
-        margin-top: 10px;
-      }
-    }
-  }
-
   @media (max-width: 768px) {
-    padding: 10px;
-
-    .datatableTitle {
-      font-size: 20px;
+    .btn {
+      width: 100%; /* Buttons take full width on small screens */
+      margin: 5px 0;
     }
-
-    .datagrid {
-      height: 60vh;
-    }
-
-    .cellAction {
-      flex-direction: column;
-      gap: 5px;
+    h3 {
+      font-size: 1.2rem; /* Smaller heading */
     }
   }
-}
-
-.statusButton {
-  padding: 5px 12px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: capitalize;
-  border: none;
-  outline: none;
-  margin-left: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.statusButton.active {
-  background-color: #e0f7fa; /* Light blue background */
-  color: #00796b; /* Dark green text */
-}
-
-.statusButton.inactive {
-  background-color: #fbe9e7; /* Light red background */
-  color: #d32f2f; /* Dark red text */
-}
-
-@media (max-width: 600px) {
-  .iconButtonContainer {
-    flex-direction: column; /* Stack buttons vertically */
-    gap: 5px; /* Reduce gap for smaller screens */
-  }
-  .iconButtonContainer button {
-    font-size: 16px; /* Reduce icon size further */
-  }
-}
-
-
+  
+  
+  
+  
+  
+  
